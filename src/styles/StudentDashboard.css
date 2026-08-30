@@ -1,0 +1,135 @@
+.student-dashboard {
+  height: 100vh;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+}
+
+.student-dashboard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.student-dashboard__logout {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.student-dashboard__logout:hover {
+  opacity: 1;
+}
+
+.student-dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.stat-card__value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.stat-card__label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.student-dashboard__badges {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.student-dashboard__badges h2 {
+  margin-bottom: 15px;
+}
+
+.badges-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 2rem;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.student-dashboard__games {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.student-dashboard__games h2 {
+  margin-bottom: 20px;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.game-card {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.game-card:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-5px);
+}
+
+.game-card__icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.game-card__name {
+  font-weight: bold;
+}
+
+@media (max-width: 480px) {
+  .student-dashboard {
+    padding: 10px;
+  }
+
+  .stat-card__value {
+    font-size: 1.5rem;
+  }
+
+  .games-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
