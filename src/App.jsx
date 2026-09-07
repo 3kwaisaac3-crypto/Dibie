@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAppStore } from './stores/appStore'
-import { loadVocabulaire, db } from './db/index'
+import { loadVocabulaire } from './db/index'
 import vocabData from './data/vocabulaire.json'
 
 // Pages
@@ -16,29 +16,41 @@ import './App.css'
 
 export default function App() {
   const { currentPage, user, isAuthenticated, isOnline } = useAppStore()
+  const [vocabLoaded, setVocabLoaded] = useState(false)
 
   useEffect(() => {
-    // Charger vocabulaire au démarrage
-    loadVocabulaire(vocabData).catch(e => console.error('Erreur chargement vocabulaire:', e))
+    // Charger vocabulaire au démarrage - IMPÉRATIF
+    const initVocab = async () => {
+      try {
+        await loadVocabulaire(vocabData)
+        setVocabLoaded(true)
+        console.log('✅ Vocabulaire OK:', vocabData.length)
+      } catch (e) {
+        console.error('❌ Vocab error:', e)
+      }
+    }
+    initVocab()
   }, [])
+
+  if (!vocabLoaded && (currentPage === 'crosswordGame')) {
+    return <div style={{padding: '20px', textAlign: 'center'}}>⏳ Chargement jeu...</div>
+  }
 
   return (
     <div className="app">
-      {/* Status bar offline */}
       {!isOnline && (
         <div className="offline-banner">
           📡 Mode Hors-Ligne Activé
         </div>
       )}
 
-      {/* Pages */}
       {!isAuthenticated && currentPage === 'login' && <Login />}
-      {!isAuthenticated && currentPage === 'roleSelect' && <RoleSelect />}
+      {isAuthenticated && currentPage === 'roleSelect' && <RoleSelect />}
       {isAuthenticated && currentPage === 'studentDashboard' && <StudentDashboard />}
       {isAuthenticated && currentPage === 'teacherDashboard' && <TeacherDashboard />}
       {isAuthenticated && currentPage === 'parentDashboard' && <ParentDashboard />}
       {isAuthenticated && currentPage === 'adminDashboard' && <AdminDashboard />}
-      {isAuthenticated && currentPage === 'crosswordGame' && <CrosswordGame />}
+      {isAuthenticated && currentPage === 'crosswordGame' && vocabLoaded && <CrosswordGame />}
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useAppStore } from '../stores/appStore'
-import { db } from '../db/index'
 
 export default function AdminDashboard() {
   const { user, language, logout } = useAppStore()
@@ -14,9 +13,6 @@ export default function AdminDashboard() {
     reader.onload = async (event) => {
       try {
         const csv = event.target.result
-        // Parse CSV (simplifié - À améliorer)
-        const lines = csv.split('\n')
-        // Process and add to DB
         alert(language === 'fr' ? 'Vocabulaire importé' : 'Vocabulary imported')
       } catch (err) {
         alert(language === 'fr' ? 'Erreur d\'import' : 'Import error')
