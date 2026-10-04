@@ -16,6 +16,27 @@
   border-radius: 8px;
 }
 
+.student-dashboard__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-dashboard__back {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.student-dashboard__back:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 .student-dashboard__logout {
   background: none;
   border: none;
@@ -104,11 +125,17 @@
   cursor: pointer;
   transition: all 0.3s ease;
   color: white;
+  position: relative;
 }
 
-.game-card:hover {
+.game-card:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.3);
   transform: translateY(-5px);
+}
+
+.game-card--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .game-card__icon {
@@ -118,6 +145,15 @@
 
 .game-card__name {
   font-weight: bold;
+}
+
+.game-card__soon {
+  font-size: 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 6px;
+  display: inline-block;
 }
 
 @media (max-width: 480px) {

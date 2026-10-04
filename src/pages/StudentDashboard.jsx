@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useAppStore } from '../stores/appStore'
+import { getUserStats } from '../db/index'
 import '../styles/StudentDashboard.css'
 
 export default function StudentDashboard() {
-  const { user, language, setCurrentPage, logout } = useAppStore()
+  const { user, language, setCurrentPage, setRole, logout } = useAppStore()
   const [stats, setStats] = useState({
     score: 0,
     games: 0,
@@ -12,19 +13,24 @@ export default function StudentDashboard() {
   })
 
   useEffect(() => {
-    // Charger les stats depuis IndexedDB (À implémenter)
-    setStats({
-      score: 150,
-      games: 5,
-      streak: 3,
-      badges: ['🌟', '⭐', '👑']
-    })
-  }, [])
+    let cancelled = false
+    const load = async () => {
+      const s = await getUserStats(user?.id)
+      if (!cancelled) setStats(s)
+    }
+    load()
+    return () => { cancelled = true }
+  }, [user?.id])
 
   const games = [
-    { id: 'crossword', name: language === 'fr' ? 'Mots Croisés' : 'Crossword', icon: '⬜' },
-    { id: 'anagram', name: language === 'fr' ? 'Anagrammes' : 'Anagrams', icon: '🔤' },
+    { id: 'crossword', name: language === 'fr' ? 'Mots Croisés' : 'Crossword', icon: '⬜', available: true },
+    { id: 'anagram', name: language === 'fr' ? 'Anagrammes' : 'Anagrams', icon: '🔤', available: false },
   ]
+
+  const handleBackToRoles = () => {
+    setRole(null)
+    setCurrentPage('roleSelect')
+  }
 
   return (
     <div className="student-dashboard">
@@ -36,9 +42,14 @@ export default function StudentDashboard() {
             {user?.level || 'SIL-CP'}
           </p>
         </div>
-        <button className="student-dashboard__logout" onClick={logout}>
-          ❌
-        </button>
+        <div className="student-dashboard__actions">
+          <button className="student-dashboard__back" onClick={handleBackToRoles} title={language === 'fr' ? 'Changer de profil' : 'Switch profile'}>
+            {language === 'fr' ? 'Profil' : 'Profile'}
+          </button>
+          <button className="student-dashboard__logout" onClick={logout} title={language === 'fr' ? 'Déconnexion' : 'Log out'}>
+            ❌
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -82,11 +93,18 @@ export default function StudentDashboard() {
           {games.map(game => (
             <button
               key={game.id}
-              className="game-card"
-              onClick={() => setCurrentPage('crosswordGame')}
+              className={`game-card ${!game.available ? 'game-card--disabled' : ''}`}
+              onClick={() => game.available && setCurrentPage('crosswordGame')}
+              disabled={!game.available}
+              title={!game.available ? (language === 'fr' ? 'Bientôt disponible' : 'Coming soon') : ''}
             >
               <div className="game-card__icon">{game.icon}</div>
               <div className="game-card__name">{game.name}</div>
+              {!game.available && (
+                <div className="game-card__soon">
+                  {language === 'fr' ? 'Bientôt' : 'Soon'}
+                </div>
+              )}
             </button>
           ))}
         </div>

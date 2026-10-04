@@ -3180,18 +3180,6 @@
     "actif": true
   },
   {
-    "id": "vocab_0266",
-    "mot_fr": "Mot en français",
-    "mot_en": "Mot en anglais",
-    "def_fr": "Définition en français",
-    "def_en": "Définition en anglais",
-    "niveau_fr": "Niveau",
-    "niveau_en": "Niveau",
-    "sujet": "Sujet",
-    "difficulte": 2,
-    "actif": true
-  },
-  {
     "id": "vocab_0267",
     "mot_fr": "MODÉLISER",
     "mot_en": "Model",

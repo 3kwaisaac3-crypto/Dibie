@@ -15,7 +15,7 @@ import CrosswordGame from './pages/CrosswordGame'
 import './App.css'
 
 export default function App() {
-  const { currentPage, user, isAuthenticated, isOnline } = useAppStore()
+  const { currentPage, isAuthenticated, isOnline, language, setLanguage } = useAppStore()
   const [vocabLoaded, setVocabLoaded] = useState(false)
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function App() {
     <div className="app">
       {!isOnline && (
         <div className="offline-banner">
-          📡 Mode Hors-Ligne Activé
+          📡 {language === 'fr' ? 'Mode Hors-Ligne Activé' : 'Offline Mode Active'}
         </div>
       )}
 
@@ -51,6 +51,26 @@ export default function App() {
       {isAuthenticated && currentPage === 'parentDashboard' && <ParentDashboard />}
       {isAuthenticated && currentPage === 'adminDashboard' && <AdminDashboard />}
       {isAuthenticated && currentPage === 'crosswordGame' && vocabLoaded && <CrosswordGame />}
+
+      {/* Sélecteur de langue global, accessible après connexion */}
+      {isAuthenticated && (
+        <div className="global-language-toggle">
+          <button
+            className={`global-lang-btn ${language === 'fr' ? 'active' : ''}`}
+            onClick={() => setLanguage('fr')}
+            aria-label="Français"
+          >
+            🇫🇷 FR
+          </button>
+          <button
+            className={`global-lang-btn ${language === 'en' ? 'active' : ''}`}
+            onClick={() => setLanguage('en')}
+            aria-label="English"
+          >
+            🇬🇧 EN
+          </button>
+        </div>
+      )}
     </div>
   )
 }

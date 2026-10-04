@@ -1,6 +1,8 @@
-# DIBIÈ - Jeux Éducatifs Bilingues Camerounais
+# DIBIÈ - Prototype de démonstration de jeux éducatifs bilingues camerounais
 
-Application web/mobile pour apprentissage ludique du vocabulaire en français et anglais, destinée aux écoles primaires camerounaises (SIL-CM2 / Form 1-6).
+Prototype web/mobile pour démontrer un apprentissage ludique du vocabulaire en français et anglais, destiné aux écoles primaires camerounaises (SIL-CM2 / Form 1-6).
+
+> **Mode démonstration uniquement** : cette application fonctionne localement sans backend. Les comptes, mots de passe et rôles sont simulés et ne sont pas sécurisés. N’utilisez aucune donnée sensible ou réelle. L’application n’est pas prête pour la production.
 
 ## 🚀 Démarrage Rapide
 
@@ -23,12 +25,14 @@ npm run dev
 # L'app s'ouvre automatiquement sur http://localhost:3000
 ```
 
-### Build pour Production
+### Build de démonstration
 
 ```bash
 npm run build
 npm run preview
 ```
+
+Cette commande prépare uniquement le prototype pour une démonstration locale. Elle ne constitue pas un déploiement de production.
 
 ---
 
@@ -69,7 +73,7 @@ dibie-app/
 ## 🎮 Fonctionnalités Principales
 
 ### 1. Authentification
-- Login/Sign-up simple
+- Login/Sign-up simulé localement, sans authentification sécurisée
 - Sélection de rôle (Élève, Enseignant, Parent, Admin)
 - Sauvegarde locale (localStorage)
 
@@ -189,14 +193,18 @@ Inclure :
 
 ---
 
-## 🔐 Sécurité & Données
+## ⚠️ Sécurité & Données
+
+Cette version est un prototype de démonstration et ne doit pas être présentée comme une application prête pour la production.
 
 ### Stockage Local
-- Aucune donnée sensible stockée en clair
-- IndexedDB pour les scores/progrès
-- localStorage pour auth token seulement
+- Les comptes, mots de passe et rôles sont simulés localement et ne sont pas sécurisés
+- N’utilisez aucune donnée sensible ou réelle
+- IndexedDB pour les scores/progrès de démonstration
+- localStorage pour l’état local de démonstration
 
 ### Backend (Futur)
+- Aucun backend n’est utilisé dans ce prototype
 - PostgreSQL au Cameroun (recommandé)
 - Chiffrement données utilisateur
 - RGPD compliant

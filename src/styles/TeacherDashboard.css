@@ -15,6 +15,27 @@
   border-radius: 8px;
 }
 
+.teacher-dashboard__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.teacher-dashboard__back {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.teacher-dashboard__back:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 .teacher-dashboard__logout {
   background: none;
   border: none;
@@ -26,6 +47,12 @@
 
 .teacher-dashboard__logout:hover {
   opacity: 1;
+}
+
+.teacher-dashboard__empty {
+  color: #666;
+  font-style: italic;
+  padding: 20px 0;
 }
 
 .teacher-dashboard__content {

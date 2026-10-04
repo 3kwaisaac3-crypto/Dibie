@@ -226,8 +226,8 @@
   }
 
   .eclipse-board {
-    grid-template-columns: repeat(13, 35px);
-    grid-template-rows: repeat(13, 35px);
+    grid-template-columns: repeat(15, 35px);
+    grid-template-rows: repeat(15, 35px);
   }
 
   .eclipse-cell {
@@ -247,17 +247,33 @@
   }
 
   .eclipse-clues {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
   }
 
+  /* Conserver 15 colonnes et permettre un défilement horizontal contrôlé */
+  .eclipse-board-wrapper {
+    overflow-x: auto;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .eclipse-board {
-    grid-template-columns: repeat(11, 30px);
-    grid-template-rows: repeat(11, 30px);
+    grid-template-columns: repeat(15, 26px);
+    grid-template-rows: repeat(15, 26px);
+    flex-shrink: 0;
   }
 
   .eclipse-cell {
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
+  }
+
+  .eclipse-input {
+    font-size: 14px;
+  }
+
+  .eclipse-number {
+    font-size: 8px;
   }
 }

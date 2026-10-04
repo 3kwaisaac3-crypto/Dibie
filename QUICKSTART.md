@@ -1,4 +1,6 @@
-# 🚀 DÉMARRAGE RAPIDE - DIBIÈ
+# 🚀 DÉMARRAGE RAPIDE - PROTOTYPE DIBIÈ
+
+> **Mode démonstration uniquement** : les comptes, mots de passe et rôles sont simulés localement, sans backend et sans sécurité réelle. N’utilisez aucune donnée sensible ou réelle. Ce prototype n’est pas prêt pour la production.
 
 ## Installation (5 minutes)
 
@@ -28,10 +30,12 @@ http://localhost:3000
 
 ## 🎯 Test Rapide
 
-### Créer un compte
+### Créer un compte de démonstration
 1. Email : `test@example.com`
 2. Mot de passe : `password123`
 3. Cliquer "Sign In"
+
+Ces identifiants sont fictifs et servent uniquement à la démonstration.
 
 ### Choisir rôle
 - Cliquer **Élève**
@@ -114,12 +118,12 @@ npx cap open ios
 
 ## 📤 Envoyer à Enseignants
 
-### Méthode 1 : Lien web (Recommandé)
+### Méthode 1 : Lien web de démonstration
 1. Build : `npm run build`
 2. Deploy sur Vercel : https://vercel.com
-3. Partager le lien
+3. Partager le lien en indiquant clairement qu’il s’agit d’un prototype non sécurisé
 
-### Méthode 2 : Fichier APK (Android)
+### Méthode 2 : Fichier APK de démonstration (Android)
 ```bash
 npm run build
 npx cap sync

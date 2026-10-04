@@ -1,32 +1,45 @@
 import React, { useState, useEffect } from 'react'
 import { useAppStore } from '../stores/appStore'
-import { getVocabByLevelAndSubject, saveUserProgress, saveScore } from '../db/index'
+import { getVocabByLevelAndSubject, getAllSubjects, getAllLevels, saveUserProgress, saveScore } from '../db/index'
 import EclipseGrid from '../components/EclipseGrid'
 import '../styles/CrosswordGame.css'
-const SUBJECTS = ['Maison', 'Transport', 'Alimentation', 'Géométrie', 'Mesures', 'Agriculture', 'Commerce', 'Métiers']
-const LEVELS = ['SIL-CP', 'CE1-CE2', 'CM1-CM2']
+
 const PUZZLE_TYPES = ['Bilingue', 'Français', 'Anglais']
 
 export default function CrosswordGame() {
   const { user, language, setCurrentPage } = useAppStore()
-  const [level, setLevel] = useState(LEVELS[0])
-  const [subject, setSubject] = useState(SUBJECTS[0])
+  const [subjects, setSubjects] = useState([])
+  const [levels, setLevels] = useState([])
+  const [level, setLevel] = useState('')
+  const [subject, setSubject] = useState('')
   const [puzzleType, setPuzzleType] = useState('Bilingue')
   const [gameState, setGameState] = useState('select')
   const [vocabulary, setVocabulary] = useState([])
   const [score, setScore] = useState(0)
   const [answered, setAnswered] = useState([])
 
+  // Charger les sujets et niveaux disponibles depuis les données
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      const [subs, lvls] = await Promise.all([getAllSubjects(), getAllLevels()])
+      if (cancelled) return
+      setSubjects(subs)
+      setLevels(lvls)
+      setSubject(prev => prev || subs[0] || '')
+      setLevel(prev => prev || lvls[0] || '')
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
+
   useEffect(() => {
     if (gameState !== 'select') return
+    if (!level || !subject) return
     const loadVocab = async () => {
       try {
         const data = await getVocabByLevelAndSubject(level, subject)
-        if (data && data.length > 0) {
-          setVocabulary(data.slice(0, 12))
-        } else {
-          setVocabulary([])
-        }
+        setVocabulary((data && data.length > 0) ? data.slice(0, 12) : [])
       } catch (err) {
         console.error('Erreur:', err)
         setVocabulary([])
@@ -73,7 +86,7 @@ export default function CrosswordGame() {
       <div className="crossword-select">
         <div className="crossword-select__container">
           <h1>{language === 'fr' ? 'Mots Croisés' : 'Crossword'}</h1>
-          
+
           <div className="crossword-select__section">
             <label>{language === 'fr' ? 'Type de Puzzle' : 'Puzzle Type'}</label>
             <div className="crossword-select__options">
@@ -88,7 +101,7 @@ export default function CrosswordGame() {
           <div className="crossword-select__section">
             <label>{language === 'fr' ? 'Niveau' : 'Level'}</label>
             <div className="crossword-select__options">
-              {LEVELS.map(l => (
+              {levels.map(l => (
                 <button key={l} className={`crossword-select__btn ${level === l ? 'active' : ''}`} onClick={() => setLevel(l)}>
                   {l}
                 </button>
@@ -99,7 +112,7 @@ export default function CrosswordGame() {
           <div className="crossword-select__section">
             <label>{language === 'fr' ? 'Sujet' : 'Subject'}</label>
             <div className="crossword-select__grid">
-              {SUBJECTS.map(s => (
+              {subjects.map(s => (
                 <button key={s} className={`crossword-select__subject ${subject === s ? 'active' : ''}`} onClick={() => setSubject(s)}>
                   {s}
                 </button>
@@ -110,6 +123,11 @@ export default function CrosswordGame() {
           <button className="crossword-select__start" onClick={handleStartGame} disabled={vocabulary.length === 0}>
             {language === 'fr' ? 'Commencer' : 'Start'}
           </button>
+          {vocabulary.length === 0 && (
+            <p className="crossword-select__hint">
+              {language === 'fr' ? 'Aucun mot disponible pour ce niveau/sujet.' : 'No words available for this level/subject.'}
+            </p>
+          )}
         </div>
       </div>
     )
@@ -126,12 +144,12 @@ export default function CrosswordGame() {
           {vocabulary.length > 0 ? (
             <>
               <EclipseGrid 
-  words={vocabulary} 
-  language={language} 
-  onAnswerCorrect={handleAnswerCorrect}
-  onBack={() => setGameState('select')}
-  puzzleType={puzzleType} 
-/>
+                words={vocabulary} 
+                language={language} 
+                onAnswerCorrect={handleAnswerCorrect}
+                onBack={() => setGameState('select')}
+                puzzleType={puzzleType} 
+              />
               <div className="crossword-game__progress">
                 <p>{answered.length} / {vocabulary.length} {language === 'fr' ? 'mots' : 'words'}</p>
                 {answered.length >= Math.floor(vocabulary.length * 0.7) && (
