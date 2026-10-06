@@ -1,6 +1,6 @@
 # DIBIÈ - Prototype de démonstration de jeux éducatifs bilingues camerounais
 
-Prototype web/mobile pour démontrer un apprentissage ludique du vocabulaire en français et anglais, destiné aux écoles primaires camerounaises (SIL-CM2 / Form 1-6).
+Prototype web/mobile pour démontrer un apprentissage ludique du vocabulaire en français et anglais, destiné aux écoles primaires camerounaises (SIL-CM2 / Class 1-6).
 
 > **Mode démonstration uniquement** : cette application fonctionne localement sans backend. Les comptes, mots de passe et rôles sont simulés et ne sont pas sécurisés. N’utilisez aucune donnée sensible ou réelle. L’application n’est pas prête pour la production.
 
@@ -97,7 +97,7 @@ dibie-app/
 
 ### 5. Bilingue FR/EN
 - Interface en français/anglais
-- Vocabulaire adapté par niveau (SIL-CM2 ↔ Form 1-6)
+- Vocabulaire adapté par niveau (SIL-CM2 ↔ Class 1-6)
 - Exercices bilingues
 
 ---
@@ -114,7 +114,7 @@ dibie-app/
   "def_fr": "Bâtiment où habitent les gens",
   "def_en": "Building where people live",
   "niveau_fr": "SIL-CP",
-  "niveau_en": "Form 1-2",
+  "niveau_en": "Class 1-2",
   "sujet": "Maison",
   "difficulte": 2,
   "actif": true

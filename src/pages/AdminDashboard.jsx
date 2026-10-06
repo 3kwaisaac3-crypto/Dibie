@@ -1,6 +1,13 @@
 import React, { useState } from 'react'
 import { useAppStore } from '../stores/appStore'
 
+// Correspondance des tranches francophones et anglophones du primaire (curriculum MINEDUB 2018)
+const NIVEAU_EN = {
+  'SIL-CP': 'Class 1-2',
+  'CE1-CE2': 'Class 3-4',
+  'CM1-CM2': 'Class 5-6'
+}
+
 export default function AdminDashboard() {
   const { language, setRole, setCurrentPage, logout } = useAppStore()
   const [importStatus, setImportStatus] = useState(null)
@@ -20,6 +27,10 @@ export default function AdminDashboard() {
         const csv = event.target.result
         const rows = parseCSV(csv)
 
+        // Ignorer une éventuelle ligne d'en-tête (mot_fr;mot_en;…)
+        const hasHeader = rows.length > 0 && (rows[0][0] || '').toLowerCase() === 'mot_fr'
+        if (hasHeader) rows.shift()
+
         if (rows.length === 0) {
           setImportStatus({ ok: false, message: language === 'fr' ? 'Fichier vide.' : 'Empty file.' })
           return
@@ -28,8 +39,14 @@ export default function AdminDashboard() {
         // Valider et convertir en entrées de vocabulaire
         const entries = rows.map((row, i) => {
           const [mot_fr, mot_en, def_fr, def_en, niveau, sujet] = row
+          const ligne = i + (hasHeader ? 2 : 1)
           if (!mot_fr || !mot_en || !def_fr || !def_en) {
-            throw new Error(`Ligne ${i + 1} incomplète`)
+            throw new Error(`Ligne ${ligne} incomplète`)
+          }
+          // Tolérer la casse et les espaces : « cm1 - cm2 » → « CM1-CM2 »
+          const niveau_fr = (niveau || 'CM1-CM2').toUpperCase().replace(/\s+/g, '')
+          if (!NIVEAU_EN[niveau_fr]) {
+            throw new Error(`Ligne ${ligne} : niveau inconnu « ${niveau} » (attendu : SIL-CP, CE1-CE2 ou CM1-CM2)`)
           }
           return {
             id: `import_${Date.now()}_${i}`,
@@ -37,8 +54,8 @@ export default function AdminDashboard() {
             mot_en: mot_en.trim(),
             def_fr: def_fr.trim(),
             def_en: def_en.trim(),
-            niveau_fr: (niveau || 'CM1-CM2').trim(),
-            niveau_en: (niveau || 'Form 4-6').trim(),
+            niveau_fr,
+            niveau_en: NIVEAU_EN[niveau_fr],
             sujet: (sujet || 'Importé').trim(),
             difficulte: 2,
             actif: true
@@ -88,8 +105,8 @@ export default function AdminDashboard() {
         <h2>{language === 'fr' ? 'Importer Vocabulaire' : 'Import Vocabulary'}</h2>
         <p style={{ color: '#666', marginBottom: '15px' }}>
           {language === 'fr'
-            ? 'Format CSV (séparateur ;) : mot_fr;mot_en;def_fr;def_en;niveau;sujet'
-            : 'CSV format (separator ;) : mot_fr;mot_en;def_fr;def_en;niveau;sujet'}
+            ? 'Format CSV (séparateur ;) : mot_fr;mot_en;def_fr;def_en;niveau;sujet — niveau : SIL-CP, CE1-CE2 ou CM1-CM2'
+            : 'CSV format (separator ;) : mot_fr;mot_en;def_fr;def_en;niveau;sujet — niveau: SIL-CP, CE1-CE2 or CM1-CM2'}
         </p>
         <input
           type="file"
