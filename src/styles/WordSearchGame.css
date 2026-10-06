@@ -1,0 +1,281 @@
+/* Mots mêlés — même palette que les mots croisés (CrosswordGame.css) */
+
+.wordsearch-select,
+.wordsearch-finished {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.wordsearch-select__container,
+.wordsearch-finished__container {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.wordsearch-select__container h1,
+.wordsearch-finished__container h1 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.wordsearch-select__intro {
+  color: #555;
+  margin-bottom: 24px;
+}
+
+.wordsearch-select__section {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.wordsearch-select__label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.wordsearch-select__options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wordsearch-select__btn {
+  flex: 1;
+  min-width: 100px;
+  min-height: 48px;
+  padding: 10px;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wordsearch-select__btn.active {
+  border-color: #667eea;
+  background-color: #667eea;
+  color: white;
+}
+
+.wordsearch-select__size {
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.wordsearch-select__seed {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.wordsearch-select__hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.wordsearch-select__start,
+.wordsearch-select__back {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.wordsearch-select__start {
+  background: #667eea;
+  color: white;
+}
+
+.wordsearch-select__back {
+  background: #eee;
+  color: #333;
+}
+
+.wordsearch-finished__score {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #667eea;
+  margin: 16px 0;
+}
+
+/* Partie en cours */
+
+.wordsearch-game {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 16px;
+  padding-bottom: 72px; /* place pour le sélecteur de langue global */
+}
+
+.wordsearch-game__header {
+  color: white;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.wordsearch-game__header h1 {
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+}
+
+.wordsearch-game__progress {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.wordsearch-game__seed {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+.wordsearch-game__body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.wordsearch-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--ws-size), 1fr);
+  gap: 2px;
+  width: min(94vw, 540px);
+  background: white;
+  padding: 6px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  touch-action: manipulation;
+}
+
+.wordsearch-grid__cell {
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  background: #fafafa;
+  font-size: clamp(0.9rem, 3.6vw, 1.4rem);
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wordsearch-grid__cell:focus-visible {
+  outline: 3px solid #764ba2;
+  outline-offset: -2px;
+}
+
+.wordsearch-grid__cell--found {
+  background: #c8f2d0;
+  border-color: #4caf50;
+  color: #1b5e20;
+}
+
+.wordsearch-grid__cell--start {
+  background: #ffe082;
+  border-color: #ff9800;
+}
+
+.wordsearch-game__side {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  width: min(94vw, 300px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.wordsearch-game__side h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.wordsearch-words {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+}
+
+.wordsearch-words li {
+  padding: 6px 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.wordsearch-words__item--found {
+  color: #1b5e20 !important;
+}
+
+.wordsearch-game__feedback {
+  min-height: 1.5em;
+  font-weight: bold;
+  color: #764ba2;
+  margin-bottom: 8px;
+}
+
+.wordsearch-game__help {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.wordsearch-game__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.wordsearch-game__btn {
+  flex: 1;
+  min-height: 44px;
+  border: none;
+  border-radius: 6px;
+  background: #667eea;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.wordsearch-game__btn--secondary {
+  background: #eee;
+  color: #333;
+}
+
+.wordsearch-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}

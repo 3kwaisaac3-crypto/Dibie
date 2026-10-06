@@ -2,6 +2,24 @@ import React, { useState, useEffect } from 'react'
 import '../styles/EclipseGrid.css'
 
 const GRID_SIZE = 15
+const MAX_WORD_LENGTH = 13
+
+// Normalise un mot pour la grille : retire les accents, espaces, "/", tirets,
+// et ne conserve que les lettres. Prend la première alternative pour les
+// entrées bilingues du type "Hallway / Corridor".
+function sanitizeWord(text) {
+  if (!text) return ''
+  let s = String(text)
+  // Première alternative avant "/"
+  s = s.split('/')[0]
+  // Premier mot avant espace/tiret
+  s = s.split(/[\s-]+/)[0]
+  // Retire les accents (é -> e)
+  s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  // Ne garde que les lettres
+  s = s.replace(/[^A-Za-z]/g, '')
+  return s.toUpperCase()
+}
 
 class ProGridGenerator {
   constructor(words) {
@@ -18,7 +36,7 @@ class ProGridGenerator {
     const word0 = this.words[0]
     const row0 = Math.floor(GRID_SIZE / 2)
     const col0 = Math.floor((GRID_SIZE - word0.length) / 2)
-    
+
     this.placeWordSafe(word0, row0, col0, 'across', 0)
 
     // Placer autres mots avec intersections
@@ -117,19 +135,52 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
   useEffect(() => {
     if (!words || words.length < 2) return
 
-    const wordsData = words.slice(0, 10).map((w, idx) => {
-      if (puzzleType === 'Français') return w.mot_fr.toUpperCase()
-      if (puzzleType === 'Anglais') return w.mot_en.toUpperCase()
-      return (idx % 2 === 0 ? w.mot_fr : w.mot_en).toUpperCase()
-    })
+    // Construire les mots à placer avec leurs métadonnées (texte + définition + id)
+    const wordsData = []
+    for (let idx = 0; idx < words.length && wordsData.length < 10; idx++) {
+      const w = words[idx]
+      let text, definition, wordId, wordLanguage
 
-    const gen = new ProGridGenerator(wordsData)
+      if (puzzleType === 'Français') {
+        text = sanitizeWord(w.mot_fr)
+        definition = w.def_fr
+        wordId = w.id
+        wordLanguage = 'FR'
+      } else if (puzzleType === 'Anglais') {
+        text = sanitizeWord(w.mot_en)
+        definition = w.def_en
+        wordId = w.id
+        wordLanguage = 'EN'
+      } else {
+        // Bilingue : alterne français / anglais
+        const isFrench = idx % 2 === 0
+        text = sanitizeWord(isFrench ? w.mot_fr : w.mot_en)
+        definition = isFrench ? w.def_fr : w.def_en
+        wordId = w.id
+        wordLanguage = isFrench ? 'FR' : 'EN'
+      }
+
+      // Ignorer les mots vides ou trop longs pour la grille
+      if (!text || text.length > MAX_WORD_LENGTH) continue
+
+      wordsData.push({ text, definition, wordId, wordLanguage })
+    }
+
+    if (wordsData.length < 2) {
+      setGrid([])
+      setPlacements([])
+      return
+    }
+
+    const gen = new ProGridGenerator(wordsData.map(d => d.text))
     const { grid: g, placements: p } = gen.generate()
 
     setGrid(g)
-    setPlacements(p.map((pl, idx) => ({
+    setPlacements(p.map(pl => ({
       ...pl,
-      definition: words[pl.wordIdx][language === 'fr' ? 'def_fr' : 'def_en']
+      definition: wordsData[pl.wordIdx].definition,
+      wordId: wordsData[pl.wordIdx].wordId,
+      wordLanguage: wordsData[pl.wordIdx].wordLanguage
     })))
     setUserAnswers({})
     setSolved(new Set())
@@ -157,7 +208,7 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
 
       if (ok && userWord === p.word) {
         setSolved(prev => new Set([...prev, p.wordIdx]))
-        onAnswerCorrect(p.wordIdx)
+        onAnswerCorrect(p.wordId)
       }
     })
 
@@ -202,7 +253,13 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
     }
   }
 
-  if (!grid.length) return <div style={{ padding: '20px', textAlign: 'center', fontSize: '16px' }}>⏳ Génération grille Eclipse...</div>
+  if (!grid.length) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center', fontSize: '16px' }}>
+        {language === 'fr' ? 'Pas assez de mots pour ce sujet.' : 'Not enough words for this subject.'}
+      </div>
+    )
+  }
 
   const across = placements.filter(p => p.dir === 'across').sort((a, b) => a.clueNum - b.clueNum)
   const down = placements.filter(p => p.dir === 'down').sort((a, b) => a.clueNum - b.clueNum)
@@ -252,6 +309,7 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
                             onKeyDown={(e) => handleKeyDown(e, r, c)}
                             autoFocus={isSelected}
                             className="eclipse-input"
+                            aria-label={`Ligne ${r + 1}, colonne ${c + 1}`}
                           />
                         </>
                       )}

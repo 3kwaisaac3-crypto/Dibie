@@ -96,9 +96,21 @@
   transition: all 0.3s ease;
 }
 
-.crossword-select__start:hover {
+.crossword-select__start:hover:not(:disabled) {
   background-color: #45a049;
   transform: translateY(-2px);
+}
+
+.crossword-select__start:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.crossword-select__hint {
+  margin-top: 10px;
+  color: #999;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 /* Game State */

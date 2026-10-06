@@ -32,6 +32,27 @@
   font-size: 0.9rem;
 }
 
+.login__demo-notice {
+  margin-bottom: 24px;
+  padding: 12px 14px;
+  border: 1px solid #e6b84a;
+  border-radius: 6px;
+  background-color: #fff8df;
+  color: #5f4a00;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.login__demo-notice strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+
+.login__demo-notice p {
+  margin: 0;
+}
+
 .login__form h2 {
   margin-bottom: 20px;
   color: #333;

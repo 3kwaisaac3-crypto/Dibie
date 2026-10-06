@@ -32,6 +32,15 @@ export default function Login() {
           <p>{language === 'fr' ? 'Jeux Éducatifs Bilingues' : 'Bilingual Educational Games'}</p>
         </div>
 
+        <div className="login__demo-notice" role="status">
+          <strong>{language === 'fr' ? 'Mode démonstration' : 'Demo mode'}</strong>
+          <p>
+            {language === 'fr'
+              ? 'Les comptes, mots de passe et rôles sont simulés localement. N’utilisez aucune donnée sensible ou réelle.'
+              : 'Accounts, passwords, and roles are simulated locally. Do not use any sensitive or real data.'}
+          </p>
+        </div>
+
         {/* Form */}
         <form className="login__form" onSubmit={handleSubmit}>
           <h2>

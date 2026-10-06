@@ -1,15 +1,17 @@
 # 📊 DIBIÈ - Statut du Projet
 
 **Date** : Lundi 26 Août 2024
-**Version** : MVP 0.1
-**Status** : ✅ Code Complet & Prêt Tests
+**Version** : Prototype de démonstration 0.1
+**Status** : ⚠️ Prototype local non sécurisé, destiné aux démonstrations
+
+> Cette application n’est pas prête pour la production. Les comptes, mots de passe et rôles sont simulés localement, sans backend ni sécurité réelle. N’utilisez aucune donnée sensible ou réelle.
 
 ---
 
 ## ✅ LIVRABLE FOURNI
 
-### Fonctionnalités Complètes
-- [x] Authentification (Login/Sign-up)
+### Fonctionnalités du prototype
+- [x] Authentification simulée localement (Login/Sign-up)
 - [x] Sélection 4 rôles (Élève, Prof, Parent, Admin)
 - [x] Jeu Mots Croisés Bilingues
 - [x] Dashboard Élève (scores, badges, streaks)
@@ -90,7 +92,7 @@ dibie-app/
 
 ---
 
-## 🎮 COMMENT UTILISER
+## 🎮 COMMENT UTILISER LE PROTOTYPE
 
 ### 1. Télécharger & Setup (5 min)
 ```bash
@@ -99,11 +101,13 @@ npm run dev
 # → http://localhost:3000
 ```
 
-### 2. Tester Localement
+### 2. Tester localement
 - Créer compte (test@example.com / password)
 - Choisir rôle "Élève"
 - Jouer Mots Croisés
 - Vérifier offline (F12 → Application → Offline)
+
+Utilisez uniquement des données fictives : les comptes, mots de passe et rôles ne sont pas sécurisés.
 
 ### 3. Tests Enseignants (Fin Septembre)
 - Déployer sur Vercel (gratuit)
@@ -176,8 +180,9 @@ npm run dev
 
 ## 🙏 Notes
 
-Ce prototype est **prod-ready** pour tests écoles.
-Code est modulaire, facile à étendre et maintenir.
+Ce projet est un **prototype de démonstration uniquement**, non prêt pour la production.
+Les comptes, mots de passe et rôles sont simulés localement. N’utilisez aucune donnée sensible ou réelle.
+Le code est modulaire, facile à étendre et maintenir.
 Vocabulaire peut être mis à jour facilement via admin panel.
 
 **Bon courage pour les tests!** 🚀
