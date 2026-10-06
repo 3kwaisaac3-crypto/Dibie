@@ -35,6 +35,15 @@ export const getVocabByLevelAndSubject = async (niveau, sujet) => {
   )
 }
 
+// Obtenir le vocabulaire actif d'un niveau, tous sujets confondus
+export const getVocabByLevel = async (niveau) => {
+  if (vocabulaireCache.length === 0) {
+    const stored = localStorage.getItem('dibieVocab')
+    if (stored) vocabulaireCache = JSON.parse(stored)
+  }
+  return vocabulaireCache.filter(v => v.niveau_fr === niveau && v.actif !== false)
+}
+
 // Obtenir la liste des sujets disponibles (triée)
 export const getAllSubjects = async () => {
   if (vocabulaireCache.length === 0) {
@@ -91,6 +100,19 @@ export const saveScore = async (userId, gameType, score, niveau) => {
     console.log('✅ Score sauvegardé:', score)
   } catch (e) {
     console.error('Erreur save score:', e)
+  }
+}
+
+// Enregistrer une grille de mots mêlés (graine, liste de mots, versions) pour
+// pouvoir la reproduire (décision 8 du 2026-10-05). Seules les 50 dernières
+// grilles sont gardées.
+export const saveWordSearchGrid = async (entry) => {
+  try {
+    const grids = JSON.parse(localStorage.getItem('dibieWordSearchGrids') || '[]')
+    grids.push({ ...entry, date: new Date().toISOString() })
+    localStorage.setItem('dibieWordSearchGrids', JSON.stringify(grids.slice(-50)))
+  } catch (e) {
+    console.error('Erreur save grille mots mêlés:', e)
   }
 }
 

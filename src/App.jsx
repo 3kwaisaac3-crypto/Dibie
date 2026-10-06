@@ -11,6 +11,7 @@ import TeacherDashboard from './pages/TeacherDashboard'
 import ParentDashboard from './pages/ParentDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import CrosswordGame from './pages/CrosswordGame'
+import WordSearchGame from './pages/WordSearchGame'
 
 import './App.css'
 
@@ -32,7 +33,7 @@ export default function App() {
     initVocab()
   }, [])
 
-  if (!vocabLoaded && (currentPage === 'crosswordGame')) {
+  if (!vocabLoaded && (currentPage === 'crosswordGame' || currentPage === 'wordSearchGame')) {
     return <div style={{padding: '20px', textAlign: 'center'}}>⏳ Chargement jeu...</div>
   }
 
@@ -51,6 +52,7 @@ export default function App() {
       {isAuthenticated && currentPage === 'parentDashboard' && <ParentDashboard />}
       {isAuthenticated && currentPage === 'adminDashboard' && <AdminDashboard />}
       {isAuthenticated && currentPage === 'crosswordGame' && vocabLoaded && <CrosswordGame />}
+      {isAuthenticated && currentPage === 'wordSearchGame' && vocabLoaded && <WordSearchGame />}
 
       {/* Sélecteur de langue global, accessible après connexion */}
       {isAuthenticated && (

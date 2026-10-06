@@ -34,6 +34,14 @@ npm run preview
 
 Cette commande prépare uniquement le prototype pour une démonstration locale. Elle ne constitue pas un déploiement de production.
 
+### Tests
+
+```bash
+npm test
+```
+
+Lance les tests unitaires (`src/**/*.test.js`) avec le lanceur intégré de Node (`node --test`), sans dépendance supplémentaire. Le motif `src/**/*.test.js` demande **Node 21 ou plus récent**.
+
 ---
 
 ## 📱 Architecture
@@ -79,6 +87,12 @@ dibie-app/
 
 ### 2. Jeux
 - **Mots Croisés Bilingues** : Vocabulaire français ↔ anglais
+- **Mots Mêlés** : vocabulaire français du niveau choisi (générateur v3.0.0, `src/utils/wordSearchGenerator.js`)
+  - grille 8x8 (SIL-CP), 10x10 (CE1-CE2), 12x12 (CM1-CM2) ; mots de gauche à droite et de haut en bas seulement
+  - 5, 7 ou 9 mots par grille selon le niveau, tirés au hasard (choix provisoires, à revoir après un essai avec un enseignant)
+  - grille sans accents, liste affichée avec l'orthographe exacte ; mots composés et mots à apostrophe écartés
+  - « Numéro de grille » : même numéro + même niveau = même grille, **à version identique de l'application et du vocabulaire**
+  - ⚠️ **Mode démonstration uniquement** : la liste de mots interdits n'est pas encore établie (vide). Les lettres de remplissage peuvent former un mot inapproprié par hasard. Ne pas utiliser avec des élèves réels avant d'avoir établi cette liste avec un enseignant.
 - **Anagrammes** : À implémenter
 - Difficulté adaptative (3 niveaux)
 - Indice intelligent via Anthropic API

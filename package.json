@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "node --test \"src/**/*.test.js\""
   },
   "dependencies": {
     "react": "^18.2.0",

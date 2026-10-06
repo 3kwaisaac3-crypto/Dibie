@@ -24,6 +24,7 @@ export default function StudentDashboard() {
 
   const games = [
     { id: 'crossword', name: language === 'fr' ? 'Mots Croisés' : 'Crossword', icon: '⬜', available: true },
+    { id: 'wordsearch', name: language === 'fr' ? 'Mots Mêlés' : 'Word Search', icon: '🔍', available: true, page: 'wordSearchGame' },
     { id: 'anagram', name: language === 'fr' ? 'Anagrammes' : 'Anagrams', icon: '🔤', available: false },
   ]
 
@@ -94,7 +95,7 @@ export default function StudentDashboard() {
             <button
               key={game.id}
               className={`game-card ${!game.available ? 'game-card--disabled' : ''}`}
-              onClick={() => game.available && setCurrentPage('crosswordGame')}
+              onClick={() => game.available && setCurrentPage(game.page || 'crosswordGame')}
               disabled={!game.available}
               title={!game.available ? (language === 'fr' ? 'Bientôt disponible' : 'Coming soon') : ''}
             >
