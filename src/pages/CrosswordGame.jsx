@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useAppStore } from '../stores/appStore'
-import { getVocabByLevelAndSubject, getAllSubjects, getAllLevels, saveUserProgress, saveScore } from '../db/index'
+import { getVocabByLevel, getVocabByLevelAndSubject, getAllLevels, saveUserProgress, saveScore } from '../db/index'
 import EclipseGrid from '../components/EclipseGrid'
+import { crosswordSubjects, defaultCrosswordSubject, VOCAB_PER_GAME } from '../utils/crosswordLayout'
 import '../styles/CrosswordGame.css'
 
 const PUZZLE_TYPES = ['Bilingue', 'Français', 'Anglais']
 
 export default function CrosswordGame() {
   const { user, language, setCurrentPage } = useAppStore()
-  const [subjects, setSubjects] = useState([])
   const [levels, setLevels] = useState([])
   const [level, setLevel] = useState('')
   const [subject, setSubject] = useState('')
@@ -17,16 +17,24 @@ export default function CrosswordGame() {
   const [vocabulary, setVocabulary] = useState([])
   const [score, setScore] = useState(0)
   const [answered, setAnswered] = useState([])
+  // Mots réellement placés dans la grille (au plus 10), fournis par EclipseGrid
+  const [placedCount, setPlacedCount] = useState(0)
+  // Mots déjà comptés, lus et mis à jour immédiatement : une lettre de
+  // croisement peut compléter deux mots dans le même événement
+  const answeredRef = useRef(new Set())
+  // Sujets du niveau choisi : [{ subject, playable }] (playable = au moins
+  // 2 mots placés pour le type choisi) ; null tant que le calcul n'est pas fait
+  const [subjectList, setSubjectList] = useState(null)
+  // Niveau pour lequel le sujet par défaut a déjà été choisi
+  const subjectLevelRef = useRef(null)
 
-  // Charger les sujets et niveaux disponibles depuis les données
+  // Charger les niveaux disponibles depuis les données
   useEffect(() => {
     let cancelled = false
     const load = async () => {
-      const [subs, lvls] = await Promise.all([getAllSubjects(), getAllLevels()])
+      const lvls = await getAllLevels()
       if (cancelled) return
-      setSubjects(subs)
       setLevels(lvls)
-      setSubject(prev => prev || subs[0] || '')
       setLevel(prev => prev || lvls[0] || '')
     }
     load()
@@ -35,11 +43,15 @@ export default function CrosswordGame() {
 
   useEffect(() => {
     if (gameState !== 'select') return
-    if (!level || !subject) return
+    if (!level) return
+    if (!subject) {
+      setVocabulary([])
+      return
+    }
     const loadVocab = async () => {
       try {
         const data = await getVocabByLevelAndSubject(level, subject)
-        setVocabulary((data && data.length > 0) ? data.slice(0, 12) : [])
+        setVocabulary((data && data.length > 0) ? data.slice(0, VOCAB_PER_GAME) : [])
       } catch (err) {
         console.error('Erreur:', err)
         setVocabulary([])
@@ -48,18 +60,52 @@ export default function CrosswordGame() {
     loadVocab()
   }, [level, subject, gameState])
 
+  // Sujets du niveau, grisés s'ils sont injouables : la grille est déterministe
+  // (mêmes entrées, même ordre, même générateur), on calcule donc exactement
+  // celle qui serait proposée et on compte ses mots placés.
+  useEffect(() => {
+    if (gameState !== 'select') return
+    if (!level) return
+    let cancelled = false
+    const check = async () => {
+      let list = []
+      try {
+        list = crosswordSubjects(await getVocabByLevel(level), puzzleType)
+      } catch (err) {
+        console.error('Erreur:', err)
+      }
+      if (cancelled) return
+      setSubjectList(list)
+      // Premier affichage ou changement de niveau : sujet jouable par défaut.
+      // Changement de type seul : le choix est gardé, même s'il devient grisé.
+      if (subjectLevelRef.current !== level) {
+        subjectLevelRef.current = level
+        setSubject(prev => defaultCrosswordSubject(list, prev))
+      }
+    }
+    check()
+    return () => { cancelled = true }
+  }, [level, puzzleType, gameState])
+
+  const noPlayableSubject = subjectList !== null && !subjectList.some(s => s.playable)
+  const subjectUnavailable = subjectList !== null && subject !== '' &&
+    !subjectList.some(s => s.subject === subject && s.playable)
+  const canStart = vocabulary.length > 0 && subjectList !== null && subject !== '' && !subjectUnavailable
+
   const handleStartGame = () => {
-    if (vocabulary.length === 0) return
+    if (!canStart) return
     setGameState('playing')
     setScore(0)
     setAnswered([])
+    setPlacedCount(0)
+    answeredRef.current = new Set()
   }
 
   const handleAnswerCorrect = async (wordId) => {
-    if (answered.includes(wordId)) return
-    const newScore = score + 10
-    setScore(newScore)
-    setAnswered([...answered, wordId])
+    if (answeredRef.current.has(wordId)) return
+    answeredRef.current.add(wordId)
+    setScore(prev => prev + 10)
+    setAnswered(prev => [...prev, wordId])
     try {
       await saveUserProgress(user?.id, wordId, true, 30)
     } catch (e) {
@@ -112,18 +158,46 @@ export default function CrosswordGame() {
           <div className="crossword-select__section">
             <label>{language === 'fr' ? 'Sujet' : 'Subject'}</label>
             <div className="crossword-select__grid">
-              {subjects.map(s => (
-                <button key={s} className={`crossword-select__subject ${subject === s ? 'active' : ''}`} onClick={() => setSubject(s)}>
-                  {s}
-                </button>
-              ))}
+              {(subjectList || []).map(({ subject: s, playable }) => {
+                const unavailable = !playable
+                return (
+                  <button
+                    key={s}
+                    className={`crossword-select__subject ${subject === s ? 'active' : ''}`}
+                    onClick={() => setSubject(s)}
+                    disabled={unavailable}
+                  >
+                    {s}
+                    {unavailable && (
+                      <span className="crossword-select__soon">
+                        {language === 'fr' ? 'bientôt disponible' : 'coming soon'}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
-          <button className="crossword-select__start" onClick={handleStartGame} disabled={vocabulary.length === 0}>
+          <button className="crossword-select__start" onClick={handleStartGame} disabled={!canStart}>
             {language === 'fr' ? 'Commencer' : 'Start'}
           </button>
-          {vocabulary.length === 0 && (
+          {noPlayableSubject && (
+            <p className="crossword-select__hint">
+              {language === 'fr'
+                ? 'Aucun sujet ne permet encore une grille pour ce niveau et ce type.'
+                : 'No subject can make a grid yet for this level and type.'}
+            </p>
+          )}
+          {!noPlayableSubject && subjectUnavailable && (
+            <p className="crossword-select__hint">
+              {language === 'fr'
+                ? 'Pas assez de mots pour une grille sur ce sujet : choisis un autre sujet.'
+                : 'Not enough words for a grid on this subject: choose another subject.'}
+            </p>
+          )}
+          {/* Filet de sécurité */}
+          {subject !== '' && !subjectUnavailable && subjectList !== null && vocabulary.length === 0 && (
             <p className="crossword-select__hint">
               {language === 'fr' ? 'Aucun mot disponible pour ce niveau/sujet.' : 'No words available for this level/subject.'}
             </p>
@@ -149,10 +223,11 @@ export default function CrosswordGame() {
                 onAnswerCorrect={handleAnswerCorrect}
                 onBack={() => setGameState('select')}
                 puzzleType={puzzleType} 
+                onWordsPlaced={setPlacedCount}
               />
               <div className="crossword-game__progress">
-                <p>{answered.length} / {vocabulary.length} {language === 'fr' ? 'mots' : 'words'}</p>
-                {answered.length >= Math.floor(vocabulary.length * 0.7) && (
+                <p>{answered.length} / {placedCount} {language === 'fr' ? 'mots' : 'words'}</p>
+                {placedCount > 0 && answered.length >= Math.floor(placedCount * 0.7) && (
                   <button className="crossword-game__finish" onClick={handleFinishGame}>
                     {language === 'fr' ? 'Terminer' : 'Finish'}
                   </button>

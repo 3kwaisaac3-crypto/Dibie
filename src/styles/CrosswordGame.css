@@ -82,6 +82,26 @@
   color: white;
 }
 
+/* Sujet sans grille possible pour ce niveau et ce type : grisé */
+.crossword-select__subject:disabled {
+  background: #f3f3f3;
+  color: #999;
+  border-style: dashed;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+.crossword-select__subject.active:disabled {
+  border-color: #667eea;
+}
+
+.crossword-select__soon {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
 .crossword-select__start {
   width: 100%;
   padding: 15px;

@@ -1,179 +1,40 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { GRID_SIZE, selectCrosswordWords, generateCrossword, normalizeTypedLetter } from '../utils/crosswordLayout'
 import '../styles/EclipseGrid.css'
 
-const GRID_SIZE = 15
-const MAX_WORD_LENGTH = 13
-
-// Normalise un mot pour la grille : retire les accents, espaces, "/", tirets,
-// et ne conserve que les lettres. Prend la première alternative pour les
-// entrées bilingues du type "Hallway / Corridor".
-function sanitizeWord(text) {
-  if (!text) return ''
-  let s = String(text)
-  // Première alternative avant "/"
-  s = s.split('/')[0]
-  // Premier mot avant espace/tiret
-  s = s.split(/[\s-]+/)[0]
-  // Retire les accents (é -> e)
-  s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  // Ne garde que les lettres
-  s = s.replace(/[^A-Za-z]/g, '')
-  return s.toUpperCase()
-}
-
-class ProGridGenerator {
-  constructor(words) {
-    this.words = words
-    this.grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null))
-    this.placements = []
-    this.clueNum = 1
-  }
-
-  generate() {
-    if (this.words.length === 0) return { grid: this.grid, placements: [] }
-
-    // Placer 1er mot au centre horizontal
-    const word0 = this.words[0]
-    const row0 = Math.floor(GRID_SIZE / 2)
-    const col0 = Math.floor((GRID_SIZE - word0.length) / 2)
-
-    this.placeWordSafe(word0, row0, col0, 'across', 0)
-
-    // Placer autres mots avec intersections
-    for (let i = 1; i < Math.min(this.words.length, 10); i++) {
-      this.placeWithIntersection(this.words[i], i)
-    }
-
-    return { grid: this.grid, placements: this.placements }
-  }
-
-  placeWordSafe(word, row, col, dir, wordIdx) {
-    // Vérifier limites
-    if (row < 0 || col < 0) return false
-    if (dir === 'across' && col + word.length > GRID_SIZE) return false
-    if (dir === 'down' && row + word.length > GRID_SIZE) return false
-
-    const placement = {
-      wordIdx,
-      word,
-      row,
-      col,
-      dir,
-      clueNum: this.clueNum++,
-      cells: []
-    }
-
-    if (dir === 'across') {
-      for (let i = 0; i < word.length; i++) {
-        const c = col + i
-        // Vérifier pas de collision
-        if (this.grid[row][c] && this.grid[row][c] !== word[i]) return false
-        this.grid[row][c] = word[i]
-        placement.cells.push([row, c])
-      }
-    } else {
-      for (let i = 0; i < word.length; i++) {
-        const r = row + i
-        // Vérifier pas de collision
-        if (this.grid[r][col] && this.grid[r][col] !== word[i]) return false
-        this.grid[r][col] = word[i]
-        placement.cells.push([r, col])
-      }
-    }
-
-    this.placements.push(placement)
-    return true
-  }
-
-  placeWithIntersection(word, wordIdx) {
-    // Chercher toutes les intersections possibles
-    const intersections = []
-
-    for (let pIdx = 0; pIdx < this.placements.length; pIdx++) {
-      const placed = this.placements[pIdx]
-
-      for (let pCharIdx = 0; pCharIdx < placed.word.length; pCharIdx++) {
-        for (let wCharIdx = 0; wCharIdx < word.length; wCharIdx++) {
-          if (word[wCharIdx].toUpperCase() === placed.word[pCharIdx].toUpperCase()) {
-            const [pRow, pCol] = placed.cells[pCharIdx]
-            const newDir = placed.dir === 'across' ? 'down' : 'across'
-
-            let newRow, newCol
-
-            if (newDir === 'down') {
-              newRow = pRow - wCharIdx
-              newCol = pCol
-            } else {
-              newRow = pRow
-              newCol = pCol - wCharIdx
-            }
-
-            intersections.push({ newRow, newCol, newDir })
-          }
-        }
-      }
-    }
-
-    // Essayer chaque intersection
-    for (const { newRow, newCol, newDir } of intersections) {
-      if (this.placeWordSafe(word, newRow, newCol, newDir, wordIdx)) {
-        return true
-      }
-    }
-
-    return false
-  }
-}
-
-export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, puzzleType }) {
+export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, puzzleType, onWordsPlaced }) {
   const [grid, setGrid] = useState([])
   const [placements, setPlacements] = useState([])
   const [userAnswers, setUserAnswers] = useState({})
   const [solved, setSolved] = useState(new Set())
   const [selectedCell, setSelectedCell] = useState(null)
+  const [direction, setDirection] = useState('across')
+  const inputRefs = useRef({})
+
+  // Donner le focus à la case sélectionnée (autoFocus n'agit qu'au montage)
+  useEffect(() => {
+    if (!selectedCell) return
+    inputRefs.current[`${selectedCell[0]}-${selectedCell[1]}`]?.focus()
+  }, [selectedCell])
 
   useEffect(() => {
     if (!words || words.length < 2) return
 
     // Construire les mots à placer avec leurs métadonnées (texte + définition + id)
-    const wordsData = []
-    for (let idx = 0; idx < words.length && wordsData.length < 10; idx++) {
-      const w = words[idx]
-      let text, definition, wordId, wordLanguage
+    const wordsData = selectCrosswordWords(words, puzzleType)
 
-      if (puzzleType === 'Français') {
-        text = sanitizeWord(w.mot_fr)
-        definition = w.def_fr
-        wordId = w.id
-        wordLanguage = 'FR'
-      } else if (puzzleType === 'Anglais') {
-        text = sanitizeWord(w.mot_en)
-        definition = w.def_en
-        wordId = w.id
-        wordLanguage = 'EN'
-      } else {
-        // Bilingue : alterne français / anglais
-        const isFrench = idx % 2 === 0
-        text = sanitizeWord(isFrench ? w.mot_fr : w.mot_en)
-        definition = isFrench ? w.def_fr : w.def_en
-        wordId = w.id
-        wordLanguage = isFrench ? 'FR' : 'EN'
-      }
-
-      // Ignorer les mots vides ou trop longs pour la grille
-      if (!text || text.length > MAX_WORD_LENGTH) continue
-
-      wordsData.push({ text, definition, wordId, wordLanguage })
-    }
+    // Nouvelle grille : sélection et sens de saisie remis à zéro
+    setSelectedCell(null)
+    setDirection('across')
 
     if (wordsData.length < 2) {
       setGrid([])
       setPlacements([])
+      onWordsPlaced?.(0)
       return
     }
 
-    const gen = new ProGridGenerator(wordsData.map(d => d.text))
-    const { grid: g, placements: p } = gen.generate()
+    const { grid: g, placements: p } = generateCrossword(wordsData.map(d => d.text))
 
     setGrid(g)
     setPlacements(p.map(pl => ({
@@ -184,10 +45,16 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
     })))
     setUserAnswers({})
     setSolved(new Set())
+    // Nombre de mots réellement placés : base de la progression et de « Terminer »
+    onWordsPlaced?.(p.length)
+    // onWordsPlaced volontairement hors dépendances : ne pas régénérer la grille
+    // si le parent passe une nouvelle fonction
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [words, puzzleType, language])
 
   const handleCellInput = (row, col, value) => {
-    const letter = value.toUpperCase().slice(-1)
+    // Accents retirés, majuscule ; tout ce qui n'est pas A-Z est ignoré
+    const letter = normalizeTypedLetter(value)
     if (!letter) return
 
     const key = `${row}-${col}`
@@ -212,21 +79,53 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
       }
     })
 
-    // Auto-avance
-    if (letter) {
-      let moved = false
-      for (let c = col + 1; c < GRID_SIZE; c++) {
-        if (grid[row]?.[c]) { setSelectedCell([row, c]); moved = true; break }
-      }
-      if (!moved) {
-        for (let r = row + 1; r < GRID_SIZE; r++) {
-          if (grid[r]?.[col]) { setSelectedCell([r, col]); moved = true; break }
-        }
-      }
+    // Auto-avance : case suivante du mot en cours, dans le sens de saisie
+    const [dr, dc] = direction === 'down' ? [1, 0] : [0, 1]
+    if (grid[row + dr]?.[col + dc]) setSelectedCell([row + dr, col + dc])
+  }
+
+  // Saisie sans touche physique (clavier virtuel). Un caractère refusé
+  // (chiffre, signe) est annulé par React ; on resélectionne alors la lettre
+  // présente pour que la saisie suivante la remplace (maxLength 1).
+  const handleInputEvent = (e, row, col) => {
+    const input = e.target
+    if (!normalizeTypedLetter(input.value)) {
+      requestAnimationFrame(() => input.select())
+      return
     }
+    handleCellInput(row, col, input.value)
+  }
+
+  // Sélectionne une case ; le sens de saisie suit le mot qui passe par cette
+  // case (de préférence celui qui y commence ; horizontal d'abord si deux mots
+  // y commencent). Un second clic sur une case de croisement change de sens.
+  const selectCell = (row, col) => {
+    const through = placements.filter(p => p.cells.some(c => c[0] === row && c[1] === col))
+    const dirs = through.map(p => p.dir)
+    const startDirs = through.filter(p => p.row === row && p.col === col).map(p => p.dir)
+    const sameCell = selectedCell?.[0] === row && selectedCell?.[1] === col
+    if (sameCell && dirs.length > 1) {
+      setDirection(direction === 'across' ? 'down' : 'across')
+    } else if (startDirs.length) {
+      setDirection(startDirs.includes('across') ? 'across' : 'down')
+    } else if (dirs.length && !dirs.includes(direction)) {
+      setDirection(dirs[0])
+    }
+    setSelectedCell([row, col])
   }
 
   const handleKeyDown = (e, row, col) => {
+    // Caractère tapé au clavier : traité ici plutôt que par onChange, qui ne se
+    // déclenche pas si la case contient déjà la même lettre (case de croisement).
+    // Lettre accentuée normalisée (é -> E) ; chiffres et signes ignorés.
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault()
+      if (normalizeTypedLetter(e.key)) handleCellInput(row, col, e.key)
+      return
+    }
+    if (e.key.startsWith('Arrow')) {
+      setDirection(e.key === 'ArrowUp' || e.key === 'ArrowDown' ? 'down' : 'across')
+    }
     if (e.key === 'ArrowRight') {
       e.preventDefault()
       let c = col + 1
@@ -270,7 +169,7 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
         <button onClick={onBack} className="eclipse-back-btn">
           ← {language === 'fr' ? 'Retour' : 'Back'}
         </button>
-        <h2>Eclipse Crossword {puzzleType}</h2>
+        <h2>{language === 'fr' ? 'Mots croisés' : 'Crossword'}</h2>
       </div>
 
       <div className="eclipse-container">
@@ -296,7 +195,7 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
                     <div
                       key={key}
                       className={`eclipse-cell ${!cell ? 'empty' : ''} ${isSelected ? 'selected' : ''} ${isCorrect ? 'correct' : ''}`}
-                      onClick={() => cell && setSelectedCell([r, c])}
+                      onClick={() => cell && selectCell(r, c)}
                     >
                       {cell && (
                         <>
@@ -305,9 +204,15 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
                             type="text"
                             maxLength="1"
                             value={userL}
-                            onChange={(e) => handleCellInput(r, c, e.target.value)}
+                            // onInput et non onChange : React n'émet pas onChange si la
+                            // lettre saisie est identique (clavier virtuel, case de croisement)
+                            onInput={(e) => handleInputEvent(e, r, c)}
+                            onChange={() => {}}
                             onKeyDown={(e) => handleKeyDown(e, r, c)}
-                            autoFocus={isSelected}
+                            // Lettre déjà présente sélectionnée : la saisie la remplace (maxLength 1)
+                            onFocus={(e) => e.target.select()}
+                            onClick={(e) => e.target.select()}
+                            ref={el => { inputRefs.current[key] = el }}
                             className="eclipse-input"
                             aria-label={`Ligne ${r + 1}, colonne ${c + 1}`}
                           />
