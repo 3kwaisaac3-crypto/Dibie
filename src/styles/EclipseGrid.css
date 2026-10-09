@@ -32,6 +32,8 @@
   margin: 0;
   color: #333;
   font-size: 24px;
+  /* Titre avec domaine parfois long (« ENCADREMENT / APPROXIMATION ») */
+  overflow-wrap: anywhere;
 }
 
 /* MAIN CONTAINER */
@@ -199,6 +201,13 @@
   text-align: center;
 }
 
+.clues-legend {
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #555;
+}
+
 .clue-text {
   color: #555;
 }
@@ -242,6 +251,10 @@
 }
 
 @media (max-width: 768px) {
+  .eclipse-header h2 {
+    font-size: 18px;
+  }
+
   .eclipse-container {
     gap: 15px;
   }

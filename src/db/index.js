@@ -86,10 +86,12 @@ export const saveUserProgress = async (userId, wordId, isCorrect, timeTaken) => 
 }
 
 // Sauvegarder score
-export const saveScore = async (userId, gameType, score, niveau) => {
+// details (facultatif) : informations de la partie, ex. graine de la grille
+export const saveScore = async (userId, gameType, score, niveau, details = {}) => {
   try {
     const scores = JSON.parse(localStorage.getItem('dibieScores') || '[]')
     scores.push({
+      ...details,
       userId,
       gameType,
       score,

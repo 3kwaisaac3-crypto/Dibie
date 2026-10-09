@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { GRID_SIZE, selectCrosswordWords, generateCrossword, normalizeTypedLetter } from '../utils/crosswordLayout'
+import { GRID_SIZE, normalizeTypedLetter, backspaceAction, answerChanges, letterCountLabel } from '../utils/crosswordLayout'
 import '../styles/EclipseGrid.css'
 
-export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, puzzleType, onWordsPlaced }) {
+// game : grille préparée par createCrosswordGame (CrosswordGame.jsx)
+export default function EclipseGrid({ game, language, onAnswerCorrect, onAnswerRemoved, onBack, onWordsPlaced, onLettersChange, subject }) {
   const [grid, setGrid] = useState([])
   const [placements, setPlacements] = useState([])
   const [userAnswers, setUserAnswers] = useState({})
@@ -11,6 +12,12 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
   const [direction, setDirection] = useState('across')
   const inputRefs = useRef({})
 
+  // Signaler au parent si au moins une lettre est saisie (confirmation de
+  // « Nouvelle grille »)
+  useEffect(() => {
+    onLettersChange?.(Object.values(userAnswers).some(Boolean))
+  }, [userAnswers, onLettersChange])
+
   // Donner le focus à la case sélectionnée (autoFocus n'agit qu'au montage)
   useEffect(() => {
     if (!selectedCell) return
@@ -18,23 +25,18 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
   }, [selectedCell])
 
   useEffect(() => {
-    if (!words || words.length < 2) return
-
-    // Construire les mots à placer avec leurs métadonnées (texte + définition + id)
-    const wordsData = selectCrosswordWords(words, puzzleType)
-
     // Nouvelle grille : sélection et sens de saisie remis à zéro
     setSelectedCell(null)
     setDirection('across')
 
-    if (wordsData.length < 2) {
+    if (!game) {
       setGrid([])
       setPlacements([])
       onWordsPlaced?.(0)
       return
     }
 
-    const { grid: g, placements: p } = generateCrossword(wordsData.map(d => d.text))
+    const { wordsData, grid: g, placements: p } = game
 
     setGrid(g)
     setPlacements(p.map(pl => ({
@@ -50,38 +52,37 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
     // onWordsPlaced volontairement hors dépendances : ne pas régénérer la grille
     // si le parent passe une nouvelle fonction
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [words, puzzleType, language])
+  }, [game])
 
   const handleCellInput = (row, col, value) => {
     // Accents retirés, majuscule ; tout ce qui n'est pas A-Z est ignoré
     const letter = normalizeTypedLetter(value)
     if (!letter) return
 
-    const key = `${row}-${col}`
-    const newAnswers = { ...userAnswers, [key]: letter }
-    setUserAnswers(newAnswers)
-
-    // Vérifier mots complets
-    placements.forEach(p => {
-      const inPlace = p.cells.find(c => c[0] === row && c[1] === col)
-      if (!inPlace) return
-
-      let ok = true, userWord = ''
-      p.cells.forEach(c => {
-        const ans = newAnswers[`${c[0]}-${c[1]}`] || ''
-        userWord += ans
-        if (!ans) ok = false
-      })
-
-      if (ok && userWord === p.word) {
-        setSolved(prev => new Set([...prev, p.wordIdx]))
-        onAnswerCorrect(p.wordId)
-      }
-    })
+    updateAnswer(row, col, letter)
 
     // Auto-avance : case suivante du mot en cours, dans le sens de saisie
     const [dr, dc] = direction === 'down' ? [1, 0] : [0, 1]
     if (grid[row + dr]?.[col + dc]) setSelectedCell([row + dr, col + dc])
+  }
+
+  // Écrit (ou efface, letter = '') une case, puis met à jour les mots trouvés :
+  // un mot complété est compté, un mot trouvé dont une lettre est effacée ou
+  // remplacée redevient « à trouver » (une case de croisement peut en toucher deux).
+  const updateAnswer = (row, col, letter) => {
+    const newAnswers = { ...userAnswers, [`${row}-${col}`]: letter }
+    const { found, lost } = answerChanges(placements, userAnswers, newAnswers, row, col)
+    setUserAnswers(newAnswers)
+    if (found.length || lost.length) {
+      setSolved(prev => {
+        const next = new Set(prev)
+        found.forEach(p => next.add(p.wordIdx))
+        lost.forEach(p => next.delete(p.wordIdx))
+        return next
+      })
+    }
+    found.forEach(p => onAnswerCorrect(p.wordId))
+    lost.forEach(p => onAnswerRemoved?.(p.wordId))
   }
 
   // Saisie sans touche physique (clavier virtuel). Un caractère refusé
@@ -147,8 +148,11 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
       while (r >= 0 && !grid[r]?.[col]) r--
       if (r >= 0) setSelectedCell([r, col])
     } else if (e.key === 'Backspace') {
+      // Case remplie : effacer ; case vide : reculer dans le sens du mot et effacer
       e.preventDefault()
-      setUserAnswers({ ...userAnswers, [`${row}-${col}`]: '' })
+      const { clear, select } = backspaceAction(grid, userAnswers, row, col, direction)
+      if (clear) updateAnswer(clear[0], clear[1], '')
+      if (select) setSelectedCell(select)
     }
   }
 
@@ -169,7 +173,11 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
         <button onClick={onBack} className="eclipse-back-btn">
           ← {language === 'fr' ? 'Retour' : 'Back'}
         </button>
-        <h2>{language === 'fr' ? 'Mots croisés' : 'Crossword'}</h2>
+        {/* Titre avec le domaine des mots (décision d'Isaac du 2026-10-07) : « Mots croisés — MAISON » */}
+        <h2>
+          {language === 'fr' ? 'Mots croisés' : 'Crossword'}
+          {subject ? ` — ${subject.toUpperCase()}` : ''}
+        </h2>
       </div>
 
       <div className="eclipse-container">
@@ -235,7 +243,7 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
                 {across.map(p => (
                   <div key={p.clueNum} className={`clue ${solved.has(p.wordIdx) ? 'solved' : ''}`}>
                     <span className="clue-num">{p.clueNum}</span>
-                    <span className="clue-text">{p.definition}</span>
+                    <span className="clue-text">{p.definition} {letterCountLabel(p.word.length)}</span>
                   </div>
                 ))}
               </div>
@@ -247,12 +255,17 @@ export default function EclipseGrid({ words, language, onAnswerCorrect, onBack, 
                 {down.map(p => (
                   <div key={p.clueNum} className={`clue ${solved.has(p.wordIdx) ? 'solved' : ''}`}>
                     <span className="clue-num">{p.clueNum}</span>
-                    <span className="clue-text">{p.definition}</span>
+                    <span className="clue-text">{p.definition} {letterCountLabel(p.word.length)}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+          <p className="clues-legend">
+            {language === 'fr'
+              ? 'Le nombre entre parenthèses indique le nombre de lettres du mot à trouver.'
+              : 'The number in brackets is the number of letters in the word to find.'}
+          </p>
         </div>
       </div>
     </div>
