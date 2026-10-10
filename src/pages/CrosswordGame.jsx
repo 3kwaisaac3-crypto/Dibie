@@ -9,7 +9,7 @@ import '../styles/CrosswordGame.css'
 const PUZZLE_TYPES = ['Bilingue', 'Français', 'Anglais']
 
 export default function CrosswordGame() {
-  const { user, language, setCurrentPage } = useAppStore()
+  const { user, language, logout } = useAppStore()
   const [levels, setLevels] = useState([])
   const [level, setLevel] = useState('')
   const [subject, setSubject] = useState('')
@@ -188,9 +188,12 @@ export default function CrosswordGame() {
     setGameState('finished')
   }
 
-  const handleBackToDashboard = () => {
+  // « Retour » qui quitte l'activité : retour à l'écran de connexion
+  // (décision d'Isaac du 2026-10-09). Les retours internes (grille -> écran
+  // de choix) ne changent pas.
+  const handleBackToLogin = () => {
     setGameState('select')
-    setCurrentPage('studentDashboard')
+    logout()
   }
 
   if (gameState === 'select') {
@@ -270,6 +273,9 @@ export default function CrosswordGame() {
 
           <button className="crossword-select__start" onClick={handleStartGame} disabled={!canStart}>
             {language === 'fr' ? 'Commencer' : 'Start'}
+          </button>
+          <button className="crossword-select__back" onClick={handleBackToLogin}>
+            {language === 'fr' ? 'Retour' : 'Back'}
           </button>
           {noPlayableSubject && (
             <p className="crossword-select__hint">
@@ -400,7 +406,7 @@ export default function CrosswordGame() {
           <button className="crossword-finished__button" onClick={handleNewGrid}>
             {language === 'fr' ? 'Nouvelle grille' : 'New grid'}
           </button>
-          <button className="crossword-finished__button" onClick={handleBackToDashboard}>
+          <button className="crossword-finished__button" onClick={handleBackToLogin}>
             {language === 'fr' ? 'Retour' : 'Back'}
           </button>
         </div>

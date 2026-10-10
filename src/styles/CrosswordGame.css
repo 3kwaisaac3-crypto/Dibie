@@ -118,6 +118,20 @@
   transition: all 0.3s ease;
 }
 
+/* « Retour » de l'écran de choix (quitte l'activité), comme les mots mêlés */
+.crossword-select__back {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: #eee;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 .crossword-select__start:hover:not(:disabled) {
   background-color: #45a049;
   transform: translateY(-2px);
@@ -187,7 +201,9 @@
 /* Finished State */
 .crossword-finished {
   width: 100%;
-  height: 100vh;
+  /* min-height et non height : si le contenu dépasse la hauteur de la
+     fenêtre (petit écran, zoom), le haut (titre) était rogné et inaccessible */
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
