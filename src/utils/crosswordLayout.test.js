@@ -7,12 +7,20 @@ import {
   sanitizeWord,
   normalizeTypedLetter,
   selectCrosswordWords,
-  countPlacedWords,
   isPlayableCrossword,
+  createCrosswordGame,
+  domainWords,
+  matchesDomain,
+  PLAYABILITY_SEED,
+  MAX_GRID_ATTEMPTS,
   crosswordSubjects,
   defaultCrosswordSubject,
+  backspaceAction,
+  letterCountLabel,
+  isWordComplete,
+  answerChanges,
+  MIN_WORD_LENGTH,
   MIN_PLACED_WORDS,
-  VOCAB_PER_GAME,
   GRID_SIZE,
   MAX_WORD_LENGTH,
   MAX_WORDS
@@ -22,8 +30,13 @@ const STEP = { across: [0, 1], down: [1, 0] }
 const LEVELS = ['SIL-CP', 'CE1-CE2', 'CM1-CM2']
 const TYPES = ['Bilingue', 'Français', 'Anglais']
 
-// Oracle indépendant de selectCrosswordWords : 10 mots au plus,
-// mots vides ou trop longs ignorés, bilingue = alternance FR / EN.
+// Forme de grille simple d'un texte (oracle) : majuscules sans accents
+const plain = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z]/g, '')
+
+// Oracle indépendant de selectCrosswordWords : 10 mots au plus, 3 lettres
+// minimum, sans doublon, ni mot identique (au pluriel S, X, AL/AUX près) à un mot du
+// domaine de son entrée ; mots vides ou trop longs ignorés, bilingue =
+// alternance FR / EN.
 function wordsFor(entries, puzzleType) {
   const texts = []
   for (let idx = 0; idx < entries.length && texts.length < MAX_WORDS; idx++) {
@@ -32,7 +45,10 @@ function wordsFor(entries, puzzleType) {
     if (puzzleType === 'Français') text = sanitizeWord(w.mot_fr)
     else if (puzzleType === 'Anglais') text = sanitizeWord(w.mot_en)
     else text = sanitizeWord(idx % 2 === 0 ? w.mot_fr : w.mot_en)
-    if (!text || text.length > MAX_WORD_LENGTH) continue
+    if (!text || text.length < 3 || text.length > MAX_WORD_LENGTH || texts.includes(text)) continue
+    const domain = String(w.sujet || '').split(/[/\s'’-]+/).map(plain).filter(d => d.length >= 3)
+    const plural = (a, b) => b === a + 'S' || b === a + 'X' || (a.endsWith('AL') && b === a.slice(0, -2) + 'AUX')
+    if (domain.some(d => d === text || plural(text, d) || plural(d, text))) continue
     texts.push(text)
   }
   return texts
@@ -40,33 +56,29 @@ function wordsFor(entries, puzzleType) {
 
 const VOCAB = JSON.parse(readFileSync(new URL('../data/vocabulaire.json', import.meta.url), 'utf8'))
 
-// Toutes les combinaisons niveau x sujet x type, avec les 12 premières
-// entrées actives du sujet (comme CrosswordGame.jsx)
+// Toutes les combinaisons niveau x sujet x type, avec toutes les entrées
+// actives du sujet (comme CrosswordGame.jsx)
 function allCombinations() {
   const combos = []
   for (const level of LEVELS) {
     const active = VOCAB.filter(v => v.niveau_fr === level && v.actif !== false)
     for (const subject of new Set(active.map(v => v.sujet))) {
-      const entries = active.filter(v => v.sujet === subject).slice(0, 12)
+      const entries = active.filter(v => v.sujet === subject)
       for (const type of TYPES) combos.push({ level, subject, type, entries })
     }
   }
   return combos
 }
 
-// Toutes les grilles réellement proposées dans le jeu (niveau x sujet x type),
-// avec le vrai vocabulaire et la même sélection que CrosswordGame.jsx (12 mots).
+// Grilles réellement proposées dans le jeu (niveau x sujet x type), pour
+// quelques graines, avec le vrai vocabulaire (createCrosswordGame).
+const PUZZLE_SEEDS = [0, 1, 2, 123456789, 4294967295]
 function realPuzzles() {
-  const vocab = VOCAB
   const puzzles = []
-  for (const level of LEVELS) {
-    const active = vocab.filter(v => v.niveau_fr === level && v.actif !== false)
-    for (const subject of new Set(active.map(v => v.sujet))) {
-      const entries = active.filter(v => v.sujet === subject).slice(0, 12)
-      for (const type of TYPES) {
-        const words = wordsFor(entries, type)
-        if (words.length >= 2) puzzles.push({ name: `${level} / ${subject} / ${type}`, words })
-      }
+  for (const { level, subject, type, entries } of allCombinations()) {
+    for (const seed of PUZZLE_SEEDS) {
+      const game = createCrosswordGame(entries, type, seed)
+      if (game) puzzles.push({ name: `${level} / ${subject} / ${type} / graine ${seed}`, words: game.wordsData.map(d => d.text), game })
     }
   }
   return puzzles
@@ -193,8 +205,9 @@ test('au plus 10 mots placés, numéros jamais au-delà du nombre de cases de d�
 test('grilles du vrai vocabulaire (tous niveaux, sujets, types) : invariants respectés', () => {
   const puzzles = realPuzzles()
   assert.ok(puzzles.length > 100, 'jeu de grilles représentatif')
-  for (const { name, words } of puzzles) {
-    assertValidCrossword(words, generateCrossword(words), name)
+  for (const { name, words, game } of puzzles) {
+    assertValidCrossword(words, game, name)
+    assert.deepEqual(game.placements, generateCrossword(words).placements, `${name} : grille = placement des mots tirés`)
   }
 })
 
@@ -205,7 +218,7 @@ test('CE1-CE2 : la grande majorité des mots est placée', () => {
     total += words.length
     placed += generateCrossword(words).placements.length
   }
-  // Constat au 2026-10-06, mots composés exclus : 451 / 482 (93,6 %).
+  // Constat au 2026-10-07 (tirage par graine, 5 graines) : environ 94 %.
   // Seuil volontairement plus bas.
   assert.ok(placed / total >= 0.9, `${placed} / ${total} mots placés`)
 })
@@ -235,24 +248,25 @@ test('selectCrosswordWords = oracle sur tout le vrai vocabulaire', () => {
   }
 })
 
-test('sujet jouable = au moins 2 mots placés dans la grille qui sera proposée', () => {
+test('sujet jouable = une grille d\'au moins 2 mots pour la graine de contrôle', () => {
   for (const { level, subject, type, entries } of allCombinations()) {
     const name = `${level} / ${subject} / ${type}`
-    const words = wordsFor(entries, type)
-    const placed = words.length < 2 ? 0 : generateCrossword(words).placements.length
-    assert.equal(countPlacedWords(entries, type), placed, name)
-    assert.equal(isPlayableCrossword(entries, type), placed >= MIN_PLACED_WORDS, name)
+    const game = createCrosswordGame(entries, type, PLAYABILITY_SEED)
+    assert.equal(isPlayableCrossword(entries, type), game !== null, name)
+    if (game) assert.ok(game.placements.length >= MIN_PLACED_WORDS, name)
   }
   assert.equal(isPlayableCrossword([], 'Bilingue'), false)
 })
 
-test('sujets grisés connus (constat du 2026-10-06) et sujet jouable', () => {
+test('sujets grisés connus (constat du 2026-10-09, complément v0.5 intégré) et sujets jouables', () => {
   const entriesOf = (level, subject) => VOCAB
-    .filter(v => v.niveau_fr === level && v.sujet === subject && v.actif !== false).slice(0, 12)
-  // 1 seul mot placé sur 2 : « Terminer » serait affiché dès le départ
-  for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('CE1-CE2', 'Logiciels'), type), false, `Logiciels ${type}`)
-  // moins de 2 mots après exclusion des mots composés
-  for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('SIL-CP', 'Lessive'), type), false, `Lessive ${type}`)
+    .filter(v => v.niveau_fr === level && v.sujet === subject && v.actif !== false)
+  // toujours grisés : un seul mot utilisable (INFORMATION et LANGUE écartés par la règle du titre)
+  for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('CE1-CE2', 'Information'), type), false, `Information ${type}`)
+  assert.equal(isPlayableCrossword(entriesOf('CM1-CM2', 'Langue / Culture'), 'Français'), false, 'Langue / Culture Français')
+  // grisés avant le complément, jouables après
+  for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('CE1-CE2', 'Logiciels'), type), true, `Logiciels ${type}`)
+  for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('SIL-CP', 'Lessive'), type), true, `Lessive ${type}`)
   for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('CE1-CE2', 'Agriculture'), type), true, `Agriculture ${type}`)
 })
 
@@ -264,7 +278,7 @@ test('crosswordSubjects : sujets du niveau seulement, triés, jouables comme isP
       const list = crosswordSubjects(levelEntries, type)
       assert.deepEqual(list.map(s => s.subject), expected, `${level} / ${type} : sujets du niveau`)
       for (const { subject, playable } of list) {
-        const entries = levelEntries.filter(v => v.sujet === subject && v.actif !== false).slice(0, VOCAB_PER_GAME)
+        const entries = levelEntries.filter(v => v.sujet === subject && v.actif !== false)
         assert.equal(playable, isPlayableCrossword(entries, type), `${level} / ${subject} / ${type}`)
       }
     }
@@ -301,5 +315,190 @@ test('vrai vocabulaire : un sujet par défaut jouable pour chaque niveau et type
       const chosen = defaultCrosswordSubject(list, '')
       assert.ok(list.some(s => s.subject === chosen && s.playable), `${level} / ${type} : ${chosen}`)
     }
+  }
+})
+
+test('backspaceAction : Retour arrière comme dans un mots croisés', () => {
+  // Grille : CHAT horizontal, croisé sur sa 2e lettre (H) par HIBOU vertical
+  const words = ['CHAT', 'HIBOU']
+  const { grid, placements } = generateCrossword(words)
+  const chat = placements.find(p => p.word === 'CHAT')
+  const hibou = placements.find(p => p.word === 'HIBOU')
+  assert.ok(chat && hibou, 'les deux mots sont placés')
+  const [c0, c1, c2] = chat.cells
+  const answers = { [c0.join('-')]: 'C', [c1.join('-')]: 'H' }
+
+  // case remplie : effacée, la sélection ne bouge pas
+  assert.deepEqual(backspaceAction(grid, answers, ...c1, 'across'), { clear: c1, select: null })
+  // case vide : recule d'une case dans le sens du mot et l'efface
+  assert.deepEqual(backspaceAction(grid, answers, ...c2, 'across'), { clear: c1, select: c1 })
+  // début de mot vide : rien
+  assert.deepEqual(backspaceAction(grid, {}, ...c0, 'across'), { clear: null, select: null })
+  // sens vertical : recule vers le haut, y compris sur la case de croisement
+  const [h0, h1] = hibou.cells
+  assert.deepEqual(backspaceAction(grid, { [h0.join('-')]: 'H' }, ...h1, 'down'), { clear: h0, select: h0 })
+  // début du mot vertical vide : rien (la case au-dessus est hors mot)
+  assert.deepEqual(backspaceAction(grid, {}, ...h0, 'down'), { clear: null, select: null })
+})
+
+test('selectCrosswordWords : 3 lettres minimum (décision du 2026-10-05)', () => {
+  assert.equal(MIN_WORD_LENGTH, 3)
+  const entries = [
+    { id: 'pi', mot_fr: 'PI', mot_en: 'Pi', def_fr: 'Nombre pi', def_en: 'Pi' },
+    { id: 'axe', mot_fr: 'AXE', mot_en: 'Axis', def_fr: 'Droite', def_en: 'Line' },
+    { id: 'rayon', mot_fr: 'RAYON', mot_en: 'Radius', def_fr: 'Segment', def_en: 'Segment' }
+  ]
+  assert.deepEqual(selectCrosswordWords(entries, 'Français').map(d => d.text), ['AXE', 'RAYON'])
+  // vrai vocabulaire : « PI » (CM1-CM2 / Cercle) n'est plus retenu
+  const cercle = VOCAB.filter(v => v.niveau_fr === 'CM1-CM2' && v.sujet === 'Cercle' && v.actif !== false).slice(0, 12)
+  for (const type of TYPES) {
+    assert.ok(selectCrosswordWords(cercle, type).every(d => d.text.length >= 3), `Cercle ${type}`)
+  }
+})
+
+test('selectCrosswordWords : pas de mot en double, la 2e occurrence est écartée', () => {
+  const entries = [
+    { id: 'a', mot_fr: 'Ballon', mot_en: 'Ball', def_fr: 'df a', def_en: 'de a' },
+    { id: 'b', mot_fr: 'Poupée', mot_en: 'Doll', def_fr: 'df b', def_en: 'de b' },
+    { id: 'c', mot_fr: 'Balle', mot_en: 'BALL', def_fr: 'df c', def_en: 'de c' }
+  ]
+  assert.deepEqual(selectCrosswordWords(entries, 'Anglais').map(d => d.wordId), ['a', 'b'])
+  // doublon après normalisation (accents)
+  const accents = [
+    { id: 'x', mot_fr: 'Été', mot_en: 'Summer' },
+    { id: 'y', mot_fr: 'ETE', mot_en: 'Summer' }
+  ]
+  assert.deepEqual(selectCrosswordWords(accents, 'Français').map(d => d.wordId), ['x'])
+  // vrai vocabulaire : aucune grille ne contient deux fois le même mot
+  for (const { level, subject, type, entries: e } of allCombinations()) {
+    const texts = selectCrosswordWords(e, type).map(d => d.text)
+    assert.equal(new Set(texts).size, texts.length, `${level} / ${subject} / ${type}`)
+  }
+})
+
+test('letterCountLabel : le nombre seul entre parenthèses, « (7) »', () => {
+  assert.equal(letterCountLabel(7), '(7)')
+  assert.equal(letterCountLabel(3), '(3)')
+  assert.equal(letterCountLabel(12), '(12)')
+})
+
+test('answerChanges : mot trouvé, puis lettre effacée (croisement : deux mots perdus)', () => {
+  const { placements } = generateCrossword(['CHAT', 'HIBOU'])
+  const chat = placements.find(p => p.word === 'CHAT')
+  const hibou = placements.find(p => p.word === 'HIBOU')
+  const fill = (p, answers) => p.cells.forEach(([r, c], i) => { answers[`${r}-${c}`] = p.word[i] })
+  const full = {}
+  fill(chat, full); fill(hibou, full)
+  assert.ok(isWordComplete(chat, full) && isWordComplete(hibou, full))
+
+  // dernière lettre de CHAT tapée : CHAT trouvé
+  const [lr, lc] = chat.cells[3]
+  const before = { ...full, [`${lr}-${lc}`]: '' }
+  assert.deepEqual(answerChanges(placements, before, full, lr, lc).found.map(p => p.word), ['CHAT'])
+
+  // lettre propre à CHAT effacée : seul CHAT est perdu
+  const erased = { ...full, [`${lr}-${lc}`]: '' }
+  const r1 = answerChanges(placements, full, erased, lr, lc)
+  assert.deepEqual(r1.lost.map(p => p.word), ['CHAT'])
+  assert.deepEqual(r1.found, [])
+
+  // lettre de croisement (H) effacée : les deux mots sont perdus
+  const [xr, xc] = chat.cells[1]
+  const r2 = answerChanges(placements, full, { ...full, [`${xr}-${xc}`]: '' }, xr, xc)
+  assert.deepEqual(r2.lost.map(p => p.word).sort(), ['CHAT', 'HIBOU'])
+
+  // lettre remplacée par une autre : perdu aussi
+  const r3 = answerChanges(placements, full, { ...full, [`${lr}-${lc}`]: 'X' }, lr, lc)
+  assert.deepEqual(r3.lost.map(p => p.word), ['CHAT'])
+})
+
+test('createCrosswordGame : même graine, même grille ; graine affichée rejouable', () => {
+  const entries = VOCAB.filter(v => v.niveau_fr === 'CE1-CE2' && v.sujet === 'Maison' && v.actif !== false)
+  for (const seed of [0, 7, 99999, 4294967295]) {
+    const a = createCrosswordGame(entries, 'Bilingue', seed)
+    const b = createCrosswordGame(entries, 'Bilingue', seed)
+    assert.deepEqual(a, b, `graine ${seed}`)
+    // la graine finale (affichée « Grille n° ») redonne la même grille
+    const again = createCrosswordGame(entries, 'Bilingue', a.seed)
+    assert.deepEqual(again.placements, a.placements)
+    assert.equal(again.seed, a.seed)
+    assert.equal(again.attempts, 1)
+  }
+  // l'ordre des données ne change pas la grille (tri par id avant tirage)
+  assert.deepEqual(createCrosswordGame([...entries].reverse(), 'Français', 42), createCrosswordGame(entries, 'Français', 42))
+})
+
+test('createCrosswordGame : variété entre graines et toutes les entrées atteignables', () => {
+  // grand sujet : CE1-CE2 / Maison (28 entrées)
+  const entries = VOCAB.filter(v => v.niveau_fr === 'CE1-CE2' && v.sujet === 'Maison' && v.actif !== false)
+  assert.ok(entries.length > MAX_WORDS, 'sujet plus grand qu\'une grille')
+  const grids = new Set()
+  const reached = new Set()
+  for (let seed = 0; seed < 200; seed++) {
+    const game = createCrosswordGame(entries, 'Français', seed)
+    grids.add(game.placements.map(p => p.word).sort().join(','))
+    game.placements.forEach(p => reached.add(game.wordsData[p.wordIdx].wordId))
+  }
+  assert.ok(grids.size >= 150, `${grids.size} grilles différentes sur 200 graines`)
+  // toute entrée qui donne un mot utilisable apparaît dans au moins une grille
+  const usable = entries.filter(e => selectCrosswordWords([e], 'Français').length === 1).map(e => e.id)
+  assert.deepEqual(usable.filter(id => !reached.has(id)), [], 'entrées jamais tirées')
+})
+
+test('grisage vrai : sujet jouable -> grille d\'au moins 2 mots pour toute graine essayée ; sujet grisé -> aucune', () => {
+  const seeds = Array.from({ length: 8 }, (_, i) => (i * 2654435761) >>> 0)
+  for (const { level, subject, type, entries } of allCombinations()) {
+    const name = `${level} / ${subject} / ${type}`
+    const playable = isPlayableCrossword(entries, type)
+    for (const seed of seeds) {
+      const game = createCrosswordGame(entries, type, seed)
+      if (playable) assert.ok(game && game.placements.length >= MIN_PLACED_WORDS, `${name} graine ${seed}`)
+      else assert.equal(game, null, `${name} graine ${seed}`)
+    }
+  }
+  assert.equal(MAX_GRID_ATTEMPTS, 20)
+})
+
+test('mot identique au domaine du titre écarté (décision du 2026-10-07)', () => {
+  assert.deepEqual(domainWords('Matière / Mélanges'), ['MATIERE', 'MELANGES'])
+  assert.deepEqual(domainWords('Résolution de problèmes'), ['RESOLUTION', 'PROBLEMES'])
+  assert.deepEqual(domainWords('Utilisation de l’ordinateur'), ['UTILISATION', 'ORDINATEUR'])
+  assert.equal(matchesDomain('MAISON', 'Maison'), true)
+  assert.equal(matchesDomain('MELANGE', 'Matière / Mélanges'), true, 'singulier / pluriel')
+  assert.equal(matchesDomain('FRACTIONS', 'Fraction'), true, 'pluriel / singulier')
+  assert.equal(matchesDomain('CULTURE', 'Musique / Culture'), true, 'sujet double')
+  assert.equal(matchesDomain('JARDIN', 'Jardinage'), false, 'début de mot seulement')
+  assert.equal(matchesDomain('TABLE', 'Maison'), false)
+  const entries = [
+    { id: '1', sujet: 'Maison', mot_fr: 'Maison', mot_en: 'House' },
+    { id: '2', sujet: 'Maison', mot_fr: 'Table', mot_en: 'Table' },
+    { id: '3', sujet: 'Maison', mot_fr: 'Porte', mot_en: 'Door' }
+  ]
+  assert.deepEqual(selectCrosswordWords(entries, 'Français').map(d => d.text), ['TABLE', 'PORTE'])
+  assert.deepEqual(selectCrosswordWords(entries, 'Anglais').map(d => d.text), ['HOUSE', 'TABLE', 'DOOR'])
+  // vrai vocabulaire : aucun mot retenu n'est identique à son domaine
+  for (const { level, subject, type, entries: e } of allCombinations()) {
+    for (const d of selectCrosswordWords(e, type)) {
+      assert.equal(matchesDomain(d.text, subject), false, `${level} / ${subject} / ${type} : ${d.text}`)
+    }
+  }
+})
+
+test('mot identique au domaine : pluriels en -X et -AUX (décision du 2026-10-09)', () => {
+  assert.equal(matchesDomain('JEU', 'Jeux'), true)
+  assert.equal(matchesDomain('JEUX', 'Jeu'), true, 'dans les deux sens')
+  assert.equal(matchesDomain('DECIMAL', 'Nombres décimaux'), true)
+  assert.equal(matchesDomain('ANIMAL', 'Animaux'), true)
+  assert.equal(matchesDomain('CHEVAUX', 'Cheval'), true, 'dans les deux sens')
+  // pas de faux positif sur des mots seulement proches
+  assert.equal(matchesDomain('JEUNE', 'Jeux'), false)
+  assert.equal(matchesDomain('ANIMATION', 'Animaux'), false)
+  assert.equal(matchesDomain('DECIMALE', 'Nombres décimaux'), false)
+  assert.equal(matchesDomain('AUX', 'Jeux'), false)
+  // vrai vocabulaire : JEU (SIL-CP / Jeux) et DECIMAL (CM1-CM2 / Nombres décimaux) ne sont plus retenus
+  const words = (level, subject) => VOCAB.filter(v => v.niveau_fr === level && v.sujet === subject && v.actif !== false)
+  for (const type of TYPES) {
+    assert.ok(!selectCrosswordWords(words('SIL-CP', 'Jeux'), type).some(d => d.text === 'JEU'), `Jeux ${type}`)
+    assert.ok(!selectCrosswordWords(words('CM1-CM2', 'Nombres décimaux'), type).some(d => d.text === 'DECIMAL'), `Nombres décimaux ${type}`)
   }
 })

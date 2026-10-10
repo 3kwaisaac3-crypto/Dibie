@@ -1,6 +1,8 @@
 .login {
   width: 100%;
-  height: 100vh;
+  /* min-height et non height : si le contenu dépasse la hauteur de la
+     fenêtre (petit écran, zoom), le haut (titre) était rogné et inaccessible */
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
