@@ -16,10 +16,12 @@ import {
   crosswordSubjects,
   defaultCrosswordSubject,
   backspaceAction,
+  EXTRA_ORDERS,
   letterCountLabel,
   isWordComplete,
   answerChanges,
   MIN_WORD_LENGTH,
+  MIN_DOMAIN_WORD_LENGTH,
   MIN_PLACED_WORDS,
   GRID_SIZE,
   MAX_WORD_LENGTH,
@@ -33,8 +35,8 @@ const TYPES = ['Bilingue', 'Français', 'Anglais']
 // Forme de grille simple d'un texte (oracle) : majuscules sans accents
 const plain = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z]/g, '')
 
-// Oracle indépendant de selectCrosswordWords : 10 mots au plus, 3 lettres
-// minimum, sans doublon, ni mot identique (au pluriel S, X, AL/AUX près) à un mot du
+// Oracle indépendant de selectCrosswordWords : 10 mots au plus, 2 lettres
+// minimum (mots croisés, décision du 2026-10-11), sans doublon, ni mot identique (au pluriel S, X, AL/AUX près) à un mot du
 // domaine de son entrée ; mots vides ou trop longs ignorés, bilingue =
 // alternance FR / EN.
 function wordsFor(entries, puzzleType) {
@@ -45,7 +47,7 @@ function wordsFor(entries, puzzleType) {
     if (puzzleType === 'Français') text = sanitizeWord(w.mot_fr)
     else if (puzzleType === 'Anglais') text = sanitizeWord(w.mot_en)
     else text = sanitizeWord(idx % 2 === 0 ? w.mot_fr : w.mot_en)
-    if (!text || text.length < 3 || text.length > MAX_WORD_LENGTH || texts.includes(text)) continue
+    if (!text || text.length < 2 || text.length > MAX_WORD_LENGTH || texts.includes(text)) continue
     const domain = String(w.sujet || '').split(/[/\s'’-]+/).map(plain).filter(d => d.length >= 3)
     const plural = (a, b) => b === a + 'S' || b === a + 'X' || (a.endsWith('AL') && b === a.slice(0, -2) + 'AUX')
     if (domain.some(d => d === text || plural(text, d) || plural(d, text))) continue
@@ -341,19 +343,25 @@ test('backspaceAction : Retour arrière comme dans un mots croisés', () => {
   assert.deepEqual(backspaceAction(grid, {}, ...h0, 'down'), { clear: null, select: null })
 })
 
-test('selectCrosswordWords : 3 lettres minimum (décision du 2026-10-05)', () => {
-  assert.equal(MIN_WORD_LENGTH, 3)
+test('selectCrosswordWords : 2 lettres minimum dans les mots croisés (décision du 2026-10-11)', () => {
+  assert.equal(MIN_WORD_LENGTH, 2)
+  assert.equal(MIN_DOMAIN_WORD_LENGTH, 3)
   const entries = [
+    { id: 'a', mot_fr: 'A', mot_en: 'A', def_fr: 'Lettre', def_en: 'Letter' },
     { id: 'pi', mot_fr: 'PI', mot_en: 'Pi', def_fr: 'Nombre pi', def_en: 'Pi' },
     { id: 'axe', mot_fr: 'AXE', mot_en: 'Axis', def_fr: 'Droite', def_en: 'Line' },
     { id: 'rayon', mot_fr: 'RAYON', mot_en: 'Radius', def_fr: 'Segment', def_en: 'Segment' }
   ]
-  assert.deepEqual(selectCrosswordWords(entries, 'Français').map(d => d.text), ['AXE', 'RAYON'])
-  // vrai vocabulaire : « PI » (CM1-CM2 / Cercle) n'est plus retenu
-  const cercle = VOCAB.filter(v => v.niveau_fr === 'CM1-CM2' && v.sujet === 'Cercle' && v.actif !== false).slice(0, 12)
-  for (const type of TYPES) {
-    assert.ok(selectCrosswordWords(cercle, type).every(d => d.text.length >= 3), `Cercle ${type}`)
+  // une seule lettre : toujours écartée
+  assert.deepEqual(selectCrosswordWords(entries, 'Français').map(d => d.text), ['PI', 'AXE', 'RAYON'])
+  // vrai vocabulaire : « PI » (CM1-CM2 / Cercle) est de nouveau retenu
+  const cercle = VOCAB.filter(v => v.niveau_fr === 'CM1-CM2' && v.sujet === 'Cercle' && v.actif !== false)
+  for (const type of ['Français', 'Anglais']) {
+    assert.ok(selectCrosswordWords([cercle.find(v => v.mot_fr === 'PI'), ...cercle], type).some(d => d.text === 'PI'), `Cercle ${type}`)
   }
+  // un mot de 2 lettres ne fait pas d'un « la » ou « de » du titre un mot du domaine
+  assert.equal(matchesDomain('LA', 'Maison de la culture'), false)
+  assert.equal(matchesDomain('DE', 'Résolution de problèmes'), false)
 })
 
 test('selectCrosswordWords : pas de mot en double, la 2e occurrence est écartée', () => {
@@ -501,4 +509,54 @@ test('mot identique au domaine : pluriels en -X et -AUX (décision du 2026-10-09
     assert.ok(!selectCrosswordWords(words('SIL-CP', 'Jeux'), type).some(d => d.text === 'JEU'), `Jeux ${type}`)
     assert.ok(!selectCrosswordWords(words('CM1-CM2', 'Nombres décimaux'), type).some(d => d.text === 'DECIMAL'), `Nombres décimaux ${type}`)
   }
+})
+
+test('mot de 2 lettres placé : croisé, lisible, numéroté, sans suite parasite', () => {
+  // MA croise MAISON sur le M ; DO croise DOMINO
+  const words = ['MAISON', 'MA', 'DOMINO', 'DO', 'SA']
+  const result = generateCrossword(words)
+  assertValidCrossword(words, result, 'mots de 2 lettres')
+  const short = result.placements.filter(p => p.word.length === 2)
+  assert.ok(short.length >= 2, `${short.length} mot(s) de 2 lettres placé(s)`)
+  for (const p of short) {
+    // chaque mot de 2 lettres croise un autre mot (aucun mot isolé)
+    const crossing = result.placements.some(q => q !== p && q.cells.some(([r, c]) => p.cells.some(([r2, c2]) => r === r2 && c === c2)))
+    assert.ok(crossing, `${p.word} croisé`)
+    assert.equal(letterCountLabel(p.word.length), '(2)')
+  }
+  // ⌫ sur la 2e case vide d'un mot de 2 lettres : recule sur la 1re ; sur la 1re vide : rien
+  const p = short[0]
+  const [c0, c1] = p.cells
+  assert.deepEqual(backspaceAction(result.grid, { [c0.join('-')]: p.word[0] }, ...c1, p.dir), { clear: c0, select: c0 })
+  assert.deepEqual(backspaceAction(result.grid, {}, ...c0, p.dir), { clear: null, select: null })
+  // vrai vocabulaire : des grilles placent PI (CM1-CM2 / Cercle)
+  const cercle = VOCAB.filter(v => v.niveau_fr === 'CM1-CM2' && v.sujet === 'Cercle' && v.actif !== false)
+  let placedPI = 0
+  for (let seed = 0; seed < 200; seed++) {
+    const game = createCrosswordGame(cercle, 'Français', seed)
+    assertValidCrossword(game.wordsData.map(d => d.text), game, `Cercle graine ${seed}`)
+    if (game.placements.some(q => q.word === 'PI')) placedPI++
+  }
+  assert.ok(placedPI > 0, `PI placé dans ${placedPI} grilles sur 200`)
+})
+
+test('générateur : essais supplémentaires pour les mots courts (décision du 2026-10-12)', () => {
+  assert.equal(EXTRA_ORDERS, 8)
+  const det = VOCAB.filter(v => v.niveau_fr === 'SIL-CP' && v.sujet === 'Grammaire / Déterminants' && v.actif !== false)
+  let sum = 0, two = 0
+  for (let seed = 0; seed < 300; seed++) {
+    const game = createCrosswordGame(det, 'Français', seed)
+    const words = game.wordsData.map(d => d.text)
+    assertValidCrossword(words, game, `Déterminants graine ${seed}`)
+    // déterminisme : même graine, même grille ; graine affichée rejouable
+    assert.deepEqual(createCrosswordGame(det, 'Français', seed), game)
+    assert.deepEqual(createCrosswordGame(det, 'Français', game.seed).placements, game.placements)
+    assert.deepEqual(generateCrossword(words), generateCrossword(words))
+    sum += game.placements.length
+    if (game.placements.length === 2) two++
+  }
+  // Constat au 2026-10-12 : avant 5,80 mots placés en moyenne et 83 grilles
+  // sur 300 à 2 mots ; après 8,55 et 0. Seuils volontairement plus bas.
+  assert.ok(sum / 300 >= 7.5, `moyenne ${(sum / 300).toFixed(2)} mots placés`)
+  assert.ok(two <= 10, `${two} grilles à 2 mots`)
 })
