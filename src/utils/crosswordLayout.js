@@ -20,8 +20,13 @@ import { normalizeWord, createRandom } from './wordSearchGenerator.js'
 
 export const GRID_SIZE = 15
 export const MAX_WORD_LENGTH = 13
-// Comme les mots mêlés (décision d'Isaac du 2026-10-05) : 3 lettres minimum
-export const MIN_WORD_LENGTH = 3
+// Mots croisés : 2 lettres minimum (décision d'Isaac du 2026-10-11 : MA, TA,
+// SA, MY, notes DO, RÉ, MI…). Les mots mêlés gardent 3 lettres (leur propre
+// constante, wordSearchGenerator.js / wordSearchGame.js).
+export const MIN_WORD_LENGTH = 2
+// Morceaux du domaine du titre pris en compte (règle matchesDomain) :
+// 3 lettres minimum, pour ignorer « de », « la », « du »...
+export const MIN_DOMAIN_WORD_LENGTH = 3
 export const MAX_WORDS = 10
 // En dessous, la grille n'est pas proposée (sujet grisé dans l'écran de choix)
 export const MIN_PLACED_WORDS = 2
@@ -211,14 +216,14 @@ export class ProGridGenerator {
 // Mots du domaine (sujet) affiché dans le titre « Mots croisés — DOMAINE »,
 // sous forme de grille : le sujet est coupé aux « / », espaces, tirets et
 // apostrophes, chaque morceau normalisé comme un mot de grille (majuscules,
-// sans accents) ; morceaux de moins de MIN_WORD_LENGTH lettres ignorés
-// (« de », « la »...). « Matière / Mélanges » -> MATIERE, MELANGES.
+// sans accents) ; morceaux de moins de MIN_DOMAIN_WORD_LENGTH lettres
+// ignorés (« de », « la »...). « Matière / Mélanges » -> MATIERE, MELANGES.
 export function domainWords(subject) {
   if (!subject) return []
   return String(subject)
     .split(/[/\s'’-]+/)
     .map(part => normalizeWord(part))
-    .filter(word => word.length >= MIN_WORD_LENGTH)
+    .filter(word => word.length >= MIN_DOMAIN_WORD_LENGTH)
 }
 
 // Vrai si le mot de grille donnerait la réponse via le titre : identique à
@@ -345,7 +350,7 @@ export function createCrosswordGame(entries, puzzleType, seed) {
 // Sujet jouable : ses entrées actives donnent une grille d'au moins
 // MIN_PLACED_WORDS mots pour la graine de contrôle PLAYABILITY_SEED (avec
 // ses tirages de secours). Un sujet ayant moins de 2 mots utilisables
-// (3 lettres minimum, mots composés et doublons écartés) n'est jamais jouable.
+// (MIN_WORD_LENGTH lettres minimum, mots composés et doublons écartés) n'est jamais jouable.
 export function isPlayableCrossword(entries, puzzleType) {
   return createCrosswordGame(entries, puzzleType, PLAYABILITY_SEED) !== null
 }
@@ -371,17 +376,48 @@ export function defaultCrosswordSubject(subjectList, current) {
 }
 
 // Génère la grille pour une liste de mots déjà normalisés.
-// Deux essais : ordre reçu, puis mots les plus longs d'abord ; on garde la
-// grille qui place le plus de mots (à égalité, l'ordre reçu). Résultat
-// déterministe. wordIdx renvoie toujours à l'index dans `words`.
+// Essais : ordre reçu, puis mots les plus longs d'abord, puis, tant qu'un mot
+// reste non placé, EXTRA_ORDERS ordres mélangés de façon déterministe à partir
+// des mots eux-mêmes (décision d'Isaac du 2026-10-12 : mots courts aux lettres
+// communes). Une grille ne remplace la précédente que si elle place
+// strictement plus de mots : à égalité, l'essai le plus ancien est gardé, ce
+// qui laisse inchangées les grilles déjà obtenues par les deux premiers essais
+// quand les suivants n'apportent rien. Même liste -> même grille.
+// wordIdx renvoie toujours à l'index dans `words`.
+
+// Nombre maximal d'ordres mélangés essayés en plus des deux ordres de base
+export const EXTRA_ORDERS = 8
+
+// Graine dérivée de la liste de mots (FNV-1a 32 bits)
+function wordsSeed(words) {
+  let h = 2166136261
+  for (const ch of words.join('|')) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0
+  return h
+}
+
+function generateInOrder(words, order) {
+  const result = new ProGridGenerator(order.map(idx => words[idx])).generate()
+  result.placements.forEach(p => { p.wordIdx = order[p.wordIdx] })
+  return result
+}
+
 export function generateCrossword(words) {
-  const first = new ProGridGenerator(words).generate()
+  let best = new ProGridGenerator(words).generate()
+  const indexes = words.slice(0, MAX_WORDS).map((word, idx) => idx)
 
-  const byLength = words.slice(0, MAX_WORDS)
-    .map((word, idx) => idx)
-    .sort((a, b) => words[b].length - words[a].length || a - b)
-  const second = new ProGridGenerator(byLength.map(idx => words[idx])).generate()
-  second.placements.forEach(p => { p.wordIdx = byLength[p.wordIdx] })
+  const byLength = indexes.slice().sort((a, b) => words[b].length - words[a].length || a - b)
+  const second = generateInOrder(words, byLength)
+  if (second.placements.length > best.placements.length) best = second
 
-  return second.placements.length > first.placements.length ? second : first
+  const random = createRandom(wordsSeed(words))
+  for (let k = 0; k < EXTRA_ORDERS && best.placements.length < indexes.length; k++) {
+    const order = indexes.slice()
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1))
+      ;[order[i], order[j]] = [order[j], order[i]]
+    }
+    const candidate = generateInOrder(words, order)
+    if (candidate.placements.length > best.placements.length) best = candidate
+  }
+  return best
 }
