@@ -1183,7 +1183,7 @@
     "def_en": "The total amount of money paid or owed.",
     "niveau_fr": "CM1-CM2",
     "niveau_en": "Class 5-6",
-    "sujet": "Finance / Problèmes",
+    "sujet": "Problèmes / Finance",
     "difficulte": 2,
     "actif": true
   },
@@ -2035,7 +2035,7 @@
     "def_en": "The inside region of a closed shape; its measure is its area.",
     "niveau_fr": "CM1-CM2",
     "niveau_en": "Class 5-6",
-    "sujet": "Géométrie / Mesures",
+    "sujet": "Mesures / Géométrie",
     "difficulte": 2,
     "actif": true
   },
@@ -3319,7 +3319,7 @@
     "def_en": "To show that a statement is true using arguments or reasoning.",
     "niveau_fr": "CM1-CM2",
     "niveau_en": "Class 5-6",
-    "sujet": "Mathématiques / Sciences",
+    "sujet": "Sciences / Mathématiques",
     "difficulte": 2,
     "actif": true
   },
@@ -5911,7 +5911,7 @@
     "def_en": "A container used to carry water or milk.",
     "niveau_fr": "CE1-CE2",
     "niveau_en": "Class 3-4",
-    "sujet": "Agriculture / Maison",
+    "sujet": "Maison / Agriculture",
     "difficulte": 2,
     "actif": true
   },
@@ -6559,7 +6559,7 @@
     "def_en": "The act of killing germs on a surface.",
     "niveau_fr": "CE1-CE2",
     "niveau_en": "Class 3-4",
-    "sujet": "Hygiène / Santé",
+    "sujet": "Santé / Hygiène",
     "difficulte": 2,
     "actif": true
   },
