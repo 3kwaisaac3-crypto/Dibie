@@ -156,6 +156,16 @@
   display: inline-block;
 }
 
+/* Le sélecteur de langue est au-dessus du tableau de bord (voir App.css) :
+   une hauteur fixe créerait deux défilements imbriqués */
+@media (max-width: 768px) {
+  .student-dashboard {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: visible;
+  }
+}
+
 @media (max-width: 480px) {
   .student-dashboard {
     padding: 10px;

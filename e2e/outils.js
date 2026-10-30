@@ -11,11 +11,6 @@ export const vocabulaire = JSON.parse(
   readFileSync(new URL('../src/data/vocabulaire.json', import.meta.url), 'utf8')
 )
 
-// Ressources absentes déjà connues, signalées dans le rapport d'audit du
-// 2026-10-29 et tolérées ici pour ne pas masquer les autres erreurs :
-// A-04 : aucune icône de site déclarée, le navigateur demande /favicon.ico (404).
-const ABSENCES_CONNUES = [/\/favicon\.ico$/]
-
 // Collecte les erreurs JavaScript et les ressources en échec (à vérifier en
 // fin de test). Le message générique « Failed to load resource » de la console
 // est remplacé par l'adresse exacte de la ressource, connue par la réponse.
@@ -27,7 +22,7 @@ export function suivreErreurs(page) {
   })
   page.on('requestfailed', r => erreurs.push(`échec de chargement : ${r.url()}`))
   page.on('response', r => {
-    if (r.status() >= 400 && !ABSENCES_CONNUES.some(re => re.test(r.url()))) {
+    if (r.status() >= 400) {
       erreurs.push(`ressource ${r.status()} : ${r.url()}`)
     }
   })
