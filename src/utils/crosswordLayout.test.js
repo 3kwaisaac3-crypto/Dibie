@@ -260,13 +260,16 @@ test('sujet jouable = une grille d\'au moins 2 mots pour la graine de contrôle'
   assert.equal(isPlayableCrossword([], 'Bilingue'), false)
 })
 
-test('sujets grisés connus (constat du 2026-10-09, complément v0.5 intégré) et sujets jouables', () => {
+test('aucun sujet grisé (regroupement v0.2 du 2026-10-28) et sujets jouables', () => {
   const entriesOf = (level, subject) => VOCAB
     .filter(v => v.niveau_fr === level && v.sujet === subject && v.actif !== false)
-  // toujours grisés : un seul mot utilisable (INFORMATION et LANGUE écartés par la règle du titre)
-  for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('CE1-CE2', 'Information'), type), false, `Information ${type}`)
-  assert.equal(isPlayableCrossword(entriesOf('CM1-CM2', 'Langue / Culture'), 'Français'), false, 'Langue / Culture Français')
-  // grisés avant le complément, jouables après
+  for (const { level, subject, type, entries } of allCombinations()) {
+    assert.equal(isPlayableCrossword(entries, type), true, `${level} / ${subject} / ${type}`)
+  }
+  // anciens sujets grisés « Information » et « Langue / Culture », regroupés dans Internet et Culture
+  for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('CE1-CE2', 'Internet'), type), true, `Internet ${type}`)
+  for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('CM1-CM2', 'Culture'), type), true, `Culture ${type}`)
+  // grisés avant le complément v0.5, jouables après
   for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('CE1-CE2', 'Logiciels'), type), true, `Logiciels ${type}`)
   for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('SIL-CP', 'Lessive'), type), true, `Lessive ${type}`)
   for (const type of TYPES) assert.equal(isPlayableCrossword(entriesOf('CE1-CE2', 'Agriculture'), type), true, `Agriculture ${type}`)
