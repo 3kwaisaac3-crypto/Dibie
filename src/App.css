@@ -95,6 +95,28 @@ html, body, #root {
     --spacing-lg: 16px;
     --spacing-xl: 24px;
   }
+
+  /* clip et non hidden : hidden ferait de .app un conteneur de défilement et
+     empêcherait « Commencer » de rester visible (position: sticky, A-03) */
+  .app {
+    display: flex;
+    flex-direction: column;
+    overflow-x: clip;
+  }
+
+  /* Sélecteur de langue dans le flux, en haut de page : fixé, il recouvrait
+     le contenu (anomalie A-02, audit du 2026-10-29) */
+  .offline-banner {
+    position: sticky;
+    order: -2;
+  }
+
+  .global-language-toggle {
+    position: static;
+    order: -1;
+    justify-content: flex-end;
+    padding: 8px 12px 0;
+  }
 }
 
 /* Utility Classes */

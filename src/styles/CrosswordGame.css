@@ -247,6 +247,15 @@
     padding: 20px;
   }
 
+  /* « Commencer » reste visible pendant le défilement de la liste des sujets
+     (anomalie A-03, audit du 2026-10-29) */
+  .crossword-select__start {
+    position: sticky;
+    bottom: 12px;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
   .crossword-finished__container {
     padding: 30px;
   }
