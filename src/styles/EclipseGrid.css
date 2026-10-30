@@ -264,22 +264,23 @@
     gap: 10px;
   }
 
-  /* Conserver 15 colonnes et permettre un défilement horizontal contrôlé */
-  .eclipse-board-wrapper {
-    overflow-x: auto;
-    justify-content: flex-start;
-    -webkit-overflow-scrolling: touch;
+  /* 15 colonnes dans la largeur de l'écran (anomalie A-01, décision du
+     2026-10-30). --eclipse-marges : marges horizontales des cadres autour de
+     la grille ; 12px : padding et bordure de la grille. */
+  .eclipse-grid {
+    --eclipse-marges: 160px;
+    --eclipse-case: min(26px, calc((100vw - var(--eclipse-marges) - 12px) / 15));
   }
 
   .eclipse-board {
-    grid-template-columns: repeat(15, 26px);
-    grid-template-rows: repeat(15, 26px);
+    grid-template-columns: repeat(15, var(--eclipse-case));
+    grid-template-rows: repeat(15, var(--eclipse-case));
     flex-shrink: 0;
   }
 
   .eclipse-cell {
-    width: 26px;
-    height: 26px;
+    width: var(--eclipse-case);
+    height: var(--eclipse-case);
   }
 
   .eclipse-input {
@@ -288,5 +289,23 @@
 
   .eclipse-number {
     font-size: 8px;
+  }
+}
+
+/* Téléphone : marges réduites pour laisser le plus de place possible aux cases.
+   Seuil de 600 px : au-delà, les cases atteignent 26 px même avec les marges
+   normales, donc leur taille ne saute pas au passage du seuil. */
+@media (max-width: 600px) {
+  .eclipse-grid {
+    --eclipse-marges: 32px;
+    padding: 12px 4px;
+  }
+
+  .eclipse-board-wrapper {
+    padding: 12px 4px;
+  }
+
+  .eclipse-clues-wrapper {
+    padding: 12px;
   }
 }
