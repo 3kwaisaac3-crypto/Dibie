@@ -256,6 +256,23 @@
   }
 }
 
+/* Marges réduites autour de la grille sur téléphone (voir EclipseGrid.css) */
+@media (max-width: 600px) {
+  .crossword-game {
+    padding: 20px 4px;
+  }
+
+  .crossword-game__header {
+    padding: 0 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .crossword-game__container {
+    padding: 12px 4px;
+  }
+}
+
 /* Numéro de grille (tirage au hasard par graine, décision du 2026-10-07) */
 .crossword-select__seed {
   width: 100%;
