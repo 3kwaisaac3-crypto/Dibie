@@ -20,7 +20,7 @@ export default function ParentDashboard() {
           >
             {language === 'fr' ? 'Profil' : 'Profile'}
           </button>
-          <button onClick={logout} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>❌</button>
+          <button onClick={logout} aria-label={language === 'fr' ? 'Déconnexion' : 'Log out'} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>❌</button>
         </div>
       </div>
       <div style={{ background: 'white', color: '#333', padding: '30px', borderRadius: '8px' }}>

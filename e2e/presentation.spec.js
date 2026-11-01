@@ -1,6 +1,6 @@
 // Présentation sur ordinateur, tablette et téléphone.
 import { test, expect } from '@playwright/test'
-import { connecterEleve, ouvrirMotsCroises, choisir } from './outils.js'
+import { connecterEleve, ouvrirEspaceAdulte, ouvrirMotsCroises, choisir } from './outils.js'
 
 async function pasDeDefilementHorizontal(page) {
   // .app masque ce qui dépasse : la largeur de la page ne suffit pas, on regarde
@@ -32,13 +32,98 @@ async function selecteurSansChevauchement(page, selecteurContenu) {
   expect(recouverts).toEqual([])
 }
 
-test('Connexion et tableau de bord : pas de débordement horizontal', async ({ page }) => {
+test('Profils et tableau de bord : pas de débordement horizontal', async ({ page }) => {
   await page.goto('/')
+  await expect(page.locator('.profiles__demo-notice')).toContainText('Mode démonstration')
   await pasDeDefilementHorizontal(page)
-  await page.screenshot({ path: test.info().outputPath('connexion.png'), fullPage: true })
-  await connecterEleve(page)
+  await page.screenshot({ path: test.info().outputPath('profils.png'), fullPage: true })
+  await connecterEleve(page, { pseudo: 'Pseudonyme de vingt c' })
   await pasDeDefilementHorizontal(page)
   await page.screenshot({ path: test.info().outputPath('tableau-de-bord.png'), fullPage: true })
+  // Écran des profils avec un pseudonyme long dans la liste
+  await page.locator('.student-dashboard__back').click()
+  await expect(page.locator('.profiles__card')).toBeVisible()
+  await pasDeDefilementHorizontal(page)
+})
+
+// Revue de la phase 0 : un pseudonyme d'un seul mot long poussait « Profil » et
+// ❌ hors de l'écran, et l'élève restait bloqué.
+test('Pseudonyme de 20 lettres sans espace à 320 px : boutons visibles et cliquables, nom entier', async ({ page }) => {
+  const pseudo = 'ABCDEFGHIJKLMNOPQRST'
+  await page.setViewportSize({ width: 320, height: 640 })
+  await connecterEleve(page, { pseudo })
+  // Valeur réellement enregistrée, après maxLength et nettoyage
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('dibieProfiles'))[0].name)).toBe(pseudo)
+  await expect(page.locator('.student-dashboard__user h1')).toContainText(pseudo)
+  await pasDeDefilementHorizontal(page)
+  await expect(page.locator('.student-dashboard__back')).toBeInViewport({ ratio: 1 })
+  await expect(page.locator('.student-dashboard__logout')).toBeInViewport({ ratio: 1 })
+
+  await page.locator('.student-dashboard__back').click()
+  await expect(page.locator('.profiles__card')).toContainText(pseudo)
+  await pasDeDefilementHorizontal(page)
+
+  await page.locator('.profiles__card').click()
+  await page.getByRole('button', { name: 'Déconnexion' }).click()
+  await expect(page.locator('.profiles')).toBeVisible()
+
+  // Tableau enseignant : le nom ne pousse pas le tableau hors de l'écran
+  await page.evaluate(id => {
+    localStorage.setItem('dibieScores', JSON.stringify([{ userId: id, gameType: 'crossword', score: 10, niveau: 'SIL-CP', date: new Date().toISOString() }]))
+  }, await page.evaluate(() => JSON.parse(localStorage.getItem('dibieProfiles'))[0].id))
+  await ouvrirEspaceAdulte(page)
+  await page.getByRole('button', { name: /Enseignant/ }).click()
+  await expect(page.locator('.teacher-dashboard__table')).toContainText(pseudo)
+  await pasDeDefilementHorizontal(page)
+  await expect(page.locator('.teacher-dashboard__logout')).toBeInViewport({ ratio: 1 })
+})
+
+test('Liste de profils illisible : message à la création, contenu jamais écrasé', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('dibieProfiles', '{illisible'))
+  await page.getByLabel('Pseudonyme').fill('Soleil')
+  await page.getByRole('button', { name: 'Créer et jouer' }).click()
+  await expect(page.locator('.profiles__error')).toContainText('Impossible d\'enregistrer le profil')
+  expect(await page.evaluate(() => localStorage.getItem('dibieProfiles'))).toBe('{illisible')
+})
+
+// L'écran des profils est long sur téléphone : le tableau de bord doit s'ouvrir en haut
+test('Changement d\'écran : retour en haut de page', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 })
+  await page.goto('/')
+  await page.getByLabel('Pseudonyme').fill('Hauteur')
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await page.getByRole('button', { name: 'Créer et jouer' }).click()
+  await expect(page.locator('.student-dashboard')).toBeVisible()
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+})
+
+test('Écran des profils : français et anglais', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: /English/ }).click()
+  await expect(page.locator('.profiles__demo-notice')).toContainText('Demo mode')
+  await expect(page.getByLabel('Nickname')).toBeVisible()
+  await page.getByRole('button', { name: /Français/ }).click()
+  await expect(page.getByLabel('Pseudonyme')).toBeVisible()
+})
+
+test('Espace adulte : question sans valeur de sécurité, sélecteur sans chevauchement', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Espace adulte' }).click()
+  await expect(page.locator('.role-select__notice')).toContainText('pas une sécurité réelle')
+  await page.locator('#role-select-answer').fill('1')
+  await page.getByRole('button', { name: 'Entrer' }).click()
+  await expect(page.locator('.role-select__error')).toBeVisible()
+  await expect(page.locator('.role-select__grid')).toHaveCount(0)
+  await pasDeDefilementHorizontal(page)
+  await selecteurSansChevauchement(page, '.role-select__gate button, .role-select__gate input, .role-select__back')
+})
+
+test('Service worker absent sur le serveur de développement', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('.profiles')).toBeVisible()
+  expect(await page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length)).toBe(0)
 })
 
 test('Écran de choix des mots croisés : pas de débordement horizontal', async ({ page }) => {

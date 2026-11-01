@@ -1,6 +1,6 @@
 # 🚀 DÉMARRAGE RAPIDE - PROTOTYPE DIBIÈ
 
-> **Mode démonstration uniquement** : les comptes, mots de passe et rôles sont simulés localement, sans backend et sans sécurité réelle. N’utilisez aucune donnée sensible ou réelle. Ce prototype n’est pas prêt pour la production.
+> **Mode démonstration uniquement** : les profils et les rôles sont simulés localement, sans backend et sans sécurité réelle. N’utilisez aucune donnée sensible ou réelle. Ce prototype n’est pas prêt pour la production.
 
 ## Installation (5 minutes)
 
@@ -14,7 +14,7 @@ cd dibie-app
 ```bash
 npm install
 ```
-*(Primera fois seulement - prend 2-3 min)*
+*(Première fois seulement - prend 2-3 min)*
 
 ### 3. Lancer l'app
 ```bash
@@ -30,16 +30,12 @@ http://localhost:3000
 
 ## 🎯 Test Rapide
 
-### Créer un compte de démonstration
-1. Email : `test@example.com`
-2. Mot de passe : `password123`
-3. Cliquer "Sign In"
+### Créer un profil de démonstration
+1. Écrire un pseudonyme (pas de vrai nom)
+2. Choisir le niveau
+3. Cliquer **Créer et jouer** : le tableau de bord s'ouvre
 
-Ces identifiants sont fictifs et servent uniquement à la démonstration.
-
-### Choisir rôle
-- Cliquer **Élève**
-- Dashboard s'ouvre
+Les adultes passent par **Espace adulte**, derrière une simple question qui n'est pas une sécurité réelle.
 
 ### Jouer
 1. Cliquer sur **Mots Croisés**
@@ -53,8 +49,8 @@ Ces identifiants sont fictifs et servent uniquement à la démonstration.
 ## 🌐 Mode Bilingue
 
 ### Changer langue
-- Avant login : Clicker 🇫🇷 / 🇬🇧
-- Après login : Settings (futur)
+- Écran des profils : Clicker 🇫🇷 Français / 🇬🇧 English
+- Ensuite : sélecteur FR / EN de l'application
 
 ---
 
@@ -62,7 +58,7 @@ Ces identifiants sont fictifs et servent uniquement à la démonstration.
 
 **Fichier** : `src/data/vocabulaire.json`
 
-- 869 mots nettoyés
+- 1 532 entrées
 - Niveaux : SIL-CP, CE1-CE2, CM1-CM2
 - Sujets : Maison, Transport, Alimentation, etc.
 
@@ -70,10 +66,8 @@ Ces identifiants sont fictifs et servent uniquement à la démonstration.
 
 ## 🔧 Config Avancée
 
-### Ajouter clé Anthropic (pour indices IA)
-1. Créer fichier `.env.local`
-2. Ajouter : `VITE_ANTHROPIC_API_KEY=sk-xxx`
-3. Redémarrer `npm run dev`
+### Clé Anthropic (indices IA, non réalisés)
+Ne jamais placer de clé dans une variable `VITE_` : elle serait envoyée au navigateur.
 
 ---
 
@@ -99,20 +93,9 @@ npm install
 
 ## 📱 Tester sur Mobile
 
-### Android (Capacitor)
-```bash
-npm run build
-npx cap add android
-npx cap open android
-# Ouvre Android Studio - Run sur téléphone
-```
+Application Android ou iPhone : **non disponible**, Capacitor n'est pas installé.
 
-### iPhone (iOS)
-```bash
-npx cap add ios
-npx cap open ios
-# Ouvre Xcode - Run sur simulateur/téléphone
-```
+Le prototype se teste dans le navigateur du téléphone, à partir du build. L'essai sur un vrai téléphone reste à faire.
 
 ---
 
@@ -123,19 +106,14 @@ npx cap open ios
 2. Deploy sur Vercel : https://vercel.com
 3. Partager le lien en indiquant clairement qu’il s’agit d’un prototype non sécurisé
 
-### Méthode 2 : Fichier APK de démonstration (Android)
-```bash
-npm run build
-npx cap sync
-npx cap open android
-# Android Studio → Build APK
-```
+### Fichier APK : non disponible
+Capacitor n'est pas installé et aucun APK n'existe.
 
 ---
 
 ## 📋 Checklist Test Enseignants
 
-- [ ] Créer compte ?
+- [ ] Créer un profil ?
 - [ ] Changer langue (FR/EN) ?
 - [ ] Jouer mots croisés ?
 - [ ] Voir scores ?
@@ -143,4 +121,4 @@ npx cap open android
 
 ---
 
-**Questions ?** Support WhatsApp : +237 [NUMÉRO]
+Aucun canal de support n'est vérifié à ce jour.

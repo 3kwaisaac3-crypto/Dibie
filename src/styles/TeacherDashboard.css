@@ -78,6 +78,7 @@
 
 .teacher-dashboard__table th,
 .teacher-dashboard__table td {
+  overflow-wrap: anywhere;
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;

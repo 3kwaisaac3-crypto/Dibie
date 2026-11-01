@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useAppStore } from './stores/appStore'
-import { loadVocabulaire } from './db/index'
+import { getProfile, loadVocabulaire } from './db/index'
 import vocabData from './data/vocabulaire.json'
 
 // Pages
-import Login from './pages/Login'
+import Profiles from './pages/Profiles'
 import RoleSelect from './pages/RoleSelect'
 import StudentDashboard from './pages/StudentDashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
@@ -15,8 +15,11 @@ import WordSearchGame from './pages/WordSearchGame'
 
 import './App.css'
 
+const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame']
+const ADULT_PAGES = ['roleSelect', 'teacherDashboard', 'parentDashboard', 'adminDashboard']
+
 export default function App() {
-  const { currentPage, isAuthenticated, isOnline, language, setLanguage } = useAppStore()
+  const { currentPage, isAuthenticated, isOnline, language, setLanguage, user, logout } = useAppStore()
   const [vocabLoaded, setVocabLoaded] = useState(false)
 
   useEffect(() => {
@@ -33,7 +36,29 @@ export default function App() {
     initVocab()
   }, [])
 
-  if (!vocabLoaded && (currentPage === 'crosswordGame' || currentPage === 'wordSearchGame')) {
+  // Une session restaurée dont le profil n'existe plus revient aux profils
+  const sessionValid = isAuthenticated && (user?.isAdult === true || getProfile(user?.id) !== null)
+
+  useEffect(() => {
+    if (isAuthenticated && !sessionValid) logout()
+  }, [isAuthenticated, sessionValid, logout])
+
+  // Page réellement affichée : jamais de page vide, même si la page conservée
+  // n'est pas accessible avec cette session
+  let page = currentPage
+  if (!sessionValid) {
+    page = currentPage === 'roleSelect' ? 'roleSelect' : 'profiles'
+  } else if (!(user?.isAdult ? ADULT_PAGES : STUDENT_PAGES).includes(currentPage)) {
+    page = user?.isAdult ? 'roleSelect' : 'studentDashboard'
+  }
+
+  // Changement d'écran : retour en haut. Sur téléphone, l'écran des profils est
+  // long, et le tableau de bord s'ouvrait défilé, ses boutons hors de vue.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [page])
+
+  if (!vocabLoaded && (page === 'crosswordGame' || page === 'wordSearchGame')) {
     return <div style={{padding: '20px', textAlign: 'center'}}>⏳ Chargement jeu...</div>
   }
 
@@ -45,17 +70,17 @@ export default function App() {
         </div>
       )}
 
-      {!isAuthenticated && currentPage === 'login' && <Login />}
-      {isAuthenticated && currentPage === 'roleSelect' && <RoleSelect />}
-      {isAuthenticated && currentPage === 'studentDashboard' && <StudentDashboard />}
-      {isAuthenticated && currentPage === 'teacherDashboard' && <TeacherDashboard />}
-      {isAuthenticated && currentPage === 'parentDashboard' && <ParentDashboard />}
-      {isAuthenticated && currentPage === 'adminDashboard' && <AdminDashboard />}
-      {isAuthenticated && currentPage === 'crosswordGame' && vocabLoaded && <CrosswordGame />}
-      {isAuthenticated && currentPage === 'wordSearchGame' && vocabLoaded && <WordSearchGame />}
+      {page === 'profiles' && <Profiles />}
+      {page === 'roleSelect' && <RoleSelect />}
+      {page === 'studentDashboard' && <StudentDashboard />}
+      {page === 'teacherDashboard' && <TeacherDashboard />}
+      {page === 'parentDashboard' && <ParentDashboard />}
+      {page === 'adminDashboard' && <AdminDashboard />}
+      {page === 'crosswordGame' && vocabLoaded && <CrosswordGame />}
+      {page === 'wordSearchGame' && vocabLoaded && <WordSearchGame />}
 
-      {/* Sélecteur de langue global, accessible après connexion */}
-      {isAuthenticated && (
+      {/* Sélecteur de langue global ; l'écran des profils a le sien */}
+      {page !== 'profiles' && (
         <div className="global-language-toggle">
           <button
             className={`global-lang-btn ${language === 'fr' ? 'active' : ''}`}

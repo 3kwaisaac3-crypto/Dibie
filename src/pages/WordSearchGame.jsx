@@ -19,7 +19,7 @@ const POINTS_PER_WORD = 10 // comme les mots croisés
 // et placements[].affichage, et seulement si result.status === 'ok'.
 // words, rejected et message (destinés à l'auteur) ne sont jamais affichés.
 export default function WordSearchGame() {
-  const { user, language, logout } = useAppStore()
+  const { user, language, setCurrentPage } = useAppStore()
   const t = (fr, en) => (language === 'fr' ? fr : en)
 
   const [level, setLevel] = useState(WORD_SEARCH_LEVELS.includes(user?.level) ? user.level : WORD_SEARCH_LEVELS[0])
@@ -106,13 +106,13 @@ export default function WordSearchGame() {
     setGame(null)
   }
 
-  // « Retour » qui quitte l'activité : retour à l'écran de connexion
-  // (décision d'Isaac du 2026-10-09). handleBackToSelect (retour interne)
-  // ne change pas.
-  const handleBackToLogin = () => {
+  // « Retour » qui quitte l'activité : retour au tableau de bord élève
+  // (décision d'Isaac du 2026-11-01, Q2, qui remplace celle du 2026-10-09).
+  // handleBackToSelect (retour interne) ne change pas.
+  const handleBackToDashboard = () => {
     setGameState('select')
     setGame(null)
-    logout()
+    setCurrentPage('studentDashboard')
   }
 
   const finishGame = async (score) => {
@@ -211,7 +211,7 @@ export default function WordSearchGame() {
           <button className="wordsearch-select__start" onClick={handleStart} disabled={generating}>
             {t('Commencer', 'Start')}
           </button>
-          <button className="wordsearch-select__back" onClick={handleBackToLogin}>
+          <button className="wordsearch-select__back" onClick={handleBackToDashboard}>
             {t('Retour', 'Back')}
           </button>
         </div>
@@ -252,7 +252,7 @@ export default function WordSearchGame() {
           <button className="wordsearch-select__start" onClick={handleNewGrid}>
             {t('Nouvelle grille', 'New grid')}
           </button>
-          <button className="wordsearch-select__back" onClick={handleBackToLogin}>
+          <button className="wordsearch-select__back" onClick={handleBackToDashboard}>
             {t('Retour', 'Back')}
           </button>
         </div>

@@ -1,6 +1,36 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
-export const useAppStore = create((set) => ({
+// Stockage de la session protégé : stockage plein ou indisponible ne doit jamais
+// lancer d'erreur pendant un changement d'état (page vide). La session continue
+// alors en mémoire, sans être conservée.
+const stockageSession = {
+  getItem: (name) => {
+    try {
+      return localStorage.getItem(name)
+    } catch {
+      return null
+    }
+  },
+  setItem: (name, value) => {
+    try {
+      localStorage.setItem(name, value)
+    } catch {
+      console.warn('Session non conservée : stockage plein ou indisponible')
+    }
+  },
+  removeItem: (name) => {
+    try {
+      localStorage.removeItem(name)
+    } catch {
+      console.warn('Session non retirée : stockage indisponible')
+    }
+  }
+}
+
+// Session conservée au rechargement (clé dibieSession) : utilisateur, langue,
+// rôle et page. isOnline n'est jamais conservé : il suit toujours le navigateur.
+export const useAppStore = create(persist((set) => ({
   // Authentification
   user: null,
   isAuthenticated: false,
@@ -10,14 +40,14 @@ export const useAppStore = create((set) => ({
   language: 'fr', // 'fr' ou 'en'
   
   // Navigation
-  currentPage: 'login', // login, roleSelect, dashboard, game, etc
+  currentPage: 'profiles', // profiles, roleSelect, dashboard, game, etc
   
   // Actions
   setUser: (user) => set({ user, isAuthenticated: !!user }),
   setRole: (role) => set({ role }),
   setLanguage: (lang) => set({ language: lang }),
   setCurrentPage: (page) => set({ currentPage: page }),
-  logout: () => set({ user: null, isAuthenticated: false, role: null, currentPage: 'login' }),
+  logout: () => set({ user: null, isAuthenticated: false, role: null, currentPage: 'profiles' }),
   
   // Game state
   gameState: {
@@ -34,6 +64,17 @@ export const useAppStore = create((set) => ({
   // Offline mode
   isOnline: navigator.onLine,
   setOnline: (status) => set({ isOnline: status })
+}), {
+  name: 'dibieSession',
+  version: 1,
+  storage: createJSONStorage(() => stockageSession),
+  partialize: (state) => ({
+    user: state.user,
+    isAuthenticated: state.isAuthenticated,
+    language: state.language,
+    role: state.role,
+    currentPage: state.currentPage
+  })
 }))
 
 // Listener pour online/offline
