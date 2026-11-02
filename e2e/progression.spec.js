@@ -94,15 +94,42 @@ test('Rechargement dans un jeu : écran de choix du jeu, pas de page vide', asyn
   await expect(page.locator('.wordsearch-game')).toBeVisible()
 })
 
-test('Langue et espace adulte conservés au rechargement, retour aux profils', async ({ page }) => {
+test('Espace adulte perdu au rechargement, langue conservée, question reposée', async ({ page }) => {
   await page.goto('/')
   await ouvrirEspaceAdulte(page)
   await page.getByRole('button', { name: /Administrateur/ }).click()
   await expect(page.getByRole('heading', { name: 'Importer Vocabulaire' })).toBeVisible()
   await page.getByRole('button', { name: 'English' }).click()
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Import Vocabulary' })).toBeVisible()
-  await page.getByRole('button', { name: 'Français' }).click()
+  await expect(page.locator('.profiles')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Import Vocabulary' })).toHaveCount(0)
+  await expect(page.locator('.profiles__adult')).toHaveText('Adult area')
+  await page.locator('.profiles__adult').click()
+  await expect(page.getByRole('button', { name: /Administrator/ })).toHaveCount(0)
+  await expect(page.locator('.role-select__gate')).toBeVisible()
+})
+
+test('Session adulte enregistrée avant la règle : retour aux profils au rechargement', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('dibieSession', JSON.stringify({
+    state: {
+      user: { id: 'adulte', name: 'Adulte', isAdult: true },
+      isAuthenticated: true,
+      language: 'fr',
+      role: 'admin',
+      currentPage: 'adminDashboard'
+    },
+    version: 1
+  })))
+  await page.reload()
+  await expect(page.locator('.profiles')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Administration' })).toHaveCount(0)
+})
+
+test('Espace adulte : déconnexion, retour aux profils', async ({ page }) => {
+  await page.goto('/')
+  await ouvrirEspaceAdulte(page)
+  await page.getByRole('button', { name: /Administrateur/ }).click()
   await page.getByRole('button', { name: 'Déconnexion' }).click()
   await expect(page.locator('.profiles')).toBeVisible()
 })

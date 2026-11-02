@@ -28,6 +28,13 @@ const stockageSession = {
   }
 }
 
+// L'accès adulte ne survit pas au rechargement : un appareil rendu à un enfant
+// revient aux profils, et l'adulte répond de nouveau à la question. La langue
+// est gardée. Vaut aussi pour une session adulte enregistrée avant cette règle.
+const sansAccesAdulte = (session) => (session?.user?.isAdult
+  ? { ...session, user: null, isAuthenticated: false, role: null, currentPage: 'profiles' }
+  : session)
+
 // Session conservée au rechargement (clé dibieSession) : utilisateur, langue,
 // rôle et page. isOnline n'est jamais conservé : il suit toujours le navigateur.
 export const useAppStore = create(persist((set) => ({
@@ -68,13 +75,14 @@ export const useAppStore = create(persist((set) => ({
   name: 'dibieSession',
   version: 1,
   storage: createJSONStorage(() => stockageSession),
-  partialize: (state) => ({
+  partialize: (state) => sansAccesAdulte({
     user: state.user,
     isAuthenticated: state.isAuthenticated,
     language: state.language,
     role: state.role,
     currentPage: state.currentPage
-  })
+  }),
+  merge: (persisted, current) => ({ ...current, ...sansAccesAdulte(persisted) })
 }))
 
 // Listener pour online/offline
