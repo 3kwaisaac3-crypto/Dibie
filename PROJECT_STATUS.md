@@ -24,7 +24,7 @@
 - [x] Responsive (mobile/tablette/desktop)
 
 ### Données
-- [x] 1 532 entrées structurées
+- [x] 1 533 entrées structurées
 - [x] Niveaux : SIL-CP, CE1-CE2, CM1-CM2 (mappés Class 1-6)
 - [x] Sujets : 94 (Maison, Transport, Alimentation, etc.)
 - [ ] Doublons : 2 paires de même mot et même niveau restent dans `vocabulaire.json` (NDOLÉ / NDOLÈ et SOL, en CE1-CE2)
