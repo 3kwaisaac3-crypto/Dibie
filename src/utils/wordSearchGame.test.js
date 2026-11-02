@@ -36,6 +36,36 @@ test('G2 — même graine, même partie ; graine différente, liste différente'
   assert.notDeepEqual(a.wordIds, c.wordIds)
 })
 
+test('G2 bis — anglais : grille ok à chaque niveau, forme avant « / », français inchangé par défaut', () => {
+  const byId = new Map(vocabulary.map(v => [v.id, v]))
+  for (const level of WORD_SEARCH_LEVELS) {
+    for (let seed = 0; seed < 50; seed++) {
+      const { result, wordIds } = createWordSearchGame(vocabulary, level, seed, 'en')
+      assert.equal(result.status, 'ok')
+      assert.equal(result.placements.length, WORD_SEARCH_SETTINGS[level].wordCount)
+      const attendus = wordIds.map(id => byId.get(id).mot_en.split('/')[0].trim().toUpperCase())
+      for (const p of result.placements) {
+        assert.ok(attendus.includes(p.affichage), p.affichage)
+        // Lettres seulement ; un accent reste possible à l'affichage (NDOLÉ)
+        assert.match(p.affichage, /^\p{Lu}+$/u)
+        assert.match(p.word, /^[A-Z]+$/)
+      }
+      assert.deepEqual(createWordSearchGame(vocabulary, level, seed, 'en').result, result)
+      assert.deepEqual(createWordSearchGame(vocabulary, level, seed), createWordSearchGame(vocabulary, level, seed, 'fr'))
+    }
+  }
+})
+
+test('G2 ter — anglais : entrée sans mot_en et forme composée écartées', () => {
+  const base = { niveau_fr: 'SIL-CP', actif: true }
+  const mots = selectWords([
+    { ...base, id: 'a', mot_fr: 'AXE', mot_en: 'Axis / Number line' },
+    { ...base, id: 'b', mot_fr: 'FRUIT', mot_en: 'Take off' },
+    { ...base, id: 'c', mot_fr: 'LION' }
+  ], 'SIL-CP', 1, 'en')
+  assert.deepEqual(mots, [{ id: 'a', affichage: 'AXIS', grille: 'AXIS' }])
+})
+
 test('G3 — sélection : niveau respecté, mots simples, affichage = mot_fr tel quel', () => {
   const byId = new Map(vocabulary.map(v => [v.id, v]))
   for (const level of WORD_SEARCH_LEVELS) {
