@@ -14,7 +14,7 @@
 - [x] Profils locaux à pseudonyme (sans courriel ni mot de passe), session conservée
 - [x] Élève direct ; espace adulte (Prof, Parent, Admin) derrière une question, sans sécurité réelle
 - [x] Jeu Mots Croisés Bilingues
-- [x] Jeu Mots Mêlés (français ; liste de mots interdits encore vide, démonstration seulement)
+- [x] Jeu Mots Mêlés (français ou anglais, selon la langue de l'interface ; liste de mots interdits encore vide, démonstration seulement)
 - [x] Dashboard Élève (scores, badges, streaks)
 - [x] Dashboard Enseignant (score total et nombre de parties par profil)
 - [ ] Dashboard Parent (texte d'attente seulement, aucune donnée)

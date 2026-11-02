@@ -48,24 +48,31 @@ export function isValidSeed(value) {
   return Number.isInteger(value) && value >= 0 && value <= MAX_SEED
 }
 
+// Mot d'une entrée dans la langue de la partie. Anglais : la forme avant « / »,
+// comme aux mots croisés (décision du 2026-10-09), en majuscules comme mot_fr.
+function entryText(entry, language) {
+  if (language !== 'en') return entry.mot_fr
+  return typeof entry.mot_en === 'string' ? entry.mot_en.split('/')[0].trim().toUpperCase() : null
+}
+
 // Choisit les mots d'une partie : entrées actives du niveau, mot simple
 // (lettres seulement, ni espace, ni tiret, ni apostrophe), de 3 lettres à la
 // taille de la grille ; un mot par forme de grille ; aucun mot contenu dans un
 // autre mot choisi (décision 7). Tirage au hasard selon la graine : même
-// graine et même vocabulaire, même liste.
-// Renvoie des objets { affichage, grille } : affichage = mot_fr tel quel,
-// grille = mot_fr (aucun article à retirer : mot_fr n'en contient pas).
-export function selectWords(vocabulary, level, seed) {
+// graine, même langue et même vocabulaire, même liste.
+// Renvoie des objets { affichage, grille } : affichage = le mot dans la langue
+// de la partie, grille = ce même mot (aucun article à retirer).
+export function selectWords(vocabulary, level, seed, language = 'fr') {
   const settings = WORD_SEARCH_SETTINGS[level]
   if (!settings) throw new RangeError(`selectWords : niveau inconnu (${level})`)
 
   const byGridWord = new Map()
   const eligible = vocabulary
-    .filter(v => v && v.niveau_fr === level && v.actif !== false && typeof v.mot_fr === 'string')
+    .filter(v => v && v.niveau_fr === level && v.actif !== false && typeof entryText(v, language) === 'string')
     .slice()
     .sort((a, b) => String(a.id).localeCompare(String(b.id)))
   for (const v of eligible) {
-    const word = normalizeWord(v.mot_fr)
+    const word = normalizeWord(entryText(v, language))
     if (word.length < MIN_WORD_LENGTH || word.length > settings.size) continue
     if (!byGridWord.has(word)) byGridWord.set(word, v)
   }
@@ -83,17 +90,20 @@ export function selectWords(vocabulary, level, seed) {
     if (chosen.some(c => c.word.includes(word) || word.includes(c.word))) continue
     chosen.push({ word, entry: v })
   }
-  return chosen.map(({ entry }) => ({ id: entry.id, affichage: entry.mot_fr, grille: entry.mot_fr }))
+  return chosen.map(({ entry }) => {
+    const text = entryText(entry, language)
+    return { id: entry.id, affichage: text, grille: text }
+  })
 }
 
 // Prépare une partie complète. Le résultat du générateur est renvoyé tel quel
 // (champ result) ; l'interface élève n'en affiche que grid et
 // placements[].affichage, et seulement si result.status === 'ok'.
-export function createWordSearchGame(vocabulary, level, seed) {
+export function createWordSearchGame(vocabulary, level, seed, language = 'fr') {
   const settings = WORD_SEARCH_SETTINGS[level]
   if (!settings) throw new RangeError(`createWordSearchGame : niveau inconnu (${level})`)
   if (!isValidSeed(seed)) throw new RangeError('createWordSearchGame : graine invalide')
-  const words = selectWords(vocabulary, level, seed)
+  const words = selectWords(vocabulary, level, seed, language)
   const result = generateWordSearch(
     words.map(({ affichage, grille }) => ({ affichage, grille })),
     {

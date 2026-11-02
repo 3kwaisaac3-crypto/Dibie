@@ -44,7 +44,8 @@ export default function WordSearchGame() {
     setFeedback('')
     try {
       const vocabulary = await getVocabByLevel(level)
-      const g = createWordSearchGame(vocabulary, level, seed)
+      // Les mots suivent la langue de l'interface au lancement de la grille
+      const g = createWordSearchGame(vocabulary, level, seed, language)
       const { result } = g
       if (result.status !== 'ok' || result.placements.length === 0) {
         // Information pour l'auteur (console), jamais montrée à l'élève
@@ -59,6 +60,7 @@ export default function WordSearchGame() {
       await saveWordSearchGrid({
         userId: user?.id ?? null,
         level,
+        language,
         requestedSeed: result.requestedSeed,
         seed: result.seed,
         size: result.size,
@@ -203,8 +205,8 @@ export default function WordSearchGame() {
             <p id="wordsearch-seed-hint" className="wordsearch-select__hint">
               {seedError
                 ? t('Numéro invalide : un nombre entier de 0 à 4294967295.', 'Invalid number: a whole number from 0 to 4294967295.')
-                : t('Avec la même version de l\'application, le même numéro et le même niveau donnent la même grille (toute la classe peut jouer la même).',
-                  'With the same version of the app, the same number and level give the same grid (the whole class can play the same one).')}
+                : t('Avec la même version de l\'application, le même numéro, le même niveau et la même langue donnent la même grille (toute la classe peut jouer la même).',
+                  'With the same version of the app, the same number, level and language give the same grid (the whole class can play the same one).')}
             </p>
           </div>
 
