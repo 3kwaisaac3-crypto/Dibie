@@ -16,8 +16,16 @@
   border-radius: 8px;
 }
 
+/* Un pseudonyme long d'un seul mot se coupe : il ne doit jamais pousser les
+   boutons « Profil » et ❌ hors de l'écran */
+.student-dashboard__user {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .student-dashboard__actions {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 10px;
 }

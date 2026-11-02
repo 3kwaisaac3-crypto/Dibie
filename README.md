@@ -2,12 +2,12 @@
 
 Prototype web/mobile pour démontrer un apprentissage ludique du vocabulaire en français et anglais, destiné aux écoles primaires camerounaises (SIL-CM2 / Class 1-6).
 
-> **Mode démonstration uniquement** : cette application fonctionne localement sans backend. Les comptes, mots de passe et rôles sont simulés et ne sont pas sécurisés. N’utilisez aucune donnée sensible ou réelle. L’application n’est pas prête pour la production.
+> **Mode démonstration uniquement** : cette application fonctionne localement sans backend. Les profils et les rôles sont simulés et ne sont pas sécurisés. N’utilisez aucune donnée sensible ou réelle. L’application n’est pas prête pour la production.
 
 ## 🚀 Démarrage Rapide
 
 ### Prérequis
-- Node.js 16+ 
+- Node.js 21+ (les tests unitaires utilisent un motif qui demande Node 21 ou plus récent)
 - npm ou yarn
 
 ### Installation
@@ -34,13 +34,25 @@ npm run preview
 
 Cette commande prépare uniquement le prototype pour une démonstration locale. Elle ne constitue pas un déploiement de production.
 
+Le service worker n'est enregistré que sur le build, jamais avec `npm run dev`. Le build écrit `dist/service-worker.js` avec la liste de ses fichiers et un nom de cache propre à la version.
+
+**Retour arrière si un service worker pose problème** : annuler le changement (`git revert`), reconstruire et republier. Le nouveau script remplace l'ancien à la visite suivante, en ligne, et supprime l'ancien cache. Sur un appareil précis : outils du navigateur, Application, Service Workers, *Unregister*. Effacer toutes les données du site supprimerait aussi les profils et les scores.
+
 ### Tests
+
+Les tests sur les fichiers CSV réels ne s'exécutent que si la variable d'environnement `DIBIE_CSV_DIR` indique leur dossier ; sinon ils sont ignorés.
 
 ```bash
 npm test
 ```
 
 Lance les tests unitaires (`src/**/*.test.js`) avec le lanceur intégré de Node (`node --test`), sans dépendance supplémentaire. Le motif `src/**/*.test.js` demande **Node 21 ou plus récent**.
+
+```bash
+npm run test:e2e
+```
+
+Lance les tests navigateur avec Microsoft Edge : serveur de développement (port 4173) pour ordinateur, tablette et téléphone ; build (port 4174) pour le fonctionnement hors ligne.
 
 ---
 
@@ -51,15 +63,17 @@ Lance les tests unitaires (`src/**/*.test.js`) avec le lanceur intégré de Node
 dibie-app/
 ├── src/
 │   ├── components/        # Composants React réutilisables
-│   ├── pages/            # Pages (Login, Dashboard, Games)
+│   ├── pages/            # Pages (Profiles, Dashboard, Games)
 │   ├── stores/           # Zustand state management
-│   ├── db/              # IndexedDB (offline database)
+│   ├── db/              # Vocabulaire, profils, scores (localStorage)
 │   ├── data/            # Vocabulaire JSON
 │   ├── styles/          # CSS par page
 │   ├── App.jsx          # Composant principal
 │   └── main.jsx         # Entry point
 ├── public/
-│   └── service-worker.js # PWA offline support
+│   ├── service-worker.js # PWA offline support (réécrit au build)
+│   ├── manifest.webmanifest
+│   └── icons/
 ├── index.html
 ├── vite.config.js
 └── package.json
@@ -72,8 +86,8 @@ dibie-app/
 | **React 18** | Framework UI |
 | **Vite** | Build tool rapide |
 | **Zustand** | State management global |
-| **Dexie** | IndexedDB wrapper |
-| **Tailwind CSS** | Styling (optionnel dans config) |
+| **localStorage** | Stockage des données sur l'appareil |
+| **CSS natif** | Styling, un fichier par page |
 | **Service Worker** | PWA / Offline-first |
 
 ---
@@ -81,8 +95,9 @@ dibie-app/
 ## 🎮 Fonctionnalités Principales
 
 ### 1. Authentification
-- Login/Sign-up simulé localement, sans authentification sécurisée
-- Sélection de rôle (Élève, Enseignant, Parent, Admin)
+- Profils locaux à pseudonyme, sans courriel ni mot de passe, enregistrés sur l'appareil
+- L'élève choisit son profil et arrive sur son tableau de bord ; session conservée au rechargement
+- Espace adulte (Enseignant, Parent, Admin) derrière une simple question, qui **n'est pas une sécurité réelle**
 - Sauvegarde locale (localStorage)
 
 ### 2. Jeux
@@ -94,25 +109,24 @@ dibie-app/
   - « Numéro de grille » : même numéro + même niveau = même grille, **à version identique de l'application et du vocabulaire**
   - ⚠️ **Mode démonstration uniquement** : la liste de mots interdits n'est pas encore établie (vide). Les lettres de remplissage peuvent former un mot inapproprié par hasard. Ne pas utiliser avec des élèves réels avant d'avoir établi cette liste avec un enseignant.
 - **Anagrammes** : À implémenter
-- Difficulté adaptative (3 niveaux)
-- Indice intelligent via Anthropic API
+- Non réalisés : difficulté adaptative, indices par IA
 
 ### 3. Dashboards
 - **Élève** : Score, badges, streaks, jeux disponibles
-- **Enseignant** : Vue classe, progression élèves
-- **Parent** : Synthétique des progrès
-- **Admin** : Gestion vocabulaire
+- **Enseignant** : Score total et nombre de parties par profil, sur cet appareil
+- **Parent** : Texte d'attente seulement, aucune donnée
+- **Admin** : Import de vocabulaire (CSV). Les ajouts restent sur l'appareil (clé `dibieLocalVocab`) : un même numéro de grille peut alors différer entre appareils
 
 ### 4. Offline-First
-- App fonctionne 100% sans connexion
-- Sync automatique quand réseau rétabli
-- IndexedDB pour stockage local
-- Service Worker pour caching
+- Après **une première visite en ligne**, l'application fonctionne sans connexion (essai automatique sur le build avec Edge ; vrai téléphone non essayé)
+- Aucune synchronisation : les données restent sur l'appareil où l'élève a joué
+- localStorage pour le stockage local ; effacer les données du site efface profils et scores
+- Service Worker : tous les fichiers du build en cache dès l'installation
+- **Limite connue** : en ligne, si le réseau coupe pendant le chargement d'une nouvelle version, la page peut rester vide. Un rechargement rétablit l'ancienne version, toujours complète en cache
 
 ### 5. Bilingue FR/EN
 - Interface en français/anglais
 - Vocabulaire adapté par niveau (SIL-CM2 ↔ Class 1-6)
-- Exercices bilingues
 
 ---
 
@@ -135,12 +149,12 @@ dibie-app/
 }
 ```
 
-### Sujets Disponibles (Fin Août)
-- Maison (48 mots)
-- Transport (24 mots)
-- Alimentation (26 mots)
-- Géométrie (29 mots)
-- + 15 autres sujets
+### Sujets Disponibles (94 sujets, recalculés le 2026-11-01)
+- Maison (73 entrées)
+- Transport (33 entrées)
+- Alimentation (57 entrées)
+- Géométrie (35 entrées)
+- + 90 autres sujets
 
 ### Import Vocabulaire Personnalisé
 
@@ -148,13 +162,15 @@ dibie-app/
 ```
 1. Aller sur Dashboard Admin
 2. Importer CSV
-3. Format : mot_fr;mot_en;def_fr;def_en;niveau;sujet
-4. Valider
+3. Format : mot_fr;mot_en;def_fr;def_en;niveau;sujet, avec ou sans colonne N° en première position, enregistré en CSV UTF-8
+4. Lire le message : mots ajoutés, mots déjà présents ignorés
 ```
 
 ---
 
 ## 🔌 Intégration IA (Anthropic API)
+
+> **Non réalisé** : ce qui suit est une piste. Une clé d'API ne doit jamais être placée dans une variable `VITE_`, qui serait envoyée au navigateur : il faudrait un serveur.
 
 ### Indices Intelligentes
 ```javascript
@@ -175,7 +191,7 @@ const indice = await generateHint("LION", "SIL-CP");
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({
-  apiKey: process.env.VITE_ANTHROPIC_API_KEY
+  apiKey: process.env.ANTHROPIC_API_KEY // côté serveur seulement, jamais VITE_
 });
 ```
 
@@ -185,21 +201,12 @@ const client = new Anthropic({
 
 ### Comment Accéder
 
-**Option 1 : Lien Web**
-```
-https://dibie-app-demo.vercel.app/
-```
+**Option 1 : Lien Web** : non disponible, aucune adresse n'est publiée à ce jour.
 
-**Option 2 : App Mobile (Android)**
-- Télécharger APK depuis Capacitor
-- Installer directement sur téléphone
+**Option 2 : App Mobile (Android)** : non disponible, Capacitor n'est pas installé et aucun APK n'existe.
 
-### Feedback Google Form
-```
-https://forms.gle/[FORM_ID]
-```
-
-Inclure :
+### Retours des enseignants
+Aucun formulaire n'existe à ce jour. Points à recueillir :
 - Quels jeux ont marché ?
 - Quels niveaux manquent ?
 - Bugs rencontrés ?
@@ -212,10 +219,9 @@ Inclure :
 Cette version est un prototype de démonstration et ne doit pas être présentée comme une application prête pour la production.
 
 ### Stockage Local
-- Les comptes, mots de passe et rôles sont simulés localement et ne sont pas sécurisés
-- N’utilisez aucune donnée sensible ou réelle
-- IndexedDB pour les scores/progrès de démonstration
-- localStorage pour l’état local de démonstration
+- Les profils et les rôles sont simulés localement et ne sont pas sécurisés ; la question de l'espace adulte n'est pas une sécurité réelle
+- Utilisez un pseudonyme : n’utilisez aucune donnée sensible ou réelle
+- localStorage pour les profils, scores, progrès et la session de démonstration
 
 ### Backend (Futur)
 - Aucun backend n’est utilisé dans ce prototype
@@ -230,7 +236,7 @@ Cette version est un prototype de démonstration et ne doit pas être présenté
 ### App ne démarre pas
 ```bash
 # 1. Vérifier Node version
-node --version  # Doit être 16+
+node --version  # Doit être 21+
 
 # 2. Supprimer cache
 rm -rf node_modules package-lock.json
@@ -241,6 +247,8 @@ npm run dev
 ```
 
 ### Offline ne fonctionne pas
+- Le Service Worker n'existe que sur le build (`npm run build`, puis `npm run preview`), pas avec `npm run dev`
+- Il faut une première visite en ligne
 - Vérifier que le Service Worker est activé
 - Ouvrir DevTools → Application → Service Workers
 - Activer "Offline" mode
@@ -248,7 +256,7 @@ npm run dev
 ### Vocabulaire n'apparaît pas
 - Vérifier que `vocabulaire.json` existe
 - Ouvrir DevTools → Console pour erreurs
-- Vérifier IndexedDB (DevTools → Application → IndexedDB)
+- Vérifier localStorage (DevTools → Application → Local Storage)
 
 ---
 
@@ -256,7 +264,6 @@ npm run dev
 
 - **React Docs** : https://react.dev
 - **Vite Docs** : https://vitejs.dev
-- **Dexie** : https://dexie.org
 - **Zustand** : https://github.com/pmndrs/zustand
 
 ---
@@ -264,9 +271,7 @@ npm run dev
 ## 👥 Support
 
 Pour questions/bugs :
-- **Email** : support@dibie-app.com
-- **WhatsApp** : +237 [NUMÉRO]
-- **Issues GitHub** : https://github.com/dibie/dibie-app/issues
+- Aucun canal de support (courriel, téléphone, adresse GitHub publique) n'est vérifié à ce jour.
 
 ---
 

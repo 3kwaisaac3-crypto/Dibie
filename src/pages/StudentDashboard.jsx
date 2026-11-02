@@ -4,7 +4,7 @@ import { getUserStats } from '../db/index'
 import '../styles/StudentDashboard.css'
 
 export default function StudentDashboard() {
-  const { user, language, setCurrentPage, setRole, logout } = useAppStore()
+  const { user, language, setCurrentPage, logout } = useAppStore()
   const [stats, setStats] = useState({
     score: 0,
     games: 0,
@@ -28,11 +28,6 @@ export default function StudentDashboard() {
     { id: 'anagram', name: language === 'fr' ? 'Anagrammes' : 'Anagrams', icon: '🔤', available: false },
   ]
 
-  const handleBackToRoles = () => {
-    setRole(null)
-    setCurrentPage('roleSelect')
-  }
-
   return (
     <div className="student-dashboard">
       {/* Header */}
@@ -40,14 +35,14 @@ export default function StudentDashboard() {
         <div className="student-dashboard__user">
           <h1>{language === 'fr' ? 'Bonjour' : 'Hello'}, {user?.name || 'Élève'} 👋</h1>
           <p className="student-dashboard__level">
-            {user?.level || 'SIL-CP'}
+            {[user?.level, user?.class].filter(Boolean).join(' · ')}
           </p>
         </div>
         <div className="student-dashboard__actions">
-          <button className="student-dashboard__back" onClick={handleBackToRoles} title={language === 'fr' ? 'Changer de profil' : 'Switch profile'}>
+          <button className="student-dashboard__back" onClick={logout} title={language === 'fr' ? 'Changer de profil' : 'Switch profile'}>
             {language === 'fr' ? 'Profil' : 'Profile'}
           </button>
-          <button className="student-dashboard__logout" onClick={logout} title={language === 'fr' ? 'Déconnexion' : 'Log out'}>
+          <button className="student-dashboard__logout" onClick={logout} title={language === 'fr' ? 'Déconnexion' : 'Log out'} aria-label={language === 'fr' ? 'Déconnexion' : 'Log out'}>
             ❌
           </button>
         </div>

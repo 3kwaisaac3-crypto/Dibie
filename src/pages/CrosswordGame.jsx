@@ -9,9 +9,9 @@ import '../styles/CrosswordGame.css'
 const PUZZLE_TYPES = ['Bilingue', 'Français', 'Anglais']
 
 export default function CrosswordGame() {
-  const { user, language, logout } = useAppStore()
+  const { user, language, setCurrentPage } = useAppStore()
   const [levels, setLevels] = useState([])
-  const [level, setLevel] = useState('')
+  const [level, setLevel] = useState(user?.level || '')
   const [subject, setSubject] = useState('')
   const [puzzleType, setPuzzleType] = useState('Bilingue')
   const [gameState, setGameState] = useState('select')
@@ -45,7 +45,8 @@ export default function CrosswordGame() {
       const lvls = await getAllLevels()
       if (cancelled) return
       setLevels(lvls)
-      setLevel(prev => prev || lvls[0] || '')
+      // Niveau du profil s'il existe dans les données, sinon le premier
+      setLevel(prev => (lvls.includes(prev) ? prev : lvls[0] || ''))
     }
     load()
     return () => { cancelled = true }
@@ -188,12 +189,12 @@ export default function CrosswordGame() {
     setGameState('finished')
   }
 
-  // « Retour » qui quitte l'activité : retour à l'écran de connexion
-  // (décision d'Isaac du 2026-10-09). Les retours internes (grille -> écran
-  // de choix) ne changent pas.
-  const handleBackToLogin = () => {
+  // « Retour » qui quitte l'activité : retour au tableau de bord élève
+  // (décision d'Isaac du 2026-11-01, Q2, qui remplace celle du 2026-10-09).
+  // Les retours internes (grille -> écran de choix) ne changent pas.
+  const handleBackToDashboard = () => {
     setGameState('select')
-    logout()
+    setCurrentPage('studentDashboard')
   }
 
   if (gameState === 'select') {
@@ -274,7 +275,7 @@ export default function CrosswordGame() {
           <button className="crossword-select__start" onClick={handleStartGame} disabled={!canStart}>
             {language === 'fr' ? 'Commencer' : 'Start'}
           </button>
-          <button className="crossword-select__back" onClick={handleBackToLogin}>
+          <button className="crossword-select__back" onClick={handleBackToDashboard}>
             {language === 'fr' ? 'Retour' : 'Back'}
           </button>
           {noPlayableSubject && (
@@ -406,7 +407,7 @@ export default function CrosswordGame() {
           <button className="crossword-finished__button" onClick={handleNewGrid}>
             {language === 'fr' ? 'Nouvelle grille' : 'New grid'}
           </button>
-          <button className="crossword-finished__button" onClick={handleBackToLogin}>
+          <button className="crossword-finished__button" onClick={handleBackToDashboard}>
             {language === 'fr' ? 'Retour' : 'Back'}
           </button>
         </div>

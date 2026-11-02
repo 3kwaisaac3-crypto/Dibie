@@ -18,7 +18,7 @@
 - **localStorage** pour données (IndexedDB abandonné - bugs Windows)
 
 ### Mobile
-- **Capacitor** : build iOS/Android depuis React
+- **Capacitor** : prévu pour build iOS/Android depuis React, pas encore installé
 - Target : Android 10+ (prioritaire, 95% utilisateurs au Cameroun)
 
 ### Backend / Auth (À intégrer)
@@ -32,12 +32,13 @@
 
 ### Algorithme Grille
 - **Placement déterministe** : backtracking simple mais stable
-- **Tailles** : 8x8 (SIL-CP), 10x10 (CE1-CE2), 12x12 (CM1-CM2) — **pas 15x15** (trop complexe MVP)
+- **Tailles, mots mêlés** : 8x8 (SIL-CP), 10x10 (CE1-CE2), 12x12 (CM1-CM2) — **pas 15x15** (trop complexe MVP ; décision du 2026-10-05)
+- **Tailles, mots croisés** : 15 colonnes (`GRID_SIZE`), adaptées au téléphone le 2026-10-30, conservées par décision d'Isaac du 2026-11-01
 - **Intersections visuelles** : mots croisés type Eclipse (lettres communes affichées)
 - **Validation** : vérification complète de la grille avant render
 
 ### Contenu (Vocabulaire)
-- **Source** : CSV 869 mots nettoyés (mot_fr, mot_en, définitions, niveaux, sujets)
+- **Source** : 1 532 entrées (mot_fr, mot_en, définitions, niveaux, sujets)
 - **Définitions** : pré-généré une fois via Claude API (batch processing)
 - **Storage** : vocabulaire.json statique embarqué (jamais généré au runtime)
 - **Aucune dépendance réseau** pour accès vocabulaire en jeu
@@ -51,10 +52,10 @@ dibie-app/
 ├── src/
 │   ├── components/
 │   │   ├── EclipseGrid.jsx          ← Grille mots croisés pro
-│   │   ├── CrosswordGridVisual.jsx  ← Alternative simple (fallback)
 │   │   └── [autres composants]
 │   ├── pages/
-│   │   ├── Login.jsx
+│   │   ├── Profiles.jsx             ← Entrée : profils à pseudonyme
+│   │   ├── Login.jsx                ← Conservé, n'est plus affiché
 │   │   ├── RoleSelect.jsx
 │   │   ├── StudentDashboard.jsx
 │   │   ├── TeacherDashboard.jsx
@@ -64,7 +65,7 @@ dibie-app/
 │   │   └── [autres pages]
 │   ├── stores/appStore.js           ← Zustand
 │   ├── db/index.js                  ← localStorage wrapper
-│   ├── data/vocabulaire.json        ← 869 mots (statique)
+│   ├── data/vocabulaire.json        ← 1 532 entrées (statique)
 │   ├── styles/
 │   │   ├── EclipseGrid.css
 │   │   ├── CrosswordGame.css
@@ -72,7 +73,6 @@ dibie-app/
 │   ├── App.jsx
 │   └── main.jsx
 ├── public/service-worker.js         ← PWA offline
-├── capacitor.config.json            ← Config mobile
 ├── vite.config.js
 ├── package.json
 └── Claude.md                        ← Ce fichier

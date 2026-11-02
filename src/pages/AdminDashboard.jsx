@@ -1,12 +1,7 @@
 import React, { useState } from 'react'
 import { useAppStore } from '../stores/appStore'
-
-// Correspondance des tranches francophones et anglophones du primaire (curriculum MINEDUB 2018)
-const NIVEAU_EN = {
-  'SIL-CP': 'Class 1-2',
-  'CE1-CE2': 'Class 3-4',
-  'CM1-CM2': 'Class 5-6'
-}
+import { importLocalVocab } from '../db/index'
+import { messageImport } from '../utils/vocabImport'
 
 export default function AdminDashboard() {
   const { language, setRole, setCurrentPage, logout } = useAppStore()
@@ -24,59 +19,21 @@ export default function AdminDashboard() {
     const reader = new FileReader()
     reader.onload = (event) => {
       try {
-        const csv = event.target.result
-        const rows = parseCSV(csv)
+        const { added, ignored, total } = importLocalVocab(event.target.result)
 
-        // Ignorer une éventuelle ligne d'en-tête (mot_fr;mot_en;…)
-        const hasHeader = rows.length > 0 && (rows[0][0] || '').toLowerCase() === 'mot_fr'
-        if (hasHeader) rows.shift()
-
-        if (rows.length === 0) {
+        if (total === 0) {
           setImportStatus({ ok: false, message: language === 'fr' ? 'Fichier vide.' : 'Empty file.' })
           return
         }
 
-        // Valider et convertir en entrées de vocabulaire
-        const entries = rows.map((row, i) => {
-          const [mot_fr, mot_en, def_fr, def_en, niveau, sujet] = row
-          const ligne = i + (hasHeader ? 2 : 1)
-          if (!mot_fr || !mot_en || !def_fr || !def_en) {
-            throw new Error(`Ligne ${ligne} incomplète`)
-          }
-          // Tolérer la casse et les espaces : « cm1 - cm2 » → « CM1-CM2 »
-          const niveau_fr = (niveau || 'CM1-CM2').toUpperCase().replace(/\s+/g, '')
-          if (!NIVEAU_EN[niveau_fr]) {
-            throw new Error(`Ligne ${ligne} : niveau inconnu « ${niveau} » (attendu : SIL-CP, CE1-CE2 ou CM1-CM2)`)
-          }
-          return {
-            id: `import_${Date.now()}_${i}`,
-            mot_fr: mot_fr.trim(),
-            mot_en: mot_en.trim(),
-            def_fr: def_fr.trim(),
-            def_en: def_en.trim(),
-            niveau_fr,
-            niveau_en: NIVEAU_EN[niveau_fr],
-            sujet: (sujet || 'Importé').trim(),
-            difficulte: 2,
-            actif: true
-          }
-        })
-
-        // Fusionner avec le vocabulaire existant (localStorage)
-        const existing = JSON.parse(localStorage.getItem('dibieVocab') || '[]')
-        const merged = [...existing, ...entries]
-        localStorage.setItem('dibieVocab', JSON.stringify(merged))
-
         setImportStatus({
           ok: true,
-          message: language === 'fr'
-            ? `${entries.length} mots importés avec succès.`
-            : `${entries.length} words imported successfully.`
+          message: messageImport(added, ignored, language)
         })
       } catch (err) {
         setImportStatus({
           ok: false,
-          message: (language === 'fr' ? 'Erreur d\'import : ' : 'Import error: ') + err.message
+          message: (language === 'fr' ? 'Erreur d\'import : ' : 'Import error: ') + (language === 'fr' ? err.message : err.en || err.message)
         })
       }
     }
@@ -84,6 +41,8 @@ export default function AdminDashboard() {
       setImportStatus({ ok: false, message: language === 'fr' ? 'Impossible de lire le fichier.' : 'Could not read file.' })
     }
     reader.readAsText(file)
+    // Permet de choisir à nouveau le même fichier
+    e.target.value = ''
   }
 
   return (
@@ -97,7 +56,7 @@ export default function AdminDashboard() {
           >
             {language === 'fr' ? 'Profil' : 'Profile'}
           </button>
-          <button onClick={logout} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>❌</button>
+          <button onClick={logout} aria-label={language === 'fr' ? 'Déconnexion' : 'Log out'} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>❌</button>
         </div>
       </div>
 
@@ -105,12 +64,18 @@ export default function AdminDashboard() {
         <h2>{language === 'fr' ? 'Importer Vocabulaire' : 'Import Vocabulary'}</h2>
         <p style={{ color: '#666', marginBottom: '15px' }}>
           {language === 'fr'
-            ? 'Format CSV (séparateur ;) : mot_fr;mot_en;def_fr;def_en;niveau;sujet — niveau : SIL-CP, CE1-CE2 ou CM1-CM2'
-            : 'CSV format (separator ;) : mot_fr;mot_en;def_fr;def_en;niveau;sujet — niveau: SIL-CP, CE1-CE2 or CM1-CM2'}
+            ? 'Format CSV : mot_fr;mot_en;def_fr;def_en;niveau;sujet, avec ou sans colonne N° en première position — niveau : SIL-CP, CE1-CE2 ou CM1-CM2. Les mots déjà présents sont ignorés, jamais écrasés.'
+            : 'CSV format: mot_fr;mot_en;def_fr;def_en;niveau;sujet, with or without a No. column first — niveau: SIL-CP, CE1-CE2 or CM1-CM2. Words already present are skipped, never overwritten.'}
+        </p>
+        <p style={{ color: '#8a5a00', marginBottom: '15px' }}>
+          {language === 'fr'
+            ? 'Attention : les mots importés restent sur cet appareil. Un même numéro de grille peut alors donner une grille différente de celle des autres appareils de la classe.'
+            : 'Warning: imported words stay on this device. The same grid number may then give a different grid from the other devices in the class.'}
         </p>
         <input
           type="file"
           accept=".csv"
+          aria-label={language === 'fr' ? 'Fichier CSV à importer' : 'CSV file to import'}
           onChange={handleImportVocab}
           style={{ marginBottom: '15px' }}
         />
@@ -128,29 +93,4 @@ export default function AdminDashboard() {
       </div>
     </div>
   )
-}
-
-// Parser CSV simple gérant les séparateurs ";" et les valeurs entre guillemets
-function parseCSV(text) {
-  const lines = text.split(/\r?\n/).filter(line => line.trim() !== '')
-  const rows = []
-  for (const line of lines) {
-    const cells = []
-    let current = ''
-    let inQuotes = false
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i]
-      if (ch === '"') {
-        inQuotes = !inQuotes
-      } else if ((ch === ';' || ch === ',') && !inQuotes) {
-        cells.push(current.trim())
-        current = ''
-      } else {
-        current += ch
-      }
-    }
-    cells.push(current.trim())
-    rows.push(cells)
-  }
-  return rows
 }

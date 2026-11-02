@@ -1,39 +1,40 @@
 # 📊 DIBIÈ - Statut du Projet
 
-**Date** : Lundi 26 Août 2024
+**Date** : 2026-11-01
 **Version** : Prototype de démonstration 0.1
 **Status** : ⚠️ Prototype local non sécurisé, destiné aux démonstrations
 
-> Cette application n’est pas prête pour la production. Les comptes, mots de passe et rôles sont simulés localement, sans backend ni sécurité réelle. N’utilisez aucune donnée sensible ou réelle.
+> Cette application n’est pas prête pour la production. Les profils et les rôles sont simulés localement, sans backend ni sécurité réelle. N’utilisez aucune donnée sensible ou réelle.
 
 ---
 
 ## ✅ LIVRABLE FOURNI
 
 ### Fonctionnalités du prototype
-- [x] Authentification simulée localement (Login/Sign-up)
-- [x] Sélection 4 rôles (Élève, Prof, Parent, Admin)
+- [x] Profils locaux à pseudonyme (sans courriel ni mot de passe), session conservée
+- [x] Élève direct ; espace adulte (Prof, Parent, Admin) derrière une question, sans sécurité réelle
 - [x] Jeu Mots Croisés Bilingues
+- [x] Jeu Mots Mêlés (français ; liste de mots interdits encore vide, démonstration seulement)
 - [x] Dashboard Élève (scores, badges, streaks)
-- [x] Dashboard Enseignant (vue classe)
-- [x] Dashboard Parent (synthétique)
+- [x] Dashboard Enseignant (score total et nombre de parties par profil)
+- [ ] Dashboard Parent (texte d'attente seulement, aucune donnée)
 - [x] Dashboard Admin (gestion vocab)
-- [x] Offline-First (IndexedDB + Service Worker)
+- [x] Hors ligne après une visite en ligne (localStorage + Service Worker) ; vrai téléphone non essayé
 - [x] Bilingue Français/Anglais
 - [x] Responsive (mobile/tablette/desktop)
 
 ### Données
-- [x] 869 mots nettoyés & structurés
-- [x] Niveaux : SIL-CP, CE1-CE2, CM1-CM2 (mappés Form 1-6)
-- [x] Sujets : 30+ (Maison, Transport, Alimentation, etc.)
-- [x] Doublons supprimés
+- [x] 1 532 entrées structurées
+- [x] Niveaux : SIL-CP, CE1-CE2, CM1-CM2 (mappés Class 1-6)
+- [x] Sujets : 94 (Maison, Transport, Alimentation, etc.)
+- [ ] Doublons : 2 paires de même mot et même niveau restent dans `vocabulaire.json` (NDOLÉ / NDOLÈ et SOL, en CE1-CE2)
 - [x] Définitions bilingues
 
 ### Infrastructure
 - [x] Project structure React complète
 - [x] Vite build tool configuré
 - [x] Zustand pour state management
-- [x] Dexie pour IndexedDB
+- [x] localStorage pour les données (Dexie et IndexedDB non utilisés)
 - [x] Service Worker PWA
 - [x] CSS responsive par page
 - [x] Environment config
@@ -53,18 +54,20 @@
 dibie-app/
 ├── src/
 │   ├── components/           [Composants réutilisables]
-│   │   └── CrosswordGrid.jsx [Grille mots croisés]
+│   │   └── EclipseGrid.jsx   [Grille mots croisés]
 │   ├── pages/                [Pages principales]
-│   │   ├── Login.jsx
+│   │   ├── Profiles.jsx
+│   │   ├── Login.jsx         [conservé, n'est plus affiché]
 │   │   ├── RoleSelect.jsx
 │   │   ├── StudentDashboard.jsx
 │   │   ├── TeacherDashboard.jsx
 │   │   ├── ParentDashboard.jsx
 │   │   ├── AdminDashboard.jsx
-│   │   └── CrosswordGame.jsx
+│   │   ├── CrosswordGame.jsx
+│   │   └── WordSearchGame.jsx
 │   ├── stores/               [Zustand state]
 │   │   └── appStore.js
-│   ├── db/                   [IndexedDB]
+│   ├── db/                   [localStorage]
 │   │   └── index.js
 │   ├── data/                 [Vocabulaire JSON]
 │   │   └── vocabulaire.json
@@ -72,14 +75,20 @@ dibie-app/
 │   │   ├── Login.css
 │   │   ├── StudentDashboard.css
 │   │   ├── CrosswordGame.css
-│   │   ├── CrosswordGrid.css
+│   │   ├── EclipseGrid.css
+│   │   ├── Profiles.css
+│   │   ├── WordSearchGame.css
 │   │   └── TeacherDashboard.css
 │   ├── App.jsx
 │   ├── App.css
 │   ├── main.jsx
 │   └── index.css
 ├── public/
-│   └── service-worker.js
+│   ├── service-worker.js     [réécrit au build]
+│   ├── manifest.webmanifest
+│   ├── favicon.svg
+│   └── icons/
+├── e2e/                      [tests Playwright]
 ├── index.html
 ├── vite.config.js
 ├── package.json
@@ -102,12 +111,11 @@ npm run dev
 ```
 
 ### 2. Tester localement
-- Créer compte (test@example.com / password)
-- Choisir rôle "Élève"
+- Créer un profil à pseudonyme (pas de vrai nom)
 - Jouer Mots Croisés
 - Vérifier offline (F12 → Application → Offline)
 
-Utilisez uniquement des données fictives : les comptes, mots de passe et rôles ne sont pas sécurisés.
+Utilisez uniquement des données fictives : les profils et les rôles ne sont pas sécurisés.
 
 ### 3. Tests Enseignants (Fin Septembre)
 - Déployer sur Vercel (gratuit)
@@ -128,7 +136,7 @@ Utilisez uniquement des données fictives : les comptes, mots de passe et rôles
 - [ ] Backend Node.js + PostgreSQL
 - [ ] Sync données online/offline
 - [ ] Analytics dashboard
-- [ ] Import CSV vocabulaire UI
+- [x] Import CSV vocabulaire UI (ajouts locaux à l'appareil, déjà présent)
 
 ### Phase 4 (Novembre)
 - [ ] App packaging Capacitor (APK/IPA)
@@ -166,22 +174,20 @@ Utilisez uniquement des données fictives : les comptes, mots de passe et rôles
 | **Total** | **~$2,000** |
 
 ### Revenue (Potentiel)
-- 300 écoles × $300/licence = $90,000 profit
+- Hypothèse de revenu brut, non vérifiée : 300 écoles × $300/licence = $90,000, sans déduction des coûts
 
 ---
 
 ## 📞 SUPPORT
 
-**Urgences** : WhatsApp [À définir]
-**Email** : support@dibie-app.com
-**Issues** : GitHub issues
+Aucun canal de support (courriel, téléphone, adresse GitHub publique) n'est vérifié à ce jour.
 
 ---
 
 ## 🙏 Notes
 
 Ce projet est un **prototype de démonstration uniquement**, non prêt pour la production.
-Les comptes, mots de passe et rôles sont simulés localement. N’utilisez aucune donnée sensible ou réelle.
+Les profils et les rôles sont simulés localement. N’utilisez aucune donnée sensible ou réelle.
 Le code est modulaire, facile à étendre et maintenir.
 Vocabulaire peut être mis à jour facilement via admin panel.
 

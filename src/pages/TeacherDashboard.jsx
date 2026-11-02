@@ -30,7 +30,7 @@ export default function TeacherDashboard() {
           <button className="teacher-dashboard__back" onClick={handleBackToRoles}>
             {language === 'fr' ? 'Profil' : 'Profile'}
           </button>
-          <button className="teacher-dashboard__logout" onClick={logout}>
+          <button className="teacher-dashboard__logout" onClick={logout} aria-label={language === 'fr' ? 'Déconnexion' : 'Log out'}>
             ❌
           </button>
         </div>
@@ -57,7 +57,7 @@ export default function TeacherDashboard() {
             <tbody>
               {students.map(student => (
                 <tr key={student.userId}>
-                  <td>{student.name}</td>
+                  <td>{student.legacy && language !== 'fr' ? 'Former profile' : student.name}</td>
                   <td>{student.score}</td>
                   <td>{student.games}</td>
                 </tr>
