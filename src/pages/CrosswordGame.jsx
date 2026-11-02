@@ -4,18 +4,31 @@ import { getVocabByLevel, getVocabByLevelAndSubject, getAllLevels, saveUserProgr
 import EclipseGrid from '../components/EclipseGrid'
 import { crosswordSubjects, defaultCrosswordSubject, createCrosswordGame } from '../utils/crosswordLayout'
 import { newSeed, isValidSeed } from '../utils/wordSearchGame'
+import { MATIERES, MATIERE_TOUTES, filtrerParMatiere, libelleMatiere, libelleSujet, titreDeGrille } from '../data/sujets-matieres'
+import { libelleNiveau } from '../data/niveaux'
 import '../styles/CrosswordGame.css'
 
+// Valeurs internes en français (moteur, scores enregistrés) ; seul l'affichage est traduit
 const PUZZLE_TYPES = ['Bilingue', 'Français', 'Anglais']
+const PUZZLE_TYPES_EN = { Bilingue: 'Bilingual', 'Français': 'French', Anglais: 'English' }
 
 export default function CrosswordGame() {
-  const { user, language, setCurrentPage } = useAppStore()
+  const { user, language, setCurrentPage, crosswordMatiere } = useAppStore()
+  const typeLabel = (type) => (language === 'fr' ? type : PUZZLE_TYPES_EN[type])
+  // Matière du filtre : ne change que les sujets affichés et le sujet par défaut.
+  // Valeur de départ lue une fois : réglée par le raccourci du tableau de bord.
+  const [matiere, setMatiere] = useState(crosswordMatiere || MATIERE_TOUTES)
+  // Lue après le calcul asynchrone de la liste : toujours la matière courante
+  const matiereRef = useRef(matiere)
+  matiereRef.current = matiere
   const [levels, setLevels] = useState([])
   const [level, setLevel] = useState(user?.level || '')
   const [subject, setSubject] = useState('')
   const [puzzleType, setPuzzleType] = useState('Bilingue')
   const [gameState, setGameState] = useState('select')
   const [vocabulary, setVocabulary] = useState([])
+  // Niveau et sujet auxquels vocabulary correspond (chargement asynchrone)
+  const [vocabularyKey, setVocabularyKey] = useState('')
   // Grille en cours (createCrosswordGame) et numéro de grille saisi
   const [game, setGame] = useState(null)
   // Au moins une lettre saisie dans la grille (fourni par EclipseGrid)
@@ -35,6 +48,8 @@ export default function CrosswordGame() {
   // Sujets du niveau choisi : [{ subject, playable }] (playable = au moins
   // 2 mots placés pour le type choisi) ; null tant que le calcul n'est pas fait
   const [subjectList, setSubjectList] = useState(null)
+  // Niveau pour lequel subjectList a été calculée
+  const [subjectListLevel, setSubjectListLevel] = useState(null)
   // Niveau pour lequel le sujet par défaut a déjà été choisi
   const subjectLevelRef = useRef(null)
 
@@ -57,19 +72,26 @@ export default function CrosswordGame() {
     if (!level) return
     if (!subject) {
       setVocabulary([])
+      setVocabularyKey('')
       return
     }
+    // Un chargement dépassé (choix changé entre-temps) n'écrase pas le suivant
+    let cancelled = false
     const loadVocab = async () => {
+      let words = []
       try {
         const data = await getVocabByLevelAndSubject(level, subject)
         // Toutes les entrées du sujet : les mots de la grille sont tirés au hasard
-        setVocabulary((data && data.length > 0) ? data : [])
+        words = (data && data.length > 0) ? data : []
       } catch (err) {
         console.error('Erreur:', err)
-        setVocabulary([])
       }
+      if (cancelled) return
+      setVocabulary(words)
+      setVocabularyKey(`${level}|${subject}`)
     }
     loadVocab()
+    return () => { cancelled = true }
   }, [level, subject, gameState])
 
   // Sujets du niveau, grisés s'ils sont injouables (voir isPlayableCrossword)
@@ -86,21 +108,41 @@ export default function CrosswordGame() {
       }
       if (cancelled) return
       setSubjectList(list)
-      // Premier affichage ou changement de niveau : sujet jouable par défaut.
+      setSubjectListLevel(level)
+      // Premier affichage ou changement de niveau : sujet jouable par défaut parmi
+      // ceux de la matière (changement de matière : voir chooseMatiere).
       // Changement de type seul : le choix est gardé, même s'il devient grisé.
       if (subjectLevelRef.current !== level) {
         subjectLevelRef.current = level
-        setSubject(prev => defaultCrosswordSubject(list, prev))
+        setSubject(prev => defaultCrosswordSubject(filtrerParMatiere(list, matiereRef.current), prev))
       }
     }
     check()
     return () => { cancelled = true }
   }, [level, puzzleType, gameState])
 
-  const noPlayableSubject = subjectList !== null && !subjectList.some(s => s.playable)
-  const subjectUnavailable = subjectList !== null && subject !== '' &&
-    !subjectList.some(s => s.subject === subject && s.playable)
-  const canStart = vocabulary.length > 0 && subjectList !== null && subject !== '' && !subjectUnavailable
+  // Matière et sujet changent ensemble : aucun affichage intermédiaire
+  const chooseMatiere = (id) => {
+    setMatiere(id)
+    setSubject(prev => defaultCrosswordSubject(filtrerParMatiere(subjectList || [], id), prev))
+  }
+
+  // Sujets de la matière choisie. En anglais, triés selon le nom affiché :
+  // l'ordre ne sert ici qu'à l'affichage, le sujet par défaut ne change pas.
+  const subjectsOfMatiere = subjectList === null ? null : filtrerParMatiere(subjectList, matiere)
+  const displayedSubjects = (subjectsOfMatiere || []).slice()
+  if (language !== 'fr') {
+    displayedSubjects.sort((a, b) => libelleSujet(a.subject, language).localeCompare(libelleSujet(b.subject, language), 'en'))
+  }
+  // Pas de message tant que la liste ou le vocabulaire ne correspondent pas au
+  // choix courant : il serait faux pendant le calcul
+  const listReady = subjectsOfMatiere !== null && subjectListLevel === level
+  const vocabularyReady = vocabularyKey === `${level}|${subject}`
+  const emptyMatiere = listReady && subjectsOfMatiere.length === 0 && matiere !== MATIERE_TOUTES
+  const noPlayableSubject = listReady && !emptyMatiere && !subjectsOfMatiere.some(s => s.playable)
+  const subjectUnavailable = listReady && subject !== '' &&
+    !subjectsOfMatiere.some(s => s.subject === subject && s.playable)
+  const canStart = listReady && vocabularyReady && vocabulary.length > 0 && subject !== '' && !subjectUnavailable
 
   // Lance la grille de cette graine ; indisponible (rare) si aucun tirage
   // ne place au moins 2 mots
@@ -208,7 +250,7 @@ export default function CrosswordGame() {
             <div className="crossword-select__options">
               {PUZZLE_TYPES.map(t => (
                 <button key={t} className={`crossword-select__btn ${puzzleType === t ? 'active' : ''}`} onClick={() => setPuzzleType(t)}>
-                  {t}
+                  {typeLabel(t)}
                 </button>
               ))}
             </div>
@@ -219,16 +261,34 @@ export default function CrosswordGame() {
             <div className="crossword-select__options">
               {levels.map(l => (
                 <button key={l} className={`crossword-select__btn ${level === l ? 'active' : ''}`} onClick={() => setLevel(l)}>
-                  {l}
+                  {libelleNiveau(l, language)}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="crossword-select__section">
-            <label>{language === 'fr' ? 'Sujet' : 'Subject'}</label>
+            <label id="crossword-matiere-label">{language === 'fr' ? 'Matière' : 'Subject area'}</label>
+            <div className="crossword-select__options crossword-select__matieres" role="group" aria-labelledby="crossword-matiere-label">
+              {MATIERES.map(m => (
+                <button key={m.id} className={`crossword-select__btn ${matiere === m.id ? 'active' : ''}`} onClick={() => chooseMatiere(m.id)} aria-pressed={matiere === m.id}>
+                  {libelleMatiere(m.id, language)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="crossword-select__section">
+            <label>{language === 'fr' ? 'Sujet' : 'Topic'}</label>
+            {emptyMatiere && (
+              <p className="crossword-select__empty" role="status">
+                {language === 'fr'
+                  ? `Aucun sujet en ${libelleMatiere(matiere, language)} pour le niveau ${level}. Choisis une autre matière ou un autre niveau.`
+                  : `No topics in ${libelleMatiere(matiere, language)} for ${libelleNiveau(level, language)}. Choose another subject area or level.`}
+              </p>
+            )}
             <div className="crossword-select__grid">
-              {(subjectList || []).map(({ subject: s, playable }) => {
+              {displayedSubjects.map(({ subject: s, playable }) => {
                 const unavailable = !playable
                 return (
                   <button
@@ -237,7 +297,7 @@ export default function CrosswordGame() {
                     onClick={() => setSubject(s)}
                     disabled={unavailable}
                   >
-                    {s}
+                    {libelleSujet(s, language)}
                     {unavailable && (
                       <span className="crossword-select__soon">
                         {language === 'fr' ? 'bientôt disponible' : 'coming soon'}
@@ -268,7 +328,7 @@ export default function CrosswordGame() {
                 ? (language === 'fr' ? 'Numéro invalide : un nombre entier de 0 à 4294967295.' : 'Invalid number: a whole number from 0 to 4294967295.')
                 : (language === 'fr'
                     ? 'Avec la même version de l\'application, le même numéro, le même niveau, le même type et le même sujet donnent la même grille.'
-                    : 'With the same version of the app, the same number, level, type and subject give the same grid.')}
+                    : 'With the same version of the app, the same number, level, type and topic give the same grid.')}
             </p>
           </div>
 
@@ -282,20 +342,20 @@ export default function CrosswordGame() {
             <p className="crossword-select__hint">
               {language === 'fr'
                 ? 'Aucun sujet ne permet encore une grille pour ce niveau et ce type.'
-                : 'No subject can make a grid yet for this level and type.'}
+                : 'No topic can make a grid yet for this level and type.'}
             </p>
           )}
           {!noPlayableSubject && subjectUnavailable && (
             <p className="crossword-select__hint">
               {language === 'fr'
                 ? 'Pas assez de mots pour une grille sur ce sujet : choisis un autre sujet.'
-                : 'Not enough words for a grid on this subject: choose another subject.'}
+                : 'Not enough words for a grid on this topic: choose another topic.'}
             </p>
           )}
           {/* Filet de sécurité */}
-          {subject !== '' && !subjectUnavailable && subjectList !== null && vocabulary.length === 0 && (
+          {subject !== '' && listReady && vocabularyReady && !subjectUnavailable && vocabulary.length === 0 && (
             <p className="crossword-select__hint">
-              {language === 'fr' ? 'Aucun mot disponible pour ce niveau/sujet.' : 'No words available for this level/subject.'}
+              {language === 'fr' ? 'Aucun mot disponible pour ce niveau/sujet.' : 'No words available for this level/topic.'}
             </p>
           )}
         </div>
@@ -327,7 +387,7 @@ export default function CrosswordGame() {
     return (
       <div className="crossword-game">
         <div className="crossword-game__header">
-          <h1>{level} ({puzzleType})</h1>
+          <h1>{libelleNiveau(level, language)} ({typeLabel(puzzleType)})</h1>
           <p className="crossword-game__seed">
             {language === 'fr' ? 'Grille n°' : 'Grid no.'} {game?.seed}
           </p>
@@ -344,7 +404,7 @@ export default function CrosswordGame() {
                 onBack={() => setGameState('select')}
                 onWordsPlaced={setPlacedCount}
                 onLettersChange={setHasLetters}
-                subject={subject}
+                subject={titreDeGrille(game, subject, language)}
               />
               <div className="crossword-game__progress">
                 <p>{answered.length} / {placedCount} {language === 'fr' ? 'mots' : 'words'}</p>
@@ -402,7 +462,7 @@ export default function CrosswordGame() {
             <p className="crossword-finished__score-value">{score}</p>
           </div>
           <p className="crossword-game__seed">
-            {language === 'fr' ? 'Grille n°' : 'Grid no.'} {game?.seed} · {subject}
+            {language === 'fr' ? 'Grille n°' : 'Grid no.'} {game?.seed} · {libelleSujet(subject, language)}
           </p>
           <button className="crossword-finished__button" onClick={handleNewGrid}>
             {language === 'fr' ? 'Nouvelle grille' : 'New grid'}

@@ -91,7 +91,7 @@ Tableau de 1 532 objets. Tous les champs sont présents dans toutes les entrées
 
 ## Partie 2 : ajouts proposés (seulement pour un besoin identifié)
 
-Aucun ajout ne modifie `vocabulaire.json`. **En place sur la branche `fix/socle-phase-0`, non fusionnée (2026-11-01)** : `dibieProfiles` (2.1), les champs facultatifs `gameType` et `itemId` de `dibieProgress` (2.3) et les clés `dibieLocalVocab` et `dibieSession` (2.4). **Pas encore en place** : la table sujet → matière (2.2) et l'enregistrement de `isCorrect: false` par les jeux (2.3).
+Aucun ajout ne modifie `vocabulaire.json`. **En place sur la branche `fix/socle-phase-0`, non fusionnée (2026-11-01)** : `dibieProfiles` (2.1), les champs facultatifs `gameType` et `itemId` de `dibieProgress` (2.3) et les clés `dibieLocalVocab` et `dibieSession` (2.4). **Pas encore en place** : l'enregistrement de `isCorrect: false` par les jeux (2.3).
 
 ### 2.1 `dibieProfiles` (besoin : défaut n° 1)
 
@@ -106,7 +106,10 @@ Aucun ajout ne modifie `vocabulaire.json`. **En place sur la branche `fix/socle-
 
 ### 2.2 Table sujet → matière (besoin : accès par matière)
 
-Fichier de code `src/data/sujets-matieres.js`, sous la forme `{ 'Fractions': 'maths', 'Digestion': 'sciences', 'TIC': 'tic' }`. Un sujet absent de la table reste accessible par son nom. Le classement est à **valider par Isaac et un enseignant**.
+**En place sur la branche `feature/acces-par-matiere`, non fusionnée (2026-11-02).** Fichier de code `src/data/sujets-matieres.js` : table sujet → matière (`maths`, `sciences`, `tic`) reprenant l'annexe A de `audit-architecture.md`, et table sujet → traduction anglaise des 94 sujets. Aucune donnée stockée, `vocabulaire.json` inchangé ; un score garde le nom français du sujet.
+
+- Un sujet absent de la table (41 sujets du vocabulaire, sujets importés) reste accessible sous « Autres », et un sujet sans traduction garde son nom français.
+- Le classement est **validé par Isaac (2026-11-02), à valider ensuite par un enseignant**. Les traductions sont une **proposition, à valider**.
 
 ### 2.3 Enrichissements compatibles de `dibieScores` et `dibieProgress`
 

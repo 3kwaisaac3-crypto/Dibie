@@ -118,6 +118,32 @@
   margin-bottom: 20px;
 }
 
+.student-dashboard__matieres {
+  margin-bottom: 30px;
+}
+
+.matieres-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.matiere-btn {
+  flex: 1 1 140px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.matiere-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 .games-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

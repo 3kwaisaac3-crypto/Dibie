@@ -149,6 +149,25 @@
   text-align: center;
 }
 
+/* Filtre par matière : les libellés longs passent à la ligne */
+.crossword-select__matieres {
+  flex-wrap: wrap;
+}
+
+.crossword-select__matieres .crossword-select__btn {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.crossword-select__empty {
+  padding: 12px;
+  border-radius: 6px;
+  background: #fff8df;
+  color: #5f4a00;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
 /* Game State */
 .crossword-game {
   padding: 20px;

@@ -21,7 +21,7 @@ Aucune reconstruction, aucun fichier supprimé, aucun jeu fonctionnel réécrit,
 | Q3 | Faire passer le socle (phase 0) et le bilinguisme par matière (phase 1) avant l'étape 1 de l'ordre D2 ? | **Oui** pour la phase 0 ; la phase 1 peut suivre, car elle rend aussitôt accessibles les sciences et les TIC. L'ordre D2 reste ensuite inchangé |
 | Q4 | Mots croisés en 15 colonnes, contraire à `Claude.md:35` ? Isaac a fait adapter ces 15 colonnes au téléphone le 2026-10-30 | **Garder 15** et corriger `Claude.md` pour les mots croisés seulement : la règle reste valable pour les mots mêlés (décision du 2026-10-05) |
 | Q5 | Réglage des jeux de calcul : par classe et par sous-système ? | **Oui**, les programmes l'exigent ; bornes à faire confirmer par un enseignant (D4) |
-| Q6 | Classement des sujets par matière (`audit-architecture.md`, annexe A) ? | À relire par Isaac, puis à valider par un enseignant |
+| Q6 | Classement des sujets par matière (`audit-architecture.md`, annexe A) ? | **Validé par Isaac le 2026-11-02, à valider par un enseignant** |
 | Q7 | Qui est l'enseignant désigné (D14) ? | Choix d'Isaac ; requis avant tout usage avec des élèves |
 | Q8 | Scores et progrès sans limite dans `localStorage` : ne rien plafonner, ou garder un cumul par profil avant d'élaguer ? | **Ne rien plafonner en phase 0** : aucune perte, et le risque de saturation reste lointain avec les volumes actuels (estimation non mesurée) |
 
