@@ -18382,5 +18382,17 @@
     "sujet": "Alimentation",
     "difficulte": 2,
     "actif": true
+  },
+  {
+    "id": "vocab_1534",
+    "mot_fr": "SERRURERIE",
+    "mot_en": "Locksmithing",
+    "def_fr": "Travail qui consiste à fabriquer et réparer les clés et les verrous ; aussi, l'atelier où on le fait.",
+    "def_en": "The job of making and repairing keys and bolts, or the workshop where it is done.",
+    "niveau_fr": "CM1-CM2",
+    "niveau_en": "Class 5-6",
+    "sujet": "Métiers / Artisanat",
+    "difficulte": 3,
+    "actif": true
   }
 ]

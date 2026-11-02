@@ -58,7 +58,7 @@ Les adultes passent par **Espace adulte**, derrière une simple question qui n'e
 
 **Fichier** : `src/data/vocabulaire.json`
 
-- 1 532 entrées
+- 1 533 entrées
 - Niveaux : SIL-CP, CE1-CE2, CM1-CM2
 - Sujets : Maison, Transport, Alimentation, etc.
 

@@ -38,7 +38,7 @@
 - **Validation** : vérification complète de la grille avant render
 
 ### Contenu (Vocabulaire)
-- **Source** : 1 532 entrées (mot_fr, mot_en, définitions, niveaux, sujets)
+- **Source** : 1 533 entrées (mot_fr, mot_en, définitions, niveaux, sujets)
 - **Définitions** : pré-généré une fois via Claude API (batch processing)
 - **Storage** : vocabulaire.json statique embarqué (jamais généré au runtime)
 - **Aucune dépendance réseau** pour accès vocabulaire en jeu
@@ -65,7 +65,7 @@ dibie-app/
 │   │   └── [autres pages]
 │   ├── stores/appStore.js           ← Zustand
 │   ├── db/index.js                  ← localStorage wrapper
-│   ├── data/vocabulaire.json        ← 1 532 entrées (statique)
+│   ├── data/vocabulaire.json        ← 1 533 entrées (statique)
 │   ├── styles/
 │   │   ├── EclipseGrid.css
 │   │   ├── CrosswordGame.css
