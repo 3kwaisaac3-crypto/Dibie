@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useAppStore } from '../stores/appStore'
 import { getUserStats } from '../db/index'
+import { libelleMatiere } from '../data/sujets-matieres'
+import { libelleNiveau } from '../data/niveaux'
 import '../styles/StudentDashboard.css'
 
 export default function StudentDashboard() {
-  const { user, language, setCurrentPage, logout } = useAppStore()
+  const { user, language, setCurrentPage, openCrossword, logout } = useAppStore()
   const [stats, setStats] = useState({
     score: 0,
     games: 0,
@@ -35,7 +37,7 @@ export default function StudentDashboard() {
         <div className="student-dashboard__user">
           <h1>{language === 'fr' ? 'Bonjour' : 'Hello'}, {user?.name || 'Élève'} 👋</h1>
           <p className="student-dashboard__level">
-            {[user?.level, user?.class].filter(Boolean).join(' · ')}
+            {[libelleNiveau(user?.level, language), user?.class].filter(Boolean).join(' · ')}
           </p>
         </div>
         <div className="student-dashboard__actions">
@@ -82,6 +84,18 @@ export default function StudentDashboard() {
         </div>
       )}
 
+      {/* Accès par matière : ouvre les mots croisés avec le filtre déjà réglé */}
+      <div className="student-dashboard__games student-dashboard__matieres">
+        <h2>{language === 'fr' ? 'Mots croisés par matière' : 'Crossword by subject area'}</h2>
+        <div className="matieres-grid">
+          {['maths', 'sciences', 'tic'].map(matiere => (
+            <button key={matiere} className="matiere-btn" onClick={() => openCrossword(matiere)}>
+              {libelleMatiere(matiere, language)}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Games */}
       <div className="student-dashboard__games">
         <h2>{language === 'fr' ? 'Jeux disponibles' : 'Available Games'}</h2>
@@ -90,7 +104,11 @@ export default function StudentDashboard() {
             <button
               key={game.id}
               className={`game-card ${!game.available ? 'game-card--disabled' : ''}`}
-              onClick={() => game.available && setCurrentPage(game.page || 'crosswordGame')}
+              onClick={() => {
+                if (!game.available) return
+                if (game.page) setCurrentPage(game.page)
+                else openCrossword()
+              }}
               disabled={!game.available}
               title={!game.available ? (language === 'fr' ? 'Bientôt disponible' : 'Coming soon') : ''}
             >

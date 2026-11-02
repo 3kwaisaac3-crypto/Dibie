@@ -11,6 +11,7 @@ import {
   WORD_SEARCH_LEVELS,
   WORD_SEARCH_SETTINGS
 } from '../utils/wordSearchGame'
+import { libelleNiveau } from '../data/niveaux'
 import '../styles/WordSearchGame.css'
 
 const POINTS_PER_WORD = 10 // comme les mots croisés
@@ -179,7 +180,7 @@ export default function WordSearchGame() {
                   onClick={() => setLevel(l)}
                   aria-pressed={level === l}
                 >
-                  {l}
+                  {libelleNiveau(l, language)}
                   <span className="wordsearch-select__size">
                     {WORD_SEARCH_SETTINGS[l].size}x{WORD_SEARCH_SETTINGS[l].size}
                   </span>
@@ -249,7 +250,7 @@ export default function WordSearchGame() {
           <p>{t('Tu as trouvé tous les mots.', 'You found all the words.')}</p>
           <p className="wordsearch-finished__score">{found.length * POINTS_PER_WORD}</p>
           <p className="wordsearch-game__seed">
-            {t('Grille n°', 'Grid no.')} {game.result.requestedSeed} · {level}
+            {t('Grille n°', 'Grid no.')} {game.result.requestedSeed} · {libelleNiveau(level, language)}
           </p>
           <button className="wordsearch-select__start" onClick={handleNewGrid}>
             {t('Nouvelle grille', 'New grid')}
@@ -272,7 +273,7 @@ export default function WordSearchGame() {
   return (
     <div className="wordsearch-game">
       <div className="wordsearch-game__header">
-        <h1>{t('Mots Mêlés', 'Word Search')} - {level}</h1>
+        <h1>{t('Mots Mêlés', 'Word Search')} - {libelleNiveau(level, language)}</h1>
         <div className="wordsearch-game__progress">
           {found.length} / {result.placements.length} {t('mots', 'words')}
         </div>

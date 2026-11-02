@@ -5,12 +5,7 @@
 // - N°;Mot en français;Mot en anglais;Définition en français;Définition en anglais;Niveau;Sujet,
 //   avec BOM, en-tête répété et niveaux à tiret long (CM1–CM2).
 
-// Correspondance des tranches francophones et anglophones du primaire (curriculum MINEDUB 2018)
-const NIVEAU_EN = {
-  'SIL-CP': 'Class 1-2',
-  'CE1-CE2': 'Class 3-4',
-  'CM1-CM2': 'Class 5-6'
-}
+import { NIVEAU_EN } from '../data/niveaux.js'
 
 // Noms de colonnes reconnus dans un en-tête (minuscules, sans accents)
 const COLONNES = {

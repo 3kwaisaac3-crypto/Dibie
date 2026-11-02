@@ -1,6 +1,6 @@
 # 📊 DIBIÈ - Statut du Projet
 
-**Date** : 2026-11-01
+**Date** : 2026-11-02
 **Version** : Prototype de démonstration 0.1
 **Status** : ⚠️ Prototype local non sécurisé, destiné aux démonstrations
 
@@ -13,7 +13,7 @@
 ### Fonctionnalités du prototype
 - [x] Profils locaux à pseudonyme (sans courriel ni mot de passe), session conservée
 - [x] Élève direct ; espace adulte (Prof, Parent, Admin) derrière une question, sans sécurité réelle
-- [x] Jeu Mots Croisés Bilingues
+- [x] Jeu Mots Croisés Bilingues, avec accès par matière (classement validé par Isaac le 2026-11-02, à valider par un enseignant ; traductions des sujets à valider)
 - [x] Jeu Mots Mêlés (français ou anglais, selon la langue de l'interface ; liste de mots interdits encore vide, démonstration seulement)
 - [x] Dashboard Élève (scores, badges, streaks)
 - [x] Dashboard Enseignant (score total et nombre de parties par profil)
@@ -69,8 +69,9 @@ dibie-app/
 │   │   └── appStore.js
 │   ├── db/                   [localStorage]
 │   │   └── index.js
-│   ├── data/                 [Vocabulaire JSON]
-│   │   └── vocabulaire.json
+│   ├── data/                 [Vocabulaire JSON, table sujet → matière]
+│   │   ├── vocabulaire.json
+│   │   └── sujets-matieres.js
 │   ├── styles/               [CSS pages]
 │   │   ├── Login.css
 │   │   ├── StudentDashboard.css

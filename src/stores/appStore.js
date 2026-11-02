@@ -55,6 +55,11 @@ export const useAppStore = create(persist((set) => ({
   setLanguage: (lang) => set({ language: lang }),
   setCurrentPage: (page) => set({ currentPage: page }),
   logout: () => set({ user: null, isAuthenticated: false, role: null, currentPage: 'profiles' }),
+
+  // Matière réglée à l'ouverture des mots croisés (raccourci du tableau de bord).
+  // Absente de partialize : elle n'est pas conservée au rechargement.
+  crosswordMatiere: null,
+  openCrossword: (matiere = null) => set({ crosswordMatiere: matiere, currentPage: 'crosswordGame' }),
   
   // Game state
   gameState: {

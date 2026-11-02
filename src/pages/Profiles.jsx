@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useAppStore } from '../stores/appStore'
 import { classesOf, createProfile, getProfiles, PROFILE_LEVELS, PROFILE_NAME_MAX } from '../db/index'
+import { libelleNiveau } from '../data/niveaux'
 import '../styles/Profiles.css'
 
 // Entrée de l'application : profils locaux à pseudonyme, sans courriel ni mot
@@ -73,7 +74,7 @@ export default function Profiles() {
               {profiles.map(profile => (
                 <button key={profile.id} className="profiles__card" onClick={() => enter(profile)}>
                   <span className="profiles__card-name">{profile.name}</span>
-                  <span className="profiles__card-level">{profile.level}</span>
+                  <span className="profiles__card-level">{libelleNiveau(profile.level, language)}</span>
                 </button>
               ))}
             </div>
@@ -96,7 +97,7 @@ export default function Profiles() {
 
           <label htmlFor="profile-level">{t('Niveau', 'Level')}</label>
           <select id="profile-level" value={level} onChange={(e) => changeLevel(e.target.value)}>
-            {PROFILE_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+            {PROFILE_LEVELS.map(l => <option key={l} value={l}>{libelleNiveau(l, language)}</option>)}
           </select>
 
           <label htmlFor="profile-subsystem">{t('Sous-système', 'Subsystem')}</label>

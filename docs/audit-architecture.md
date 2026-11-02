@@ -118,7 +118,7 @@ Les sondes ont utilisé Edge sur le build temporaire. Aucun autre navigateur n'a
 | `docs/cahier-des-charges.md`, `docs/prd.md` | Dépôt Dibiè | Fichiers de **0 octet** | Existent mais sont vides |
 | `docs/specs-niveaux/` | Poste de travail | Dossier vide | Existe mais ne contient aucun fichier |
 
-**Répartition par matière.** Le vocabulaire n'a pas de champ « matière ». En classant les sujets (annexe A), on obtient **324 entrées de mathématiques, 243 de sciences et de santé et 116 d'informatique et de TIC**. Ce classement est une **interprétation de JARVIS**, à valider : le chiffre des sciences dépend fortement des choix.
+**Répartition par matière.** Le vocabulaire n'a pas de champ « matière ». En classant les sujets (annexe A), on obtient **324 entrées de mathématiques, 243 de sciences et de santé et 116 d'informatique et de TIC**. Ce classement, proposé par JARVIS, est **validé par Isaac le 2026-11-02, à valider par un enseignant** : le chiffre des sciences dépend fortement des choix.
 
 Ces entrées sont des **mots et des définitions**, pas des exercices : elles alimentent déjà les mots croisés, mais ne fournissent aucun calcul ni aucune question. Toutes ne sont pas placées dans une grille : les mots composés sont écartés et les mots mêlés n'utilisent que le français.
 
@@ -210,9 +210,9 @@ Le code fait foi. Ces documents ne doivent pas servir de référence avant d'êt
 
 ---
 
-## Annexe A : classement provisoire des sujets par matière
+## Annexe A : classement des sujets par matière
 
-**Interprétation de JARVIS, à valider par Isaac et un enseignant.** Les 41 autres sujets ne sont classés dans aucune de ces trois matières (Animaux, Géographie, Maison, Musique…). Recalculé le 2026-11-01 sur `vocabulaire.json`.
+**Proposé par JARVIS, validé par Isaac le 2026-11-02, à valider par un enseignant.** Les 41 autres sujets ne sont classés dans aucune de ces trois matières (Animaux, Géographie, Maison, Musique…). Recalculé le 2026-11-01 sur `vocabulaire.json`.
 
 | Matière | Sujets | Entrées | Actives | Mot français simple | SIL-CP | CE1-CE2 | CM1-CM2 |
 |---|---|---|---|---|---:|---:|---:|
