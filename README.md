@@ -97,7 +97,7 @@ dibie-app/
 ### 1. Authentification
 - Profils locaux à pseudonyme, sans courriel ni mot de passe, enregistrés sur l'appareil
 - L'élève choisit son profil et arrive sur son tableau de bord ; session conservée au rechargement
-- Espace adulte (Enseignant, Parent, Admin) derrière une simple question, qui **n'est pas une sécurité réelle**
+- Espace adulte (Enseignant, Parent, Admin) derrière une simple question, qui **n'est pas une sécurité réelle** ; un rechargement ramène aux profils et la question est reposée
 - Sauvegarde locale (localStorage)
 
 ### 2. Jeux

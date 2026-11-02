@@ -75,6 +75,8 @@ test('Second import du même fichier : tout est ignoré, rien n\'est dupliqué',
   await importer(page)
   await expect(page.getByText('0 mot ajouté, 4 déjà présents ignorés.')).toBeVisible()
   await page.reload()
+  await ouvrirEspaceAdulte(page)
+  await page.getByRole('button', { name: /Administrateur/ }).click()
   await importer(page)
   await expect(page.getByText('0 mot ajouté, 4 déjà présents ignorés.')).toBeVisible()
   expect(await stocke(page, 'dibieLocalVocab')).toHaveLength(3)
