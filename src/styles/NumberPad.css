@@ -1,0 +1,61 @@
+/* Pavé numérique réutilisable (src/components/NumberPad.jsx) :
+   3 colonnes, touches d'au moins 44 px (cible tactile), tient à 320 px */
+
+.number-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(44px, 72px));
+  gap: 8px;
+  justify-content: center;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.number-pad__key {
+  min-height: 52px;
+  min-width: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: #667eea;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #4a5bd0;
+}
+
+.number-pad__key:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #4a5bd0;
+}
+
+.number-pad__key--delete {
+  background: #eee;
+  color: #333;
+  box-shadow: 0 3px 0 #ccc;
+}
+
+.number-pad__key--validate {
+  background: #4caf50;
+  box-shadow: 0 3px 0 #388e3c;
+}
+
+.number-pad__key:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+
+.number-pad__key:focus-visible {
+  outline: 3px solid #764ba2;
+  outline-offset: 2px;
+}
+
+/* Le survol global (index.css, button:hover) blanchit les boutons : les
+   touches gardent leur couleur */
+.number-pad__key:hover { background: #5a6fe0; }
+.number-pad__key--delete:hover { background: #e2e2e2; }
+.number-pad__key--validate:hover { background: #43a047; }
+.number-pad__key:disabled:hover { background: #667eea; }
+.number-pad__key--delete:disabled:hover { background: #eee; }
+.number-pad__key--validate:disabled:hover { background: #4caf50; }

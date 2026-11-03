@@ -13,10 +13,11 @@ import AdminDashboard from './pages/AdminDashboard'
 import CrosswordGame from './pages/CrosswordGame'
 import WordSearchGame from './pages/WordSearchGame'
 import AnagramGame from './pages/AnagramGame'
+import PyramidGame from './pages/PyramidGame'
 
 import './App.css'
 
-const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame']
+const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'pyramidGame']
 const ADULT_PAGES = ['roleSelect', 'teacherDashboard', 'parentDashboard', 'adminDashboard']
 
 export default function App() {
@@ -80,6 +81,8 @@ export default function App() {
       {page === 'crosswordGame' && vocabLoaded && <CrosswordGame />}
       {page === 'wordSearchGame' && vocabLoaded && <WordSearchGame />}
       {page === 'anagramGame' && vocabLoaded && <AnagramGame />}
+      {/* Pyramides : nombres générés, sans vocabulaire à attendre */}
+      {page === 'pyramidGame' && <PyramidGame />}
 
       {/* Sélecteur de langue global ; l'écran des profils a le sien */}
       {page !== 'profiles' && (

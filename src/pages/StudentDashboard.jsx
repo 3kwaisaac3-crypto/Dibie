@@ -28,6 +28,7 @@ export default function StudentDashboard() {
     { id: 'crossword', name: language === 'fr' ? 'Mots Croisés' : 'Crossword', icon: '⬜', available: true },
     { id: 'wordsearch', name: language === 'fr' ? 'Mots Mêlés' : 'Word Search', icon: '🔍', available: true, page: 'wordSearchGame' },
     { id: 'anagram', name: language === 'fr' ? 'Anagrammes' : 'Anagrams', icon: '🔤', available: true, page: 'anagramGame' },
+    { id: 'pyramid', name: language === 'fr' ? 'Pyramides' : 'Pyramids', icon: '🔺', available: true, page: 'pyramidGame' },
   ]
 
   return (
