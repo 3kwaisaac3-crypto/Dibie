@@ -285,6 +285,11 @@
   cursor: default;
 }
 
+/* Le survol global (index.css, button:hover) rendait la tuile blanche, lettre
+   blanche comprise : la lettre devenait invisible. Couleurs gardées au survol. */
+.anagram-tile:hover { background: #5a6fe0; }
+.anagram-tile--used:hover { background: #eee; }
+
 .anagram-tile:focus-visible,
 .anagram-slot:focus-visible {
   outline: 3px solid #764ba2;

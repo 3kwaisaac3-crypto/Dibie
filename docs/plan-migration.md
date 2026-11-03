@@ -117,7 +117,7 @@ Aucune durée n'est donnée : elles ne sont pas connues à ce stade.
 | Ressources disponibles | Bornes, tables et monnaie par classe ; règles de qualité par jeu ; 324 entrées de maths, seulement pour les jeux de langue |
 | Composants réutilisables | `createRandom`, `newSeed`, `isValidSeed` ; `saveScore`, `getUserStats` ; 10 points par réponse ; structure des pages de jeu ; carte du tableau de bord |
 | Éléments manquants | Générateur et vérificateur de pyramides ; pavé numérique ; réglages par classe et sous-système ; validation des bornes par un enseignant |
-| Nouveaux fichiers | `src/utils/mathGames.js` et son test ; `src/data/reglages-maths.js` ; `src/components/NumberPad.jsx` ; `src/pages/PyramidGame.jsx` ; `src/styles/PyramidGame.css` ; `e2e/pyramides.spec.js` |
+| Nouveaux fichiers | `src/utils/pyramidGame.js` et son test (nom prévu au départ : `mathGames.js`) ; `src/data/reglages-maths.js` ; `src/components/NumberPad.jsx` ; `src/pages/PyramidGame.jsx` ; `src/styles/PyramidGame.css` ; `e2e/pyramides.spec.js` |
 | Fichiers modifiés | `src/App.jsx` (import et page) ; `src/pages/StudentDashboard.jsx` (une carte) |
 | Tests de non-régression | Une seule solution pour chaque pyramide ; sommet dans la limite du niveau sur de longues séries de graines ; aucun résultat négatif ; même graine, même pyramide ; pavé utilisable à 320 px ; mots croisés et mots mêlés inchangés |
 

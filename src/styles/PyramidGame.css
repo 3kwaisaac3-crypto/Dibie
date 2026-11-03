@@ -1,0 +1,351 @@
+/* Pyramides — même palette que les anagrammes (AnagramGame.css) */
+
+.pyramid-select,
+.pyramid-finished {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.pyramid-select__container,
+.pyramid-finished__container {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.pyramid-select__container h1,
+.pyramid-finished__container h1 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.pyramid-select__intro {
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.pyramid-select__class {
+  color: #764ba2;
+  font-weight: bold;
+  margin-bottom: 24px;
+  overflow-wrap: anywhere;
+}
+
+.pyramid-select__section {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.pyramid-select__label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.pyramid-select__options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pyramid-select__btn {
+  flex: 1;
+  min-width: 120px;
+  min-height: 48px;
+  padding: 10px;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pyramid-select__btn.active {
+  border-color: #667eea;
+  background-color: #667eea;
+  color: white;
+}
+
+.pyramid-select__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pyramid-select__size {
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.pyramid-select__seed {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.pyramid-select__hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.pyramid-select__start,
+.pyramid-select__back {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.pyramid-select__start {
+  background: #667eea;
+  color: white;
+}
+
+.pyramid-select__start:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pyramid-select__back {
+  background: #eee;
+  color: #333;
+}
+
+.pyramid-finished__score {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #667eea;
+  margin: 16px 0;
+}
+
+.pyramid-finished__errors {
+  color: #555;
+  margin-bottom: 12px;
+}
+
+/* Partie en cours */
+
+.pyramid-game {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 16px;
+  padding-bottom: 72px; /* place pour le sélecteur de langue global */
+}
+
+.pyramid-game__header {
+  color: white;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.pyramid-game__header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+}
+
+.pyramid-game__progress {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.pyramid-game__seed {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+.pyramid-game__card {
+  background: white;
+  border-radius: 10px;
+  padding: 16px 10px;
+  width: min(100%, 600px);
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.pyramid-game__rule {
+  color: #555;
+  margin-bottom: 12px;
+}
+
+/* Pyramide : chaque rangée est centrée ; toutes les cases ont la même largeur
+   (une part de la base), d'où le décalage d'une demi-case entre deux rangées */
+.pyramid {
+  --py-gap: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--py-gap);
+  margin: 0 auto 8px;
+  width: min(100%, 440px);
+  font-size: 1.4rem;
+  touch-action: manipulation;
+}
+
+.pyramid--medium { font-size: 1.15rem; }
+.pyramid--large { font-size: 1rem; }
+.pyramid--huge { font-size: 0.85rem; }
+
+.pyramid__row {
+  display: flex;
+  justify-content: center;
+  gap: var(--py-gap);
+  width: 100%;
+}
+
+.pyramid-cell {
+  flex: 0 0 calc((100% - (var(--py-floors) - 1) * var(--py-gap)) / var(--py-floors));
+  min-width: 0;
+  min-height: 48px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #667eea;
+  border-radius: 6px;
+  background: #f3f4ff;
+  font-size: inherit;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  color: #333;
+  line-height: 1.15;
+  flex-wrap: wrap;
+  text-align: center;
+  /* Un grand nombre passe à la ligne entre deux groupes de chiffres, jamais au
+     milieu d'un groupe (GroupedNumber, PyramidGame.jsx) */
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.pyramid-num__group {
+  white-space: nowrap;
+}
+
+.pyramid-cell--shown {
+  background: #eceff1;
+  border-color: #90a4ae;
+  color: #455a64;
+}
+
+.pyramid-cell--given {
+  background: #ffe082;
+  border-color: #ff9800;
+}
+
+.pyramid-cell--found {
+  background: #c8f2d0;
+  border-color: #4caf50;
+  color: #1b5e20;
+}
+
+.pyramid-cell--hidden {
+  background: white;
+  border-style: dashed;
+  cursor: pointer;
+}
+
+.pyramid-cell--selected {
+  border-style: solid;
+  border-color: #764ba2;
+  background: #ede7f6;
+  box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.35);
+}
+
+.pyramid-cell--wrong {
+  border-color: #e53935;
+}
+
+/* Les deux cases dont dépend une case fausse */
+.pyramid-cell--hint {
+  outline: 3px solid #1e88e5;
+  outline-offset: 1px;
+}
+
+.pyramid-cell:focus-visible {
+  outline: 3px solid #764ba2;
+  outline-offset: 2px;
+}
+
+.pyramid-game__feedback {
+  min-height: 1.5em;
+  font-weight: bold;
+  color: #764ba2;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+
+.pyramid-game__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.pyramid-game__btn {
+  flex: 1;
+  min-width: 90px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: #667eea;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.pyramid-game__btn--secondary {
+  background: #eee;
+  color: #333;
+}
+
+.pyramid-game__btn--validate {
+  background: #4caf50;
+}
+
+.pyramid-game__next {
+  width: 100%;
+  font-size: 1.1rem;
+}
+
+.pyramid-game__btn--answer {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  background: #ff9800;
+}
+
+.pyramid-game__btn--answer:hover { background: #fb8c00; }
+
+/* Le survol global (index.css, button:hover) ne change pas les couleurs des cases */
+.pyramid-cell--hidden:hover { background: #f8f6ff; }
+.pyramid-cell--selected:hover { background: #ede7f6; }
+.pyramid-select__btn.active:hover { background-color: #5a6fe0; }
+.pyramid-select__start:hover { background: #5a6fe0; }
+.pyramid-game__btn--validate:hover { background: #43a047; }

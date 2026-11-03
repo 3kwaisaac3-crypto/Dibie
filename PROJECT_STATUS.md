@@ -1,6 +1,6 @@
 # 📊 DIBIÈ - Statut du Projet
 
-**Date** : 2026-11-02
+**Date** : 2026-11-03
 **Version** : Prototype de démonstration 0.1
 **Status** : ⚠️ Prototype local non sécurisé, destiné aux démonstrations
 
@@ -16,6 +16,7 @@
 - [x] Jeu Mots Croisés Bilingues, avec accès par matière (classement validé par Isaac le 2026-11-02, à valider par un enseignant ; traductions des sujets à valider)
 - [x] Jeu Mots Mêlés (français ou anglais, selon la langue de l'interface ; liste de mots interdits encore vide, démonstration seulement)
 - [x] Jeu Anagrammes (phase 2, 2026-11-02 ; français ou anglais selon la langue de l'interface ; réglages par niveau provisoires, à valider par un enseignant ; liste de mots interdits encore vide, démonstration seulement)
+- [x] Jeu Pyramides additives et multiplicatives et pavé numérique réutilisable (phase 3, 2026-11-03 ; réglés par classe et sous-système du profil ; bornes reprises des programmes, provisoires, à valider par un enseignant de chaque sous-système)
 - [x] Dashboard Élève (scores, badges, streaks)
 - [x] Dashboard Enseignant (score total et nombre de parties par profil)
 - [ ] Dashboard Parent (texte d'attente seulement, aucune donnée)
@@ -55,7 +56,8 @@
 dibie-app/
 ├── src/
 │   ├── components/           [Composants réutilisables]
-│   │   └── EclipseGrid.jsx   [Grille mots croisés]
+│   │   ├── EclipseGrid.jsx   [Grille mots croisés]
+│   │   └── NumberPad.jsx     [Pavé numérique des jeux de calcul]
 │   ├── pages/                [Pages principales]
 │   │   ├── Profiles.jsx
 │   │   ├── Login.jsx         [conservé, n'est plus affiché]
@@ -66,14 +68,16 @@ dibie-app/
 │   │   ├── AdminDashboard.jsx
 │   │   ├── CrosswordGame.jsx
 │   │   ├── WordSearchGame.jsx
-│   │   └── AnagramGame.jsx
+│   │   ├── AnagramGame.jsx
+│   │   └── PyramidGame.jsx
 │   ├── stores/               [Zustand state]
 │   │   └── appStore.js
 │   ├── db/                   [localStorage]
 │   │   └── index.js
-│   ├── data/                 [Vocabulaire JSON, table sujet → matière]
+│   ├── data/                 [Vocabulaire JSON, table sujet → matière, réglages de calcul]
 │   │   ├── vocabulaire.json
-│   │   └── sujets-matieres.js
+│   │   ├── sujets-matieres.js
+│   │   └── reglages-maths.js [bornes et tables par classe et sous-système]
 │   ├── styles/               [CSS pages]
 │   │   ├── Login.css
 │   │   ├── StudentDashboard.css
@@ -82,6 +86,8 @@ dibie-app/
 │   │   ├── Profiles.css
 │   │   ├── WordSearchGame.css
 │   │   ├── AnagramGame.css
+│   │   ├── PyramidGame.css
+│   │   ├── NumberPad.css
 │   │   └── TeacherDashboard.css
 │   ├── App.jsx
 │   ├── App.css
@@ -133,6 +139,7 @@ Utilisez uniquement des données fictives : les profils et les rôles ne sont pa
 ### Phase 2 (Septembre)
 - [ ] Intégrer Anthropic API pour indices IA
 - [x] Ajouter jeu Anagrammes (2026-11-02)
+- [x] Ajouter jeu Pyramides et pavé numérique (2026-11-03)
 - [ ] Ajouter jeu Dominos
 - [ ] Améliorer UI animations
 
