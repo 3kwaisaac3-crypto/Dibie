@@ -110,7 +110,15 @@ dibie-app/
   - grille sans accents, liste affichée avec l'orthographe exacte ; mots composés et mots à apostrophe écartés
   - « Numéro de grille » : même numéro + même niveau = même grille, **à version identique de l'application et du vocabulaire**
   - ⚠️ **Mode démonstration uniquement** : la liste de mots interdits n'est pas encore établie (vide). Les lettres de remplissage peuvent former un mot inapproprié par hasard. Ne pas utiliser avec des élèves réels avant d'avoir établi cette liste avec un enseignant.
-- **Anagrammes** : À implémenter
+- **Anagrammes** (fiche L1 du catalogue v0.2, `src/utils/anagramGame.js`) : remettre dans l'ordre les lettres d'un mot du niveau, dans la langue de l'interface, à l'aide de sa définition
+  - 3 lettres minimum ; 10 points par mot trouvé ; pas de chronomètre
+  - toute autre anagramme réelle **présente dans le vocabulaire** (même niveau, même langue) est acceptée (CAMION / MANIOC) ; le jeu ne connaît pas d'autre dictionnaire
+  - le mélange ne redonne jamais le mot ni une autre bonne réponse ; orthographe exacte (avec accents) montrée après chaque mot
+  - choix provisoires, à valider par un enseignant : 3-5 lettres et première lettre placée (SIL-CP), 4-7 (CE1-CE2), 6-10 (CM1-CM2) ; 5 mots par partie ; après une erreur, nombre de lettres bien placées par l'élève (la lettre déjà placée ne compte pas), puis indice (première lettre ; en SIL-CP, où elle est déjà placée, les deux premières), puis solution disponible après 3 essais (mot alors non compté) ; en SIL-CP, seules les anagrammes qui commencent par la lettre placée sont acceptées
+  - un mot dont la définition contient le mot lui-même ou un mot qui commence par lui (pluriel, conjugaison) n'est pas proposé ; règle par préfixe, qui écarte aussi quelques mots à tort (CAT, à cause de « catches »)
+  - le numéro de partie est affiché avec la langue des mots
+  - « Numéro de partie » : même numéro + même niveau + même langue = même partie, à version identique de l'application et du vocabulaire
+  - ⚠️ **Mode démonstration uniquement** : même liste de mots interdits que les mots mêlés, encore vide ; un mélange peut former un mot inapproprié
 - Non réalisés : difficulté adaptative, indices par IA
 
 ### 3. Dashboards

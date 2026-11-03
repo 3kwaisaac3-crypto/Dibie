@@ -15,6 +15,7 @@
 - [x] Élève direct ; espace adulte (Prof, Parent, Admin) derrière une question, sans sécurité réelle
 - [x] Jeu Mots Croisés Bilingues, avec accès par matière (classement validé par Isaac le 2026-11-02, à valider par un enseignant ; traductions des sujets à valider)
 - [x] Jeu Mots Mêlés (français ou anglais, selon la langue de l'interface ; liste de mots interdits encore vide, démonstration seulement)
+- [x] Jeu Anagrammes (phase 2, 2026-11-02 ; français ou anglais selon la langue de l'interface ; réglages par niveau provisoires, à valider par un enseignant ; liste de mots interdits encore vide, démonstration seulement)
 - [x] Dashboard Élève (scores, badges, streaks)
 - [x] Dashboard Enseignant (score total et nombre de parties par profil)
 - [ ] Dashboard Parent (texte d'attente seulement, aucune donnée)
@@ -64,7 +65,8 @@ dibie-app/
 │   │   ├── ParentDashboard.jsx
 │   │   ├── AdminDashboard.jsx
 │   │   ├── CrosswordGame.jsx
-│   │   └── WordSearchGame.jsx
+│   │   ├── WordSearchGame.jsx
+│   │   └── AnagramGame.jsx
 │   ├── stores/               [Zustand state]
 │   │   └── appStore.js
 │   ├── db/                   [localStorage]
@@ -79,6 +81,7 @@ dibie-app/
 │   │   ├── EclipseGrid.css
 │   │   ├── Profiles.css
 │   │   ├── WordSearchGame.css
+│   │   ├── AnagramGame.css
 │   │   └── TeacherDashboard.css
 │   ├── App.jsx
 │   ├── App.css
@@ -129,7 +132,7 @@ Utilisez uniquement des données fictives : les profils et les rôles ne sont pa
 
 ### Phase 2 (Septembre)
 - [ ] Intégrer Anthropic API pour indices IA
-- [ ] Ajouter jeu Anagrammes
+- [x] Ajouter jeu Anagrammes (2026-11-02)
 - [ ] Ajouter jeu Dominos
 - [ ] Améliorer UI animations
 

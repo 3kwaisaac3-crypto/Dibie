@@ -50,7 +50,8 @@ export function isValidSeed(value) {
 
 // Mot d'une entrée dans la langue de la partie. Anglais : la forme avant « / »,
 // comme aux mots croisés (décision du 2026-10-09), en majuscules comme mot_fr.
-function entryText(entry, language) {
+// Exporté pour les anagrammes (même règle de langue).
+export function entryText(entry, language) {
   if (language !== 'en') return entry.mot_fr
   return typeof entry.mot_en === 'string' ? entry.mot_en.split('/')[0].trim().toUpperCase() : null
 }
