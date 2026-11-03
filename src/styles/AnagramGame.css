@@ -1,0 +1,371 @@
+/* Anagrammes — même palette que les mots mêlés (WordSearchGame.css) */
+
+.anagram-select,
+.anagram-finished {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.anagram-select__container,
+.anagram-finished__container {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.anagram-select__container h1,
+.anagram-finished__container h1 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.anagram-select__intro {
+  color: #555;
+  margin-bottom: 24px;
+}
+
+.anagram-select__section {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.anagram-select__label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.anagram-select__options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.anagram-select__btn {
+  flex: 1;
+  min-width: 100px;
+  min-height: 48px;
+  padding: 10px;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.anagram-select__btn.active {
+  border-color: #667eea;
+  background-color: #667eea;
+  color: white;
+}
+
+.anagram-select__size {
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.anagram-select__seed {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.anagram-select__hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.anagram-select__start,
+.anagram-select__back {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.anagram-select__start {
+  background: #667eea;
+  color: white;
+}
+
+.anagram-select__back {
+  background: #eee;
+  color: #333;
+}
+
+.anagram-finished__score {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #667eea;
+  margin: 16px 0;
+}
+
+.anagram-finished__words {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.anagram-finished__words li {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.anagram-finished__word--found {
+  background: #c8f2d0;
+  color: #1b5e20;
+}
+
+.anagram-finished__word--missed {
+  background: #f0f0f0;
+  color: #555;
+}
+
+/* Partie en cours */
+
+.anagram-game {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 16px;
+  padding-bottom: 72px; /* place pour le sélecteur de langue global */
+}
+
+.anagram-game__header {
+  color: white;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.anagram-game__header h1 {
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+}
+
+.anagram-game__progress {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.anagram-game__seed {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+.anagram-game__card {
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  width: min(100%, 600px);
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.anagram-game__clue-title {
+  font-size: 1rem;
+  color: #764ba2;
+  margin-bottom: 6px;
+}
+
+.anagram-game__clue {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 16px;
+  overflow-wrap: anywhere;
+}
+
+/* Cases du mot : une colonne par lettre, qui rétrécit sur petit écran
+   (10 lettres tiennent à 320 px) */
+.anagram-slots {
+  display: grid;
+  grid-template-columns: repeat(var(--an-length), minmax(0, 48px));
+  gap: 4px;
+  justify-content: center;
+  margin-bottom: 16px;
+  touch-action: manipulation;
+}
+
+.anagram-slot {
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #667eea;
+  border-radius: 6px;
+  background: #f3f4ff;
+  font-size: clamp(0.9rem, 4.5vw, 1.5rem);
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+
+.anagram-slot--empty {
+  border-style: dashed;
+  background: white;
+  cursor: default;
+}
+
+.anagram-slot--given {
+  background: #ffe082;
+  border-color: #ff9800;
+  cursor: default;
+}
+
+.anagram-slot--found {
+  background: #c8f2d0;
+  border-color: #4caf50;
+  color: #1b5e20;
+}
+
+.anagram-slot:disabled {
+  opacity: 1;
+}
+
+/* Tuiles : passent à la ligne si besoin, cible tactile de 44 px */
+.anagram-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 16px;
+  touch-action: manipulation;
+}
+
+.anagram-tile {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: #667eea;
+  color: white;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #4a5bd0;
+  user-select: none;
+}
+
+.anagram-tile--used {
+  background: #eee;
+  box-shadow: none;
+  cursor: default;
+}
+
+.anagram-tile:focus-visible,
+.anagram-slot:focus-visible {
+  outline: 3px solid #764ba2;
+  outline-offset: 2px;
+}
+
+.anagram-game__actions,
+.anagram-game__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.anagram-game__footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.anagram-game__btn {
+  flex: 1;
+  min-width: 90px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: #667eea;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.anagram-game__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.anagram-game__btn--secondary {
+  background: #eee;
+  color: #333;
+}
+
+.anagram-game__btn--validate {
+  background: #4caf50;
+}
+
+.anagram-game__btn--solution {
+  width: 100%;
+  background: #ff9800;
+  margin-bottom: 8px;
+}
+
+.anagram-game__feedback {
+  min-height: 1.5em;
+  font-weight: bold;
+  color: #764ba2;
+  margin: 12px 0 8px;
+}
+
+.anagram-game__result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.anagram-game__answer {
+  font-size: 1.2rem;
+  color: #333;
+  overflow-wrap: anywhere;
+}
+
+.anagram-game__other {
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.anagram-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}

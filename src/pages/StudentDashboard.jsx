@@ -27,7 +27,7 @@ export default function StudentDashboard() {
   const games = [
     { id: 'crossword', name: language === 'fr' ? 'Mots Croisés' : 'Crossword', icon: '⬜', available: true },
     { id: 'wordsearch', name: language === 'fr' ? 'Mots Mêlés' : 'Word Search', icon: '🔍', available: true, page: 'wordSearchGame' },
-    { id: 'anagram', name: language === 'fr' ? 'Anagrammes' : 'Anagrams', icon: '🔤', available: false },
+    { id: 'anagram', name: language === 'fr' ? 'Anagrammes' : 'Anagrams', icon: '🔤', available: true, page: 'anagramGame' },
   ]
 
   return (

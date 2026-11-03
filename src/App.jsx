@@ -12,10 +12,11 @@ import ParentDashboard from './pages/ParentDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import CrosswordGame from './pages/CrosswordGame'
 import WordSearchGame from './pages/WordSearchGame'
+import AnagramGame from './pages/AnagramGame'
 
 import './App.css'
 
-const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame']
+const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame']
 const ADULT_PAGES = ['roleSelect', 'teacherDashboard', 'parentDashboard', 'adminDashboard']
 
 export default function App() {
@@ -58,7 +59,7 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [page])
 
-  if (!vocabLoaded && (page === 'crosswordGame' || page === 'wordSearchGame')) {
+  if (!vocabLoaded && (page === 'crosswordGame' || page === 'wordSearchGame' || page === 'anagramGame')) {
     return <div style={{padding: '20px', textAlign: 'center'}}>⏳ Chargement jeu...</div>
   }
 
@@ -78,6 +79,7 @@ export default function App() {
       {page === 'adminDashboard' && <AdminDashboard />}
       {page === 'crosswordGame' && vocabLoaded && <CrosswordGame />}
       {page === 'wordSearchGame' && vocabLoaded && <WordSearchGame />}
+      {page === 'anagramGame' && vocabLoaded && <AnagramGame />}
 
       {/* Sélecteur de langue global ; l'écran des profils a le sien */}
       {page !== 'profiles' && (
