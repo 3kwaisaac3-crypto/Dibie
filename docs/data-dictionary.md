@@ -43,18 +43,20 @@ Tableau de 1 532 objets. Tous les champs sont présents dans toutes les entrées
 | `dibieScores` | Tableau de scores | `saveScore` | **Aucune** |
 | `dibieProgress` | Tableau de réussites par mot | `saveUserProgress` | **Aucune** |
 | `dibieWordSearchGrids` | 50 dernières grilles de mots mêlés | `saveWordSearchGrid` | 50 |
+| `dibieMysteryInProgress` | Anagrammes mystères : partie interrompue, une par profil | `saveMysteryInProgress`, `clearMysteryInProgress` | Une par `userId` ; effacée à la fin de la partie |
 
 **`dibieScores`**
 
 | Champ | Type | Présence |
 |---|---|---|
 | `userId` | texte | Toujours ; aléatoire à chaque connexion |
-| `gameType` | texte | `crossword`, `wordsearch`, `anagram` ou `pyramid` |
+| `gameType` | texte | `crossword`, `wordsearch`, `anagram`, `anagramMystery` ou `pyramid` |
 | `score` | nombre | Toujours |
 | `niveau` | texte | Toujours |
 | `date` | date ISO | Toujours |
 | `subject`, `puzzleType`, `seed`, `requestedSeed` | divers | Mots croisés seulement |
 | `seed`, `language` | nombre, texte | Anagrammes seulement : numéro de la partie et langue des mots (`fr` ou `en`) |
+| `game`, `language`, `seed`, `stars`, `hintsUsed` | texte, texte, nombre, nombre, nombre | Anagrammes mystères seulement (`gameType: 'anagramMystery'`) : jeu (`mysteryWord` ou `theme`), langue des mots, numéro de la partie, étoiles (1 à 3) et nombre d'aides utilisées ; `score` = 10 par anagramme trouvée + 10 pour le mystère trouvé |
 | `seed`, `operation`, `className`, `subsystem` | nombre, texte | Pyramides seulement : numéro de la partie, opération (`add` ou `mul`), classe et sous-système (`fr` ou `en`) utilisés pour les réglages ; `niveau` = tranche de la classe |
 
 **`dibieProgress`**
@@ -64,11 +66,13 @@ Tableau de 1 532 objets. Tous les champs sont présents dans toutes les entrées
 | `userId` | texte | Comme ci-dessus |
 | `wordId` | texte | `id` du vocabulaire dans les trois jeux (`crosswordLayout.js:278`, `WordSearchGame.jsx:156`, `AnagramGame.jsx` : `id` du mot écrit, celui du mot proposé si c'est le même mot normalisé). Limites : un mot effacé garde sa ligne et un mot retapé en crée une seconde (`CrosswordGame.jsx:169`) ; la langue du mot écrit en bilingue n'est pas notée ; la ligne est écrite même si la partie n'est jamais terminée |
 | `isCorrect` | booléen | `true` ; `false` aux anagrammes, quand la solution est montrée, et aux pyramides, pour chaque réponse fausse et pour chaque réponse montrée (« Voir la réponse » après 3 essais faux) |
-| `gameType`, `itemId` | texte | Facultatifs. Anagrammes : `gameType: 'anagram'`, `itemId` = `id` du mot proposé, `wordId` = `id` du mot écrit (une autre anagramme peut avoir été acceptée). Pyramides : `gameType: 'pyramid'`, `wordId: null` (pas de vocabulaire), une ligne par réponse validée, `itemId` = `opération:sous-système:classe:numéro:pyramide:case` (ex. `add:fr:CE1:2024:0:4`), qui suffit à retrouver la case |
+| `gameType`, `itemId` | texte | Facultatifs. Anagrammes : `gameType: 'anagram'`, `itemId` = `id` du mot proposé, `wordId` = `id` du mot écrit (une autre anagramme peut avoir été acceptée). Pyramides : `gameType: 'pyramid'`, `wordId: null` (pas de vocabulaire), une ligne par réponse validée, `itemId` = `opération:sous-système:classe:numéro:pyramide:case` (ex. `add:fr:CE1:2024:0:4`), qui suffit à retrouver la case. Anagrammes mystères : `gameType: 'anagramMystery'` ; une ligne par étape terminée (`itemId` = `id` du mot de l'étape, `wordId` = `id` du mot écrit, ou de l'étape si la solution a été montrée) et une pour la résolution finale (`itemId: 'final'`, `wordId: null`) |
 | `timeTaken` | nombre ou `null` | 30 fixe (mots croisés), `null` (mots mêlés, anagrammes et pyramides) : **ne mesure rien** |
 | `date` | date ISO | |
 
 **`dibieWordSearchGrids`** : `userId`, `level`, `requestedSeed`, `seed`, `size`, `directions`, `wordIds`, `words`, `generatorVersion`, `blockedWordsVersion`, `date`.
+
+**`dibieMysteryInProgress`** (reprise, décision M4 du 2026-11-03) : tableau, **un enregistrement par `userId`** : `{ userId, formatVersion, path, state, savedAt }`. `path` est le **parcours complet** (et non son seul numéro, qu'un import local de vocabulaire changerait) ; `state` est l'état de la partie (`phase`, étape en cours, statut, essais faux et indice de chaque étape, état de la finale) ; `formatVersion` (aujourd'hui `1`) : un enregistrement d'une autre version n'est pas repris. Rien n'est écrit si la donnée existante est illisible ou n'est pas un tableau, comme pour les profils. Un parcours ou un état incohérent n'est pas repris (règles du §6.1 de `docs/anagrammes-mysteres.md`). Enregistré après chaque action ; effacé à la fin de la partie.
 
 ### 1.4 État en mémoire : `src/stores/appStore.js`
 
@@ -93,6 +97,10 @@ Tableau de 1 532 objets. Tous les champs sont présents dans toutes les entrées
 **Anagrammes**, `createAnagramGame` : `{ level, language, seed, items }`. Chaque élément de `items` contient `id`, `word` (normalisé), `display` (orthographe exacte), `definition`, `answers` (bonnes réponses `{ id, word, display }`), `firstLetter` (lettre déjà placée ou `null`) et `tiles` (lettres mélangées). Aucune clé de stockage nouvelle : la partie se reproduit par son numéro.
 
 **Réglages des anagrammes** (`ANAGRAM_SETTINGS`, provisoires, à valider par un enseignant) : `SIL-CP` 3 à 5 lettres, première lettre placée ; `CE1-CE2` 4 à 7 ; `CM1-CM2` 6 à 10 ; 5 mots par partie.
+
+**Anagrammes, fabrication d'un mot** : `createAnagramItem(candidat, réponses, random, options)` fabrique un élément de `items` ; `createAnagramGame` et les anagrammes mystères l'utilisent (mêmes tirages, parties figées par `anagramGame.reference.test.js`).
+
+**Anagrammes mystères**, parcours (`src/utils/mysteryGenerators.js`) : `{ formatVersion, id, game, language, level, seed, theme, themeStatus?, difficulty, extraction, steps, final, status }`. `game` : `mysteryWord` (jeu 1) ou `theme` (jeu 4) ; `extraction.rule` : `first`, `last`, `position` (avec `position`), `marked` ou `word` (jeu 4) ; chaque étape reprend un élément d'anagramme et ajoute `secret` (élément gagné), `secretIndex` (position de la lettre secrète, `null` au jeu 4) et `slot` (position de la lettre dans le mot mystère) ; `final` : `{ kind: 'word' | 'choice', prompt, solution, display, acceptedAnswers, hints, options? }` ; `status: 'generated'`. Liste des thèmes : `src/data/themes-mysteres.js` (statuts `draft`, `isaac-validated` = validé par Isaac et à valider par un enseignant, `validated` = validé par un enseignant).
 
 **Pyramides**, `createPyramidGame({ className, subsystem, operation, seed })` : `{ seed, operation, className, subsystem, level, floors, maxTop, pyramids }`. Chaque pyramide contient `values` (toutes les cases, du sommet à la base, de gauche à droite), `given` (booléens : case donnée), `hidden` (cases à trouver, dans l'ordre de la résolution), `steps` (calculs de la résolution : `{ cell, op, a, b, inputs, value }`) et `top` (sommet). Aucune clé de stockage nouvelle : la partie se reproduit par son numéro.
 

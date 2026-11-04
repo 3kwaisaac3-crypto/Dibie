@@ -13,11 +13,12 @@ import AdminDashboard from './pages/AdminDashboard'
 import CrosswordGame from './pages/CrosswordGame'
 import WordSearchGame from './pages/WordSearchGame'
 import AnagramGame from './pages/AnagramGame'
+import MysteryGame from './pages/MysteryGame'
 import PyramidGame from './pages/PyramidGame'
 
 import './App.css'
 
-const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'pyramidGame']
+const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'mysteryGame', 'pyramidGame']
 const ADULT_PAGES = ['roleSelect', 'teacherDashboard', 'parentDashboard', 'adminDashboard']
 
 export default function App() {
@@ -60,7 +61,7 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [page])
 
-  if (!vocabLoaded && (page === 'crosswordGame' || page === 'wordSearchGame' || page === 'anagramGame')) {
+  if (!vocabLoaded && (page === 'crosswordGame' || page === 'wordSearchGame' || page === 'anagramGame' || page === 'mysteryGame')) {
     return <div style={{padding: '20px', textAlign: 'center'}}>⏳ Chargement jeu...</div>
   }
 
@@ -81,6 +82,7 @@ export default function App() {
       {page === 'crosswordGame' && vocabLoaded && <CrosswordGame />}
       {page === 'wordSearchGame' && vocabLoaded && <WordSearchGame />}
       {page === 'anagramGame' && vocabLoaded && <AnagramGame />}
+      {page === 'mysteryGame' && vocabLoaded && <MysteryGame />}
       {/* Pyramides : nombres générés, sans vocabulaire à attendre */}
       {page === 'pyramidGame' && <PyramidGame />}
 

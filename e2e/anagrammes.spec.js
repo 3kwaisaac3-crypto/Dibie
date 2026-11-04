@@ -2,6 +2,9 @@
 // français et en anglais, essais faux et retours, indice, solution après
 // 3 essais, autre anagramme réelle acceptée, affichage à 320 px, score
 // enregistré, reproductibilité par numéro de partie.
+// Depuis le lot 1 des anagrammes mystères, la carte « Anagrammes » ouvre
+// l'accueil du module : le jeu classique est la famille « Anagrammes
+// classiques », inchangée (accueil : e2e/anagrammes-mysteres.spec.js).
 // La partie attendue est calculée par le module pur (src/utils/anagramGame.js)
 // avec le vocabulaire lu sur le disque : l'écran doit montrer la même.
 import { test, expect } from '@playwright/test'
@@ -19,10 +22,18 @@ function chercherNumero(niveau, langue, condition) {
   return null
 }
 
-// Du tableau de bord jusqu'au premier mot d'une partie
-async function lancer(page, { numero, langue = 'fr', niveau = null }) {
+// Du tableau de bord (ou de l'accueil du module) jusqu'au premier mot d'une
+// partie, par la famille « Anagrammes classiques »
+async function ouvrirClassiques(page, { langue = 'fr', depuisAccueil = false } = {}) {
   const fr = langue === 'fr'
-  await page.getByRole('button', { name: fr ? /Anagrammes/ : /Anagrams/ }).click()
+  if (!depuisAccueil) await page.getByRole('button', { name: fr ? /Anagrammes/ : /Anagrams/ }).click()
+  await page.getByRole('button', { name: fr ? /Anagrammes classiques/ : /Classic anagrams/ }).click()
+  await expect(page.locator('.anagram-select__seed')).toBeVisible()
+}
+
+async function lancer(page, { numero, langue = 'fr', niveau = null, depuisAccueil = false }) {
+  const fr = langue === 'fr'
+  await ouvrirClassiques(page, { langue, depuisAccueil })
   if (niveau) await page.locator('.anagram-select__btn', { hasText: niveau }).click()
   await page.getByLabel(fr ? 'Numéro de partie (facultatif)' : 'Game number (optional)').fill(String(numero))
   await page.locator('.anagram-select__start').click()
@@ -184,17 +195,19 @@ test('Autre anagramme réelle du vocabulaire acceptée (CAMION / MANIOC ou équi
 
 test('Même numéro, même partie ; numéro invalide refusé', async ({ page }) => {
   await connecterEleve(page, { pseudo: 'Numero', niveau: 'SIL-CP' })
-  await page.getByRole('button', { name: /Anagrammes/ }).click()
+  await ouvrirClassiques(page)
   await page.getByLabel('Numéro de partie (facultatif)').fill('12a')
   await page.locator('.anagram-select__start').click()
   await expect(page.locator('#anagram-seed-hint')).toContainText('Numéro invalide')
+  // « Retour » ramène à l'accueil du module (les deux familles)
   await page.getByRole('button', { name: 'Retour' }).click()
+  await expect(page.getByRole('button', { name: /Anagrammes mystères/ })).toBeVisible()
 
   const lire = async () => ({
     definition: await page.locator('.anagram-game__clue').textContent(),
     tuiles: await page.locator('.anagram-tile').allTextContents()
   })
-  await lancer(page, { numero: 31415 })
+  await lancer(page, { numero: 31415, depuisAccueil: true })
   const premiere = await lire()
   await page.locator('.anagram-game__back').click()
   await page.locator('.anagram-select__start').click()

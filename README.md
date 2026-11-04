@@ -110,7 +110,7 @@ dibie-app/
   - grille sans accents, liste affichée avec l'orthographe exacte ; mots composés et mots à apostrophe écartés
   - « Numéro de grille » : même numéro + même niveau = même grille, **à version identique de l'application et du vocabulaire**
   - ⚠️ **Mode démonstration uniquement** : la liste de mots interdits n'est pas encore établie (vide). Les lettres de remplissage peuvent former un mot inapproprié par hasard. Ne pas utiliser avec des élèves réels avant d'avoir établi cette liste avec un enseignant.
-- **Anagrammes** (fiche L1 du catalogue v0.2, `src/utils/anagramGame.js`) : remettre dans l'ordre les lettres d'un mot du niveau, dans la langue de l'interface, à l'aide de sa définition
+- **Anagrammes** (fiche L1 du catalogue v0.2, `src/utils/anagramGame.js`) : la carte ouvre l'accueil du module, avec deux familles. **Anagrammes classiques** (le jeu ci-dessous, inchangé) : remettre dans l'ordre les lettres d'un mot du niveau, dans la langue de l'interface, à l'aide de sa définition
   - 3 lettres minimum ; 10 points par mot trouvé ; pas de chronomètre
   - toute autre anagramme réelle **présente dans le vocabulaire** (même niveau, même langue) est acceptée (CAMION / MANIOC) ; le jeu ne connaît pas d'autre dictionnaire
   - le mélange ne redonne jamais le mot ni une autre bonne réponse ; orthographe exacte (avec accents) montrée après chaque mot
@@ -119,6 +119,13 @@ dibie-app/
   - le numéro de partie est affiché avec la langue des mots
   - « Numéro de partie » : même numéro + même niveau + même langue = même partie, à version identique de l'application et du vocabulaire
   - ⚠️ **Mode démonstration uniquement** : même liste de mots interdits que les mots mêlés, encore vide ; un mélange peut former un mot inapproprié
+- **Anagrammes mystères** (lot 1, `docs/anagrammes-mysteres.md`, architecture validée par Isaac le 2026-11-03) : chaque anagramme résolue donne un élément secret ; une résolution finale les assemble. Même plateau et mêmes aides que les anagrammes classiques (`src/components/AnagramBoard.jsx`)
+  - **Jeu 1, Mot mystère** : chaque mot trouvé donne une lettre (première, dernière, 2e ou 3e, ou lettre de la case marquée ★ ; une règle par parcours ; jamais « première » en SIL-CP, où elle est déjà placée) ; les lettres gagnées, dans le désordre, forment le mot mystère, un mot du vocabulaire du niveau ; un indice donne sa définition
+  - **Jeu 4, Mystère des thèmes** : 5 mots d'un même thème, puis choix du thème parmi 4 propositions (M6) ; « Indice » élimine une proposition fausse (2 au plus) ; thèmes pris **uniquement** dans `src/data/themes-mysteres.js` (liste de l'educator validée par Isaac le 2026-11-03, **à valider par un enseignant**) ; un thème sans assez de mots utilisables est retiré automatiquement
+  - jeux 2, 3, 5 et 6 annoncés « bientôt » (contenus à rédiger et vérifier)
+  - étoiles : 3 sans aide, 2 avec un indice ou la première lettre, 1 si une solution a été montrée ; 10 points par anagramme et 10 pour le mystère (D10, M8) ; pas de chronomètre
+  - partie interrompue reprise après rechargement (clé `dibieMysteryInProgress`) ; « Numéro de partie » reproductible comme les autres jeux
+  - tout parcours est contrôlé par les règles du §6 (`src/utils/mysteryValidation.js`) avant d'être montré ; ⚠️ **démonstration** : parcours générés à partir d'un vocabulaire encore en brouillon, liste de mots interdits vide
 - **Pyramides additives et multiplicatives** (fiches M2 et M3 du catalogue v0.2, `src/utils/pyramidGame.js`) : chaque case est la somme (ou le produit) des deux cases sur lesquelles elle repose ; l'élève touche une case vide et écrit le nombre au pavé numérique (`src/components/NumberPad.jsx`, aussi au clavier physique ; aucun champ de saisie, le clavier du téléphone ne s'ouvre pas)
   - réglées selon la **classe et le sous-système du profil** (`src/data/reglages-maths.js`) ; profil sans classe : la première classe de sa tranche ; bornes reprises des programmes de 2018 (`programmes-primaire-cameroun-v0.2.md` §2 et §5, dépôt JARVIS), **toutes provisoires, à valider par un enseignant de chaque sous-système** (D4)
   - sommet jusqu'à : SIL 20, CP 100, CE1 1 000, CE2 10 000, CM1 1 000 000, CM2 1 000 000 000 ; Class 1 100, Class 2 200, Class 3 500, Class 4 5 000, Class 5 100 000, Class 6 1 000 000 ; multiplication : pas en SIL-CP / Class 1-2, sommet ≤ 100 en CE1-CE2 / Class 3-4 et ≤ 1 000 en CM1-CM2 / Class 5-6, facteurs pris dans les tables de la classe, pas de 0, au plus un 1

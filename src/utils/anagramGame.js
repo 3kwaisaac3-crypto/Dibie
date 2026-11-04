@@ -29,6 +29,7 @@ export { newSeed, isValidSeed }
 export const MIN_WORD_LENGTH = 3 // décision D9 d'Isaac (2026-10-11)
 export const POINTS_PER_WORD = 10 // décision d'Isaac, comme les autres jeux
 export const TRIES_BEFORE_SOLUTION = 3 // CHOIX PROVISOIRE (catalogue L1, « [proposition] »)
+export const TRIES_BEFORE_HINT = 2 // indice « première lettre » à partir du 2e essai faux
 
 // Réglages par niveau. CHOIX PROVISOIRES, hypothèses du catalogue L1
 // (« [HYPOTHÈSE — À VÉRIFIER] »), à valider par un enseignant :
@@ -54,11 +55,11 @@ export const letterKey = (word) => [...word].sort().join('')
 // Liste de mots interdits normalisée (même normalisation que les mots).
 // La liste des mots mêlés (BLOCKED_WORDS) est réutilisée ; ELLE EST VIDE à ce
 // jour : le jeu reste en démonstration, comme les mots mêlés.
-function normalizeBlocked(blockedWords) {
+export function normalizeBlocked(blockedWords) {
   return [...new Set(blockedWords.map(normalizeWord).filter(Boolean))]
 }
 
-const containsBlocked = (text, blocked) => blocked.some(b => text.includes(b))
+export const containsBlocked = (text, blocked) => blocked.some(b => text.includes(b))
 
 // Mots d'un texte en lettres de grille (majuscules sans accents, ligatures
 // développées), comme toGridLetters de wordSearchGenerator.js (non exportée)
@@ -107,7 +108,7 @@ function isSafeOrder(letters, firstLetter, answerWords, blocked) {
   return !containsBlocked(shown, blocked) && !containsBlocked(tiles, blocked)
 }
 
-function shuffled(items, random) {
+export function shuffled(items, random) {
   const a = [...items]
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1))
@@ -204,20 +205,14 @@ export function reshuffleOrder(item, currentTiles, seed, wordIndex, round, { blo
   return order ?? currentTiles.map((_, i) => i)
 }
 
-// Prépare une partie : entrées actives du niveau, mot simple dans la langue de
-// la partie, longueur du niveau, définition non vide dans cette langue ; un
-// mot par groupe de mêmes lettres (deux anagrammes l'une de l'autre ne sont
-// jamais dans la même partie) ; mot sans mot interdit ; mélange sûr.
-// Même graine + même niveau + même langue + même vocabulaire = même partie.
-export function createAnagramGame(vocabulary, level, seed, language = 'fr', { blockedWords = BLOCKED_WORDS } = {}) {
+// Candidats d'un niveau et d'une langue : entrées actives, mot simple dans la
+// langue de la partie, longueur du niveau, définition non vide dans cette
+// langue et qui ne donne pas la réponse ; un seul candidat par mot normalisé
+// (le premier par id). Réutilisé par les anagrammes mystères.
+export function listAnagramCandidates(vocabulary, level, language = 'fr') {
   const settings = ANAGRAM_SETTINGS[level]
-  if (!settings) throw new RangeError(`createAnagramGame : niveau inconnu (${level})`)
-  if (!isValidSeed(seed)) throw new RangeError('createAnagramGame : graine invalide')
-  const blocked = normalizeBlocked(blockedWords)
+  if (!settings) throw new RangeError(`listAnagramCandidates : niveau inconnu (${level})`)
   const definitionField = language === 'en' ? 'def_en' : 'def_fr'
-  const index = buildAnswerIndex(vocabulary, level, language)
-
-  // Candidats : un par mot normalisé (le premier par id), parmi les bonnes réponses
   const candidates = []
   const seen = new Set()
   const entries = vocabulary
@@ -234,6 +229,41 @@ export function createAnagramGame(vocabulary, level, seed, language = 'fr', { bl
     seen.add(word)
     candidates.push({ id: v.id, word, display, definition })
   }
+  return candidates
+}
+
+// Fabrique UNE anagramme à partir d'un candidat ({ id, word, display,
+// definition }) et des bonnes réponses de son groupe de lettres (index de
+// buildAnswerIndex). Renvoie l'élément de partie, ou null si le mot est écarté
+// (mot interdit : aucun tirage consommé ; aucun mélange sûr : tirages
+// consommés par scrambleWord). Partagée par createAnagramGame et les
+// anagrammes mystères : même mélange, mêmes réponses acceptées.
+export function createAnagramItem(candidate, answers, random, { firstLetterGiven = false, blockedWords = BLOCKED_WORDS } = {}) {
+  const blocked = normalizeBlocked(blockedWords)
+  if (containsBlocked(candidate.word, blocked)) return null
+  const scramble = scrambleWord(candidate.word, answers.map(a => a.word), random, { firstLetterGiven, blockedWords: blocked })
+  if (scramble === null) return null
+  // Le mot proposé garde son id et son orthographe (NDOLÉ / NDOLÈ) ; avec une
+  // lettre déjà placée, seules les anagrammes qui commencent par elle comptent
+  const accepted = answers
+    .map(a => (a.word === candidate.word ? { id: candidate.id, word: candidate.word, display: candidate.display } : a))
+    .filter(a => scramble.firstLetter === null || a.word[0] === scramble.firstLetter)
+  return { ...candidate, answers: accepted, firstLetter: scramble.firstLetter, tiles: scramble.tiles }
+}
+
+// Prépare une partie : candidats du niveau (listAnagramCandidates) ; un mot
+// par groupe de mêmes lettres (deux anagrammes l'une de l'autre ne sont
+// jamais dans la même partie) ; mot sans mot interdit ; mélange sûr.
+// Même graine + même niveau + même langue + même vocabulaire = même partie.
+// Les tirages sont consommés dans le même ordre qu'avant l'extraction de
+// createAnagramItem (parties figées : anagramGame.reference.test.js).
+export function createAnagramGame(vocabulary, level, seed, language = 'fr', { blockedWords = BLOCKED_WORDS } = {}) {
+  const settings = ANAGRAM_SETTINGS[level]
+  if (!settings) throw new RangeError(`createAnagramGame : niveau inconnu (${level})`)
+  if (!isValidSeed(seed)) throw new RangeError('createAnagramGame : graine invalide')
+  const blocked = normalizeBlocked(blockedWords)
+  const index = buildAnswerIndex(vocabulary, level, language)
+  const candidates = listAnagramCandidates(vocabulary, level, language)
 
   const random = createRandom(seed)
   const pool = shuffled(candidates, random)
@@ -243,20 +273,13 @@ export function createAnagramGame(vocabulary, level, seed, language = 'fr', { bl
     if (items.length >= settings.wordCount) break
     const key = letterKey(c.word)
     if (usedKeys.has(key)) continue
-    if (containsBlocked(c.word, blocked)) continue
-    const answers = index.get(key)
-    const scramble = scrambleWord(c.word, answers.map(a => a.word), random, {
+    const item = createAnagramItem(c, index.get(key), random, {
       firstLetterGiven: settings.firstLetterGiven,
       blockedWords: blocked
     })
-    if (scramble === null) continue
+    if (item === null) continue
     usedKeys.add(key)
-    // Le mot proposé garde son id et son orthographe (NDOLÉ / NDOLÈ) ; avec une
-    // lettre déjà placée, seules les anagrammes qui commencent par elle comptent
-    const accepted = answers
-      .map(a => (a.word === c.word ? { id: c.id, word: c.word, display: c.display } : a))
-      .filter(a => scramble.firstLetter === null || a.word[0] === scramble.firstLetter)
-    items.push({ ...c, answers: accepted, firstLetter: scramble.firstLetter, tiles: scramble.tiles })
+    items.push(item)
   }
   return { level, language, seed, items }
 }
