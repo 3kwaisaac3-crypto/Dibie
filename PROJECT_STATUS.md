@@ -16,6 +16,7 @@
 - [x] Jeu Mots Croisés Bilingues, avec accès par matière (classement validé par Isaac le 2026-11-02, à valider par un enseignant ; traductions des sujets à valider)
 - [x] Jeu Mots Mêlés (français ou anglais, selon la langue de l'interface ; liste de mots interdits encore vide, démonstration seulement)
 - [x] Jeu Anagrammes (phase 2, 2026-11-02 ; français ou anglais selon la langue de l'interface ; réglages par niveau provisoires, à valider par un enseignant ; liste de mots interdits encore vide, démonstration seulement)
+- [x] Anagrammes mystères, lot 1 (2026-11-03, branche `feature/anagrammes-mysteres`, non fusionnée) : accueil des deux familles, jeu 1 « Mot mystère » et jeu 4 « Mystère des thèmes », moteur, règles de validation, reprise, étoiles ; liste des thèmes validée par Isaac, à valider par un enseignant ; jeux 2, 3, 5 et 6 à venir
 - [x] Jeu Pyramides additives et multiplicatives et pavé numérique réutilisable (phase 3, 2026-11-03 ; réglés par classe et sous-système du profil ; bornes reprises des programmes, provisoires, à valider par un enseignant de chaque sous-système)
 - [x] Dashboard Élève (scores, badges, streaks)
 - [x] Dashboard Enseignant (score total et nombre de parties par profil)
@@ -57,7 +58,8 @@ dibie-app/
 ├── src/
 │   ├── components/           [Composants réutilisables]
 │   │   ├── EclipseGrid.jsx   [Grille mots croisés]
-│   │   └── NumberPad.jsx     [Pavé numérique des jeux de calcul]
+│   │   ├── NumberPad.jsx     [Pavé numérique des jeux de calcul]
+│   │   └── AnagramBoard.jsx  [Plateau d'une anagramme, partagé par les deux familles]
 │   ├── pages/                [Pages principales]
 │   │   ├── Profiles.jsx
 │   │   ├── Login.jsx         [conservé, n'est plus affiché]
@@ -68,7 +70,8 @@ dibie-app/
 │   │   ├── AdminDashboard.jsx
 │   │   ├── CrosswordGame.jsx
 │   │   ├── WordSearchGame.jsx
-│   │   ├── AnagramGame.jsx
+│   │   ├── AnagramGame.jsx   [Accueil du module et anagrammes classiques]
+│   │   ├── MysteryGame.jsx   [Anagrammes mystères]
 │   │   └── PyramidGame.jsx
 │   ├── stores/               [Zustand state]
 │   │   └── appStore.js
@@ -77,6 +80,7 @@ dibie-app/
 │   ├── data/                 [Vocabulaire JSON, table sujet → matière, réglages de calcul]
 │   │   ├── vocabulaire.json
 │   │   ├── sujets-matieres.js
+│   │   ├── themes-mysteres.js [liste fixe des thèmes du jeu 4]
 │   │   └── reglages-maths.js [bornes et tables par classe et sous-système]
 │   ├── styles/               [CSS pages]
 │   │   ├── Login.css
@@ -86,6 +90,7 @@ dibie-app/
 │   │   ├── Profiles.css
 │   │   ├── WordSearchGame.css
 │   │   ├── AnagramGame.css
+│   │   ├── MysteryGame.css
 │   │   ├── PyramidGame.css
 │   │   ├── NumberPad.css
 │   │   └── TeacherDashboard.css
@@ -139,6 +144,7 @@ Utilisez uniquement des données fictives : les profils et les rôles ne sont pa
 ### Phase 2 (Septembre)
 - [ ] Intégrer Anthropic API pour indices IA
 - [x] Ajouter jeu Anagrammes (2026-11-02)
+- [x] Anagrammes mystères, lot 1 (2026-11-03) ; lot 2 (jeu 5), lot 3 (jeux 2, 3, 6), lot 4 (validation enseignant) à faire
 - [x] Ajouter jeu Pyramides et pavé numérique (2026-11-03)
 - [ ] Ajouter jeu Dominos
 - [ ] Améliorer UI animations

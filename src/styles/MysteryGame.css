@@ -1,0 +1,184 @@
+/* Anagrammes mystères : complète AnagramGame.css (mêmes écrans, même palette) */
+
+.mystery-games {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.mystery-games__btn {
+  min-height: 48px;
+  padding: 8px;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: #333;
+}
+
+.mystery-games__btn.active {
+  border-color: #667eea;
+  background-color: #667eea;
+  color: white;
+}
+
+.mystery-games__btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  background: #f5f5f5;
+}
+
+.mystery-games__soon {
+  font-size: 0.75rem;
+  font-weight: normal;
+  color: #8a4b00;
+}
+
+.mystery-demo {
+  font-size: 0.85rem;
+  color: #6d4c00;
+  background: #fff8e1;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+/* Barre des éléments gagnés : passe à la ligne, jamais de débordement à 320 px */
+.mystery-elements {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  width: min(100%, 600px);
+  margin: 0 auto 12px;
+}
+
+.mystery-elements__item {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #ffe082;
+  color: #4a3a00;
+  font-weight: bold;
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.mystery-elements__item--word {
+  font-size: 0.95rem;
+}
+
+.mystery-elements__item--hidden {
+  background: rgba(255, 255, 255, 0.35);
+  color: white;
+}
+
+.mystery-won {
+  font-size: 1.1rem;
+  color: #4a3a8a;
+}
+
+.mystery-mission .anagram-select__start {
+  margin-bottom: 8px;
+}
+
+.mystery-final__hint {
+  background: #fff8e1;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+  color: #4a3a00;
+  overflow-wrap: anywhere;
+}
+
+.mystery-final__hint-btn {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.mystery-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mystery-options__btn {
+  min-height: 48px;
+  padding: 8px;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  background: white;
+  color: #333;
+  font-weight: bold;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.mystery-options__btn--out {
+  border-color: #ddd;
+  color: #999;
+  text-decoration: line-through;
+  cursor: default;
+}
+
+.mystery-options__btn--right {
+  background: #c8f2d0;
+  border-color: #4caf50;
+  color: #1b5e20;
+}
+
+.mystery-options__btn:disabled { opacity: 1; }
+
+.mystery-final__result {
+  width: 100%;
+}
+
+.mystery-victory__solution {
+  font-size: 1.2rem;
+  color: #333;
+  overflow-wrap: anywhere;
+}
+
+.mystery-stars {
+  font-size: 2.5rem;
+  color: #ff9800;
+  margin: 8px 0 0;
+  letter-spacing: 4px;
+}
+
+.mystery-encouragement {
+  font-weight: bold;
+  color: #4a3a8a;
+  margin-bottom: 12px;
+}
+
+.mystery-skills {
+  text-align: left;
+  background: #f3f4ff;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.mystery-skills h2 {
+  font-size: 1rem;
+  color: #764ba2;
+  margin-bottom: 6px;
+}
+
+.mystery-skills ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #444;
+}

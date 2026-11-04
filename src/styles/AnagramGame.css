@@ -374,3 +374,60 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
 }
+
+/* Accueil du module : les deux familles (anagrammes classiques, mystères) */
+.anagram-home__families {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.anagram-home__family {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 48px;
+  padding: 14px 16px;
+  border: 2px solid #667eea;
+  border-radius: 10px;
+  background: #f3f4ff;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+}
+
+.anagram-home__family:hover { background: #e6e8ff; }
+
+.anagram-home__family:focus-visible {
+  outline: 3px solid #764ba2;
+  outline-offset: 2px;
+}
+
+.anagram-home__family-name {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #4a3a8a;
+}
+
+.anagram-home__family-text {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* Case de la lettre secrète (anagrammes mystères) : bordure orange et étoile */
+.anagram-slot--marked {
+  position: relative;
+  border-color: #ff9800;
+  border-style: solid;
+  box-shadow: 0 0 0 2px #ffe0b2;
+}
+
+.anagram-slot--marked::after {
+  content: '★';
+  position: absolute;
+  top: -0.7em;
+  right: -0.3em;
+  font-size: 0.75rem;
+  color: #e65100;
+}

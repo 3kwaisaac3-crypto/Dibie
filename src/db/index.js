@@ -6,6 +6,7 @@ let vocabulaireSauvegarde = null
 
 const LOCAL_VOCAB_KEY = 'dibieLocalVocab'
 const PROFILES_KEY = 'dibieProfiles'
+const MYSTERY_KEY = 'dibieMysteryInProgress'
 
 // Tableau stocké sous cette clé ; tableau vide si absent ou illisible
 const lireTableau = (key) => {
@@ -224,6 +225,54 @@ export const saveWordSearchGrid = async (entry) => {
   }
 }
 
+// Anagrammes mystères : partie interrompue (décision M4 du 2026-11-03).
+// Tableau d'enregistrements, un seul par userId : { userId, formatVersion,
+// path, state, savedAt }. Le parcours complet est gardé (et non son seul
+// numéro, qu'un import local de vocabulaire changerait). La forme du parcours
+// et de l'état est contrôlée par l'écran (mysteryEngine, mysteryValidation).
+
+// Partie interrompue d'un profil, ou null (absente ou donnée illisible)
+export const getMysteryInProgress = (userId) => {
+  try {
+    return lireTableau(MYSTERY_KEY).find(r => r.userId === userId) ?? null
+  } catch {
+    return null
+  }
+}
+
+// Enregistre (ou remplace) la partie d'un profil. Rien n'est écrit si la donnée
+// existante est illisible, comme pour les profils : on ne l'écrase jamais.
+// Renvoie true si l'enregistrement a réussi.
+export const saveMysteryInProgress = (userId, record) => {
+  if (userId === undefined || userId === null) return false
+  try {
+    const bruts = lireBrut(MYSTERY_KEY)
+    if (bruts === null) return false
+    const autres = bruts.filter(r => !(r !== null && typeof r === 'object' && r.userId === userId))
+    localStorage.setItem(MYSTERY_KEY, JSON.stringify([...autres, { ...record, userId, savedAt: new Date().toISOString() }]))
+    return true
+  } catch (e) {
+    console.error('Erreur save partie mystère:', e)
+    return false
+  }
+}
+
+// Efface la partie d'un profil (fin de partie). Mêmes précautions : rien n'est
+// écrit si la donnée est illisible. Renvoie true si la clé ne contient plus la partie.
+export const clearMysteryInProgress = (userId) => {
+  try {
+    const bruts = lireBrut(MYSTERY_KEY)
+    if (bruts === null) return false
+    const autres = bruts.filter(r => !(r !== null && typeof r === 'object' && r.userId === userId))
+    if (autres.length === bruts.length) return true
+    localStorage.setItem(MYSTERY_KEY, JSON.stringify(autres))
+    return true
+  } catch (e) {
+    console.error('Erreur effacement partie mystère:', e)
+    return false
+  }
+}
+
 // Obtenir scores utilisateur
 export const getUserScores = async (userId) => {
   try {
@@ -275,6 +324,10 @@ export const getUserStats = async (userId) => {
   if (totalScore >= 150) badges.push('⭐')
   if (totalScore >= 300) badges.push('👑')
   if (games >= 1) badges.push('🎯')
+  // Badges par famille d'anagrammes (lot 1 des anagrammes mystères) : une
+  // partie terminée de la famille suffit
+  if (scores.some(s => s.gameType === 'anagram')) badges.push('🔤')
+  if (scores.some(s => s.gameType === 'anagramMystery')) badges.push('🕵️')
 
   return { score: totalScore, games, streak, badges }
 }

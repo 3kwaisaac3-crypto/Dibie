@@ -3,18 +3,14 @@ import { useAppStore } from '../stores/appStore'
 import { getVocabByLevel, saveScore, saveUserProgress } from '../db/index'
 import {
   createAnagramGame,
-  reshuffleOrder,
-  findAnswer,
-  correctPositions,
-  firstLettersHint,
   isValidSeed,
   newSeed,
   ANAGRAM_LEVELS,
   ANAGRAM_SETTINGS,
-  POINTS_PER_WORD,
-  TRIES_BEFORE_SOLUTION
+  POINTS_PER_WORD
 } from '../utils/anagramGame'
 import { libelleNiveau } from '../data/niveaux'
+import AnagramBoard from '../components/AnagramBoard'
 import '../styles/AnagramGame.css'
 
 // Anagrammes (fiche L1 du catalogue v0.2 ; plan de migration §5.4).
@@ -23,10 +19,11 @@ import '../styles/AnagramGame.css'
 // rend la lettre. Après une erreur : nombre de lettres bien placées, puis
 // indice (première lettre), puis solution disponible après 3 essais (le mot
 // n'est alors pas compté). Pas de chronomètre (D5).
-
-// Tuiles d'un mot : chaque lettre garde un identifiant stable (key), même
-// après « Mélanger à nouveau ».
-const makeTiles = (letters) => letters.map((letter, key) => ({ key, letter }))
+//
+// Accueil du module (lot 1 des anagrammes mystères, docs/anagrammes-mysteres.md
+// §2) : famille A, anagrammes classiques (le jeu ci-dessous, inchangé) ;
+// famille B, anagrammes mystères (src/pages/MysteryGame.jsx). Le plateau d'une
+// anagramme (cases, tuiles, aides) est partagé : src/components/AnagramBoard.jsx.
 
 export default function AnagramGame() {
   const { user, language, setCurrentPage } = useAppStore()
@@ -35,16 +32,10 @@ export default function AnagramGame() {
   const [level, setLevel] = useState(ANAGRAM_LEVELS.includes(user?.level) ? user.level : ANAGRAM_LEVELS[0])
   const [seedInput, setSeedInput] = useState('')
   const [seedError, setSeedError] = useState(false)
-  const [gameState, setGameState] = useState('select') // select | playing | finished | unavailable
+  const [gameState, setGameState] = useState('home') // home | select | playing | finished | unavailable
   const [game, setGame] = useState(null)
   const [wordIndex, setWordIndex] = useState(0)
-  const [tiles, setTiles] = useState([]) // ordre affiché des tuiles
-  const [slots, setSlots] = useState([]) // key de la tuile placée dans chaque case, ou null
-  const [tries, setTries] = useState(0) // essais faux sur le mot en cours
-  const [round, setRound] = useState(0) // nombre de « Mélanger à nouveau » sur ce mot
-  const [outcome, setOutcome] = useState(null) // null | { found: true, answer } | { found: false }
   const [results, setResults] = useState([]) // { item, answer|null } pour chaque mot terminé
-  const [feedback, setFeedback] = useState('')
 
   // Empêche un double clic de lancer deux parties (ou d'enregistrer deux fois)
   const busyRef = useRef(false)
@@ -56,15 +47,9 @@ export default function AnagramGame() {
   const gameLanguage = game?.language === 'en' ? t('anglais', 'English') : t('français', 'French')
   const score = results.filter(r => r.answer).length * POINTS_PER_WORD
 
-  const loadWord = (g, index) => {
-    const next = g.items[index]
+  // Le plateau (AnagramBoard) repart à zéro à chaque mot (prop key)
+  const loadWord = (index) => {
     setWordIndex(index)
-    setTiles(makeTiles(next.tiles))
-    setSlots(next.tiles.map(() => null))
-    setTries(0)
-    setRound(0)
-    setOutcome(null)
-    setFeedback('')
   }
 
   const startGame = async (seed) => {
@@ -83,7 +68,7 @@ export default function AnagramGame() {
       }
       setGame(g)
       setResults([])
-      loadWord(g, 0)
+      loadWord(0)
       setGameState('playing')
     } catch (e) {
       console.error('Anagrammes : erreur de préparation', e)
@@ -129,74 +114,14 @@ export default function AnagramGame() {
     setCurrentPage('studentDashboard')
   }
 
-  const used = new Set(slots.filter(k => k !== null))
-  const tileByKey = (key) => tiles.find(tile => tile.key === key)
-  const typed = (item?.firstLetter ?? '') + slots.map(k => (k === null ? '' : tileByKey(k).letter)).join('')
-  const full = slots.length > 0 && slots.every(k => k !== null)
-  const done = outcome !== null
-
-  const handleTile = (key) => {
-    if (done || used.has(key)) return
-    const free = slots.indexOf(null)
-    if (free === -1) return
-    setSlots(slots.map((k, i) => (i === free ? key : k)))
-  }
-
-  // Case remplie touchée : la lettre retourne parmi les tuiles
-  const handleSlot = (index) => {
-    if (done || slots[index] === null) return
-    setSlots(slots.map((k, i) => (i === index ? null : k)))
-  }
-
-  const handleClear = () => {
-    if (done) return
-    setSlots(slots.map(() => null))
-  }
-
-  // Nouvel ordre des tuiles, soumis aux mêmes règles que le premier mélange ;
-  // les lettres déjà placées restent dans leurs cases
-  const handleReshuffle = () => {
-    if (done) return
-    const order = reshuffleOrder(item, tiles.map(tile => tile.letter), game.seed, wordIndex, round)
-    setTiles(order.map(i => tiles[i]))
-    setRound(round + 1)
-  }
-
-  const handleValidate = () => {
-    if (done || !full) return
-    const answer = findAnswer(item, typed)
-    if (answer) {
-      setOutcome({ found: true, answer })
-      setResults([...results, { item, answer }])
-      setFeedback(t('Bravo !', 'Well done!'))
-      saveUserProgress(user?.id, answer.id, true, null, { gameType: 'anagram', itemId: item.id })
-      return
-    }
-    const nextTries = tries + 1
-    setTries(nextTries)
-    const n = correctPositions(item, typed)
-    const parts = [t(
-      `Il y a ${n} ${n > 1 ? 'lettres bien placées' : 'lettre bien placée'}.`,
-      `${n} ${n > 1 ? 'letters are' : 'letter is'} in the right place.`
-    )]
-    if (nextTries >= 2) {
-      const hint = firstLettersHint(item)
-      parts.push(t(`Indice : le mot commence par « ${hint} ».`, `Hint: the word starts with "${hint}".`))
-    }
-    if (nextTries >= TRIES_BEFORE_SOLUTION) {
-      parts.push(t('Tu peux essayer encore ou voir la solution.', 'You can try again or see the answer.'))
-    } else {
-      parts.push(t('Essaie encore !', 'Try again!'))
-    }
-    setFeedback(parts.join(' '))
+  const handleFound = (answer) => {
+    setResults([...results, { item, answer }])
+    saveUserProgress(user?.id, answer.id, true, null, { gameType: 'anagram', itemId: item.id })
   }
 
   // Solution montrée : le mot n'est pas compté
   const handleShowSolution = () => {
-    if (done || tries < TRIES_BEFORE_SOLUTION) return
-    setOutcome({ found: false })
     setResults([...results, { item, answer: null }])
-    setFeedback('')
     saveUserProgress(user?.id, item.id, false, null, { gameType: 'anagram', itemId: item.id })
   }
 
@@ -214,9 +139,41 @@ export default function AnagramGame() {
   }
 
   const handleNext = () => {
-    if (!done) return
-    if (wordIndex + 1 < game.items.length) loadWord(game, wordIndex + 1)
+    if (wordIndex + 1 < game.items.length) loadWord(wordIndex + 1)
     else finishGame()
+  }
+
+  // Accueil du module : les deux familles
+  if (gameState === 'home') {
+    return (
+      <div className="anagram-select">
+        <div className="anagram-select__container">
+          <h1>{t('Anagrammes', 'Anagrams')}</h1>
+          <p className="anagram-select__intro">
+            {t('Choisis une famille de jeux.', 'Choose a family of games.')}
+          </p>
+          <div className="anagram-home__families">
+            <button className="anagram-home__family" onClick={() => setGameState('select')}>
+              <span className="anagram-home__family-name">{t('Anagrammes classiques', 'Classic anagrams')}</span>
+              <span className="anagram-home__family-text">
+                {t('Remets les lettres dans l\'ordre pour écrire le mot de la définition.',
+                  'Put the letters in order to write the word of the definition.')}
+              </span>
+            </button>
+            <button className="anagram-home__family" onClick={() => setCurrentPage('mysteryGame')}>
+              <span className="anagram-home__family-name">{t('Anagrammes mystères', 'Mystery anagrams')}</span>
+              <span className="anagram-home__family-text">
+                {t('Chaque anagramme résolue te donne un élément secret : assemble-les pour percer le mystère.',
+                  'Each anagram you solve gives you a secret clue: put them together to solve the mystery.')}
+              </span>
+            </button>
+          </div>
+          <button className="anagram-select__back" onClick={handleBackToDashboard}>
+            {t('Retour', 'Back')}
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (gameState === 'select') {
@@ -274,7 +231,8 @@ export default function AnagramGame() {
           <button className="anagram-select__start" onClick={handleStart} disabled={generating}>
             {t('Commencer', 'Start')}
           </button>
-          <button className="anagram-select__back" onClick={handleBackToDashboard}>
+          {/* Retour à l'accueil du module (les deux familles) */}
+          <button className="anagram-select__back" onClick={() => setGameState('home')}>
             {t('Retour', 'Back')}
           </button>
         </div>
@@ -353,97 +311,17 @@ export default function AnagramGame() {
         <h2 className="anagram-game__clue-title">{t('Définition', 'Definition')}</h2>
         <p className="anagram-game__clue">{item.definition}</p>
 
-        <div
-          className="anagram-slots"
-          role="group"
-          aria-label={t('Mot à écrire', 'Word to write')}
-          style={{ '--an-length': item.word.length }}
-        >
-          {item.firstLetter && (
-            <span className="anagram-slot anagram-slot--given" role="img" aria-label={t(`${item.firstLetter}, lettre donnée`, `${item.firstLetter}, given letter`)}>
-              {item.firstLetter}
-            </span>
-          )}
-          {slots.map((key, i) => {
-            const letter = key === null ? '' : tileByKey(key).letter
-            const position = i + 1 + (item.firstLetter ? 1 : 0)
-            return (
-              <button
-                key={i}
-                className={`anagram-slot ${key === null ? 'anagram-slot--empty' : ''} ${outcome?.found ? 'anagram-slot--found' : ''}`}
-                onClick={() => handleSlot(i)}
-                disabled={done || key === null}
-                aria-label={letter
-                  ? t(`${letter}, case ${position}, toucher pour rendre la lettre`, `${letter}, box ${position}, tap to give the letter back`)
-                  : t(`case ${position} vide`, `box ${position} empty`)}
-              >
-                {letter}
-              </button>
-            )
-          })}
-        </div>
-
-        {!done && (
-          <div className="anagram-tiles" role="group" aria-label={t('Lettres mélangées', 'Mixed-up letters')}>
-            {tiles.map(tile => (
-              <button
-                key={tile.key}
-                className={`anagram-tile ${used.has(tile.key) ? 'anagram-tile--used' : ''}`}
-                onClick={() => handleTile(tile.key)}
-                disabled={used.has(tile.key)}
-                aria-label={tile.letter}
-              >
-                {used.has(tile.key) ? '' : tile.letter}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {!done && (
-          <div className="anagram-game__actions">
-            <button className="anagram-game__btn anagram-game__btn--secondary" onClick={handleClear} disabled={used.size === 0}>
-              {t('Effacer', 'Clear')}
-            </button>
-            <button className="anagram-game__btn anagram-game__btn--secondary" onClick={handleReshuffle}>
-              {t('Mélanger à nouveau', 'Shuffle again')}
-            </button>
-            <button className="anagram-game__btn anagram-game__btn--validate" onClick={handleValidate} disabled={!full}>
-              {t('Valider', 'Check')}
-            </button>
-          </div>
-        )}
-
-        <p className="anagram-game__feedback" role="status" aria-live="polite">{feedback}</p>
-
-        {!done && tries >= TRIES_BEFORE_SOLUTION && (
-          <button className="anagram-game__btn anagram-game__btn--solution" onClick={handleShowSolution}>
-            {t('Voir la solution', 'Show the answer')}
-          </button>
-        )}
-
-        {done && (
-          <div className="anagram-game__result">
-            {/* Orthographe exacte, avec accents, montrée après chaque mot */}
-            <p className="anagram-game__answer">
-              {outcome.found
-                ? t('Tu as trouvé : ', 'You found: ')
-                : t('La solution était : ', 'The answer was: ')}
-              <strong>{outcome.found ? outcome.answer.display : item.display}</strong>
-            </p>
-            {outcome.found && outcome.answer.word !== item.word && (
-              <p className="anagram-game__other">
-                {t(`C'est aussi une bonne réponse. Le mot de la définition : ${item.display}.`,
-                  `That is also a right answer. The word of the definition: ${item.display}.`)}
-              </p>
-            )}
-            {!outcome.found && (
-              <p className="anagram-game__other">{t('Ce mot ne compte pas de points.', 'This word gives no points.')}</p>
-            )}
-            <button className="anagram-game__btn anagram-game__btn--validate" onClick={handleNext}>
-              {last ? t('Terminer', 'Finish') : t('Mot suivant', 'Next word')}
-            </button>
-          </div>
-        )}
+        <AnagramBoard
+          key={`${game.seed}-${wordIndex}`}
+          item={item}
+          seed={game.seed}
+          wordIndex={wordIndex}
+          language={language}
+          onFound={handleFound}
+          onShowSolution={handleShowSolution}
+          nextLabel={last ? t('Terminer', 'Finish') : t('Mot suivant', 'Next word')}
+          onNext={handleNext}
+        />
 
         <div className="anagram-game__footer">
           <button className="anagram-game__btn anagram-game__btn--secondary" onClick={handleNewGame}>

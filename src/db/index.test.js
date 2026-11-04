@@ -205,3 +205,47 @@ test('Stockage plein : import refusé avec un message clair, cache intact ; prof
   }
   assert.equal((await db.getVocabByLevel('SIL-CP')).some(v => v.mot_fr === 'LION'), false)
 })
+
+test('Anagrammes mystères — reprise : un enregistrement par profil, relu, remplacé, effacé', () => {
+  const p1 = { formatVersion: 1, path: { id: 'a' }, state: { phase: 'steps' } }
+  assert.equal(db.getMysteryInProgress('u1'), null)
+  assert.equal(db.saveMysteryInProgress('u1', p1), true)
+  assert.equal(db.saveMysteryInProgress('u2', { ...p1, path: { id: 'b' } }), true)
+  assert.equal(db.saveMysteryInProgress('u1', { ...p1, path: { id: 'c' } }), true)
+  const enregistre = lire('dibieMysteryInProgress')
+  assert.equal(enregistre.length, 2, 'un seul enregistrement par profil')
+  assert.equal(db.getMysteryInProgress('u1').path.id, 'c')
+  assert.equal(db.getMysteryInProgress('u2').path.id, 'b')
+  assert.ok(!Number.isNaN(Date.parse(db.getMysteryInProgress('u1').savedAt)))
+  assert.equal(db.clearMysteryInProgress('u1'), true)
+  assert.equal(db.getMysteryInProgress('u1'), null)
+  assert.equal(db.getMysteryInProgress('u2').path.id, 'b', 'les autres profils sont gardés')
+  assert.equal(db.clearMysteryInProgress('absent'), true)
+  assert.equal(db.saveMysteryInProgress(undefined, p1), false, 'jamais sans profil')
+})
+
+test('Anagrammes mystères — reprise : donnée illisible jamais écrasée', () => {
+  for (const illisible of ['{illisible', '{"pas":"un tableau"}']) {
+    stockage.set('dibieMysteryInProgress', illisible)
+    assert.equal(db.getMysteryInProgress('u1'), null)
+    assert.equal(db.saveMysteryInProgress('u1', { formatVersion: 1 }), false)
+    assert.equal(db.clearMysteryInProgress('u1'), false)
+    assert.equal(stockage.get('dibieMysteryInProgress'), illisible)
+  }
+  // Entrées étrangères conservées à la réécriture
+  stockage.set('dibieMysteryInProgress', JSON.stringify([null, 'texte', { userId: 'u9', path: {} }]))
+  assert.equal(db.saveMysteryInProgress('u1', { formatVersion: 1 }), true)
+  assert.equal(lire('dibieMysteryInProgress').length, 4)
+})
+
+test('Badges par famille d\'anagrammes : classiques et mystères, sans changer les autres badges', async () => {
+  await db.saveScore('u1', 'wordsearch', 20, 'SIL-CP')
+  assert.deepEqual((await db.getUserStats('u1')).badges, ['🎯'])
+  await db.saveScore('u1', 'anagram', 10, 'SIL-CP')
+  assert.deepEqual((await db.getUserStats('u1')).badges, ['🎯', '🔤'])
+  await db.saveScore('u1', 'anagramMystery', 40, 'SIL-CP', { game: 'mysteryWord', language: 'fr', seed: 1, stars: 3, hintsUsed: 0 })
+  const stats = await db.getUserStats('u1')
+  assert.deepEqual(stats.badges, ['🌟', '🎯', '🔤', '🕵️'])
+  assert.equal(stats.score, 70)
+  assert.deepEqual((await db.getUserStats('u2')).badges, [])
+})
