@@ -21,7 +21,17 @@ import {
   letterKey,
   normalizeBlocked
 } from './anagramGame.js'
-import { GENERATED_GAMES, allowedRules, assembleSolution, extractSecret, secretIndexFor, finalTiles } from './mysteryEngine.js'
+import {
+  CODE_MAX_NUMBER,
+  GENERATED_GAMES,
+  LETTER_GAMES,
+  allowedRules,
+  assembleSolution,
+  decodeMessage,
+  extractSecret,
+  secretIndexFor,
+  finalTiles
+} from './mysteryEngine.js'
 import { THEMES_MYSTERES, THEME_STATUSES } from '../data/themes-mysteres.js'
 
 // Radicaux d'un nom de thème : mots de 4 lettres ou plus (les articles
@@ -73,14 +83,18 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
 
   const { extraction, final } = path
   const isWordGame = path.game === 'mysteryWord'
+  const isCodeGame = path.game === 'codedMessage'
+  // Jeux 1 et 5 : chaque étape donne une lettre
+  const isLetterGame = LETTER_GAMES.includes(path.game)
   const blocked = normalizeBlocked(blockedWords)
 
   // Une seule règle d'extraction, adaptée au jeu ; règle 8 : jamais « first » en SIL-CP
-  if (isWordGame) {
+  if (isLetterGame) {
     if (!allowedRules(path.level).includes(extraction?.rule)) {
       errors.push(err('6.1.8', `règle d'extraction « ${extraction?.rule} » interdite en ${path.level}`))
     }
-    if (final.kind !== 'word') errors.push(err('forme', 'le mot mystère se résout par un mot'))
+    if (isWordGame && final.kind !== 'word') errors.push(err('forme', 'le mot mystère se résout par un mot'))
+    if (isCodeGame && final.kind !== 'code') errors.push(err('forme', 'le message codé se résout par un décodage'))
   } else {
     if (extraction?.rule !== 'word') errors.push(err('forme', 'le mystère des thèmes gagne des mots'))
     if (final.kind !== 'choice') errors.push(err('forme', 'le mystère des thèmes se résout par un choix'))
@@ -110,7 +124,7 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
     }
 
     // Règle 2 : toutes les réponses acceptées donnent le même élément secret
-    if (isWordGame) {
+    if (isLetterGame) {
       const index = secretIndexFor(step.word, extraction, step.secretIndex)
       if (index === null || index !== step.secretIndex) errors.push(err('6.1.2', `${where} : position du secret incohérente avec la règle`))
       // Règle 8 : en SIL-CP, la lettre secrète n'est jamais la lettre déjà placée
@@ -135,6 +149,7 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
   if (errors.length > 0) return errors
 
   if (isWordGame) validateWordFinal(path, keys, blocked, errors)
+  else if (isCodeGame) validateCodeFinal(path, keys, blocked, errors)
   else validateChoiceFinal(path, errors)
 
   if (vocabulary) validateGenerated(path, { vocabulary, themes }, errors)
@@ -177,6 +192,59 @@ function validateWordFinal(path, keys, blocked, errors) {
   }
   // Règle 7 : mots interdits dans la solution et dans le « message » (lettres gagnées)
   if (containsBlocked(solution, blocked) || containsBlocked(collected, blocked)) errors.push(err('6.1.7', 'mot interdit dans le mot mystère'))
+}
+
+// Jeu 5 : résolution finale par le décodage d'un mot avec la clé complète (C1 à C4)
+function validateCodeFinal(path, keys, blocked, errors) {
+  const { final } = path
+  const solution = final.solution
+  if (typeof solution !== 'string' || !/^[A-Z]+$/.test(solution) || solution.length < MIN_WORD_LENGTH) {
+    errors.push(err('forme', 'mot codé invalide (lettres sans accents, 3 au moins)'))
+    return
+  }
+  const letters = [...new Set(solution)]
+  if (letters.length < 2) errors.push(err('forme', 'le mot codé doit avoir au moins 2 lettres différentes'))
+  // Règle 3 : le mot codé n'a pas les mêmes lettres qu'un mot d'étape
+  if (keys.has(letterKey(solution))) errors.push(err('6.1.3', 'le mot codé a les mêmes lettres qu\'un mot d\'étape'))
+
+  // Clé (C1, C3) : une ligne par étape, nombres entiers distincts de 1 à
+  // CODE_MAX_NUMBER, lettres distinctes ; une étape par lettre distincte du mot
+  const codes = path.steps.map(s => s.code)
+  if (!codes.every(n => Number.isInteger(n) && n >= 1 && n <= CODE_MAX_NUMBER)) {
+    errors.push(err('6.2.4', `nombres de la clé hors de 1 à ${CODE_MAX_NUMBER}`))
+  }
+  if (new Set(codes).size !== codes.length) errors.push(err('6.2.4', 'deux lignes de la clé ont le même nombre'))
+  const secrets = path.steps.map(s => s.secret)
+  if (new Set(secrets).size !== secrets.length) errors.push(err('6.2.4', 'deux lignes de la clé ont la même lettre'))
+  // Règle 4 : toutes les lettres du mot ont leur ligne de clé, et seulement elles
+  if (path.steps.length !== letters.length || !letters.every(l => secrets.includes(l))) {
+    errors.push(err('6.1.4', 'une étape (ligne de clé) par lettre différente du mot codé'))
+  }
+  // Règle 6.2.4 : une seule lecture du message. Chaque nombre correspond à une
+  // seule ligne de la clé, et la lecture redonne le mot codé.
+  const message = Array.isArray(final.message) ? final.message : []
+  if (message.length !== solution.length) errors.push(err('6.2.4', 'un nombre par lettre du mot codé'))
+  if (!message.every(n => codes.filter(c => c === n).length === 1)) errors.push(err('6.2.4', 'un nombre du message n\'a pas exactement une ligne de clé'))
+  if (decodeMessage(path) !== solution) errors.push(err('6.2.4', 'le message décodé ne redonne pas le mot codé'))
+
+  // Les lettres gagnées, dans l'ordre des étapes, ne donnent pas le mot
+  const collected = secrets.join('')
+  if (collected === solution) errors.push(err('6.1.1', 'les lettres gagnées donnent déjà le mot codé dans l\'ordre'))
+  // Règle 5 : une seule réponse, le mot codé (pas ses anagrammes)
+  const accepted = Array.isArray(final.acceptedAnswers) ? final.acceptedAnswers : []
+  if (accepted.length !== 1 || accepted[0]?.word !== solution) errors.push(err('6.1.5', 'une seule réponse acceptée : le mot codé'))
+  if (typeof final.display !== 'string' || normalizeWord(final.display) !== solution) errors.push(err('6.1.5', 'orthographe exacte du mot codé incohérente'))
+  // Règle 6 : aucune définition d'étape ne donne le mot codé
+  for (const [n, step] of path.steps.entries()) {
+    if (definitionRevealsWord(step.definition, solution)) errors.push(err('6.1.6', `étape ${n + 1} : la définition donne le mot codé`))
+  }
+  // Indices : des lettres du mot, distinctes. Le moteur en limite le nombre
+  // (finalHintLimit) pour qu'il reste toujours au moins une lettre à décoder.
+  if (!Array.isArray(final.hints) || !final.hints.every(h => letters.includes(h)) || new Set(final.hints).size !== final.hints.length) {
+    errors.push(err('6.1.6', 'indices : lettres du mot codé, distinctes'))
+  }
+  // Règle 7 : mots interdits dans le mot codé et dans les lettres gagnées
+  if (containsBlocked(solution, blocked) || containsBlocked(collected, blocked)) errors.push(err('6.1.7', 'mot interdit dans le mot codé'))
 }
 
 // Jeu 4 : résolution finale par un choix parmi 4 propositions (M6)
@@ -253,6 +321,22 @@ function validateGenerated(path, { vocabulary, themes }, errors) {
     }
     for (const step of path.steps) {
       if (step.answers.some(a => a.word === solution)) errors.push(err('6.2.2', 'le mot mystère est une réponse d\'étape'))
+    }
+    return
+  }
+
+  if (path.game === 'codedMessage') {
+    // Jeu 5 (C4) : le mot codé est un mot du vocabulaire du niveau et de la
+    // langue (même entrée, même orthographe), différent de chaque réponse
+    const solution = path.final.solution
+    const answer = Array.isArray(path.final.acceptedAnswers) ? path.final.acceptedAnswers[0] : null
+    const v = byId.get(answer?.id)
+    if (!v || v.niveau_fr !== level || v.actif === false || typeof entryText(v, language) !== 'string' ||
+      normalizeWord(entryText(v, language)) !== solution || entryText(v, language) !== path.final.display) {
+      errors.push(err('6.2.2', `mot codé ${solution} absent du vocabulaire du niveau et de la langue`))
+    }
+    for (const step of path.steps) {
+      if (step.answers.some(a => a.word === solution)) errors.push(err('6.2.2', 'le mot codé est une réponse d\'étape'))
     }
     return
   }

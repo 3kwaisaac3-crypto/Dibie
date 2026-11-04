@@ -8,7 +8,7 @@ import {
   saveMysteryInProgress,
   clearMysteryInProgress
 } from '../db/index'
-import { isValidSeed, newSeed, ANAGRAM_LEVELS } from '../utils/anagramGame'
+import { isValidSeed, newSeed, ANAGRAM_LEVELS, TRIES_BEFORE_SOLUTION } from '../utils/anagramGame'
 import {
   MYSTERY_GAMES,
   MYSTERY_FORMAT_VERSION,
@@ -29,7 +29,15 @@ import {
   computeScore,
   starsFor,
   hintsUsed,
-  isValidState
+  isValidState,
+  LETTER_GAMES,
+  codeKey,
+  initialCodeEntries,
+  applyRevealed,
+  fillCodeEntry,
+  isRevealedBox,
+  correctCodeBoxes,
+  finalHintLimit
 } from '../utils/mysteryEngine'
 import { validatePath } from '../utils/mysteryValidation'
 import { generateMysteryPath, availableThemes } from '../utils/mysteryGenerators'
@@ -38,10 +46,10 @@ import AnagramBoard from '../components/AnagramBoard'
 import '../styles/AnagramGame.css'
 import '../styles/MysteryGame.css'
 
-// Anagrammes mystères (famille B du module anagrammes ; lot 1 de
+// Anagrammes mystères (famille B du module anagrammes ; lots 1 et 2 de
 // docs/anagrammes-mysteres.md, architecture validée par Isaac le 2026-11-03).
-// Jeux disponibles : 1 « Mot mystère » et 4 « Mystère des thèmes » ; les jeux
-// 2, 3, 5 et 6 sont annoncés « bientôt ». Écrans : choix du jeu, du niveau (et
+// Jeux disponibles : 1 « Mot mystère », 4 « Mystère des thèmes » et 5
+// « Message codé » (lot 2) ; les jeux 2, 3 et 6 sont annoncés « bientôt ». Écrans : choix du jeu, du niveau (et
 // du thème), mission, anagrammes avec la barre des éléments gagnés,
 // résolution finale, victoire. La langue des mots suit l'interface au
 // lancement (§7). Parcours générés automatiquement, marqués « démonstration »
@@ -89,7 +97,12 @@ export default function MysteryGame() {
   const [finalFeedback, setFinalFeedback] = useState('')
   const [reviewFinal, setReviewFinal] = useState(false) // résultat de la finale montré avant la victoire
   const [generating, setGenerating] = useState(false)
+  // Jeu 5 : lettres écrites sous les nombres (null : cases à préparer depuis
+  // l'état, lettres révélées comprises). Non enregistrées pour la reprise,
+  // comme les lettres posées d'une anagramme.
+  const [codeEntries, setCodeEntries] = useState(null)
   const busyRef = useRef(false)
+  const codeRef = useRef(null)
 
   // Partie interrompue de ce profil (M4)
   useEffect(() => {
@@ -147,6 +160,7 @@ export default function MysteryGame() {
       setMstate(s)
       setFinalFeedback('')
       setReviewFinal(false)
+      setCodeEntries(null)
       persist(p, s)
       setScreen('playing')
     } catch (e) {
@@ -180,6 +194,7 @@ export default function MysteryGame() {
     setMstate(saved.state)
     setFinalFeedback('')
     setReviewFinal(false)
+    setCodeEntries(null)
     setScreen('playing')
   }
 
@@ -370,6 +385,9 @@ export default function MysteryGame() {
   // --- Partie en cours ---
 
   const isWordGame = path.game === 'mysteryWord'
+  const isCodeGame = path.game === 'codedMessage'
+  // Jeux 1 et 5 : chaque étape donne une lettre (case marquée ★)
+  const isLetterGame = LETTER_GAMES.includes(path.game)
   const pathLanguage = path.language === 'en' ? t('anglais', 'English') : t('français', 'French')
   const score = computeScore(mstate)
   const elements = collectedElements(path, mstate)
@@ -388,18 +406,36 @@ export default function MysteryGame() {
     </div>
   )
 
-  // Barre des éléments gagnés (« ? » pour une étape non résolue)
-  const elementsBar = (
-    <div className="mystery-elements" role="group" aria-label={t('Éléments gagnés', 'Clues won')}>
-      {elements.map((e, i) => (
-        <span
-          key={i}
-          className={`mystery-elements__item ${e === null ? 'mystery-elements__item--hidden' : ''} ${isWordGame ? '' : 'mystery-elements__item--word'}`}
-        >
-          {e ?? '?'}
+  // Barre des éléments gagnés (« ? » pour une étape non résolue). Jeu 5 : les
+  // lignes de la clé (« nombre = lettre ») dans l'ordre des étapes, puis
+  // rangées par nombre pour la résolution finale.
+  const keyLine = (number, letter) => `${number} = ${letter}`
+  const elementsBar = isCodeGame && mstate.phase !== 'steps' ? (
+    <div className="mystery-elements" role="group" aria-label={t('Clé gagnée', 'Key won')}>
+      {codeKey(path).map(line => (
+        <span key={line.number} className="mystery-elements__item mystery-elements__item--key">
+          {keyLine(line.number, line.letter)}
         </span>
       ))}
     </div>
+  ) : (
+    <div className="mystery-elements" role="group" aria-label={isCodeGame ? t('Clé gagnée', 'Key won') : t('Éléments gagnés', 'Clues won')}>
+      {elements.map((e, i) => (
+        <span
+          key={i}
+          className={`mystery-elements__item ${e === null ? 'mystery-elements__item--hidden' : ''} ${isLetterGame ? '' : 'mystery-elements__item--word'} ${isCodeGame ? 'mystery-elements__item--key' : ''}`}
+        >
+          {e === null ? '?' : isCodeGame ? keyLine(path.steps[i].code, e) : e}
+        </span>
+      ))}
+    </div>
+  )
+
+  // Jeu 5 : le message, suite de nombres
+  const codedMessage = isCodeGame && (
+    <p className="mystery-code-message" aria-label={t('Message codé', 'Coded message')}>
+      {path.final.message.join(' · ')}
+    </p>
   )
 
   const footer = (
@@ -425,12 +461,22 @@ export default function MysteryGame() {
         {header}
         <div className="anagram-game__card mystery-mission">
           <h2 className="anagram-game__clue-title">{t('Ta mission', 'Your mission')}</h2>
-          {isWordGame ? (
+          {isWordGame && (
             <p className="anagram-game__clue">
               {t(`Résous ${path.steps.length} anagrammes. Chaque mot trouvé te donne ${ruleText()}. Avec ces lettres, écris le mot mystère !`,
                 `Solve ${path.steps.length} anagrams. Each word you find gives you ${ruleText()}. With these letters, write the mystery word!`)}
             </p>
-          ) : (
+          )}
+          {isCodeGame && (
+            <>
+              <p className="anagram-game__clue">
+                {t(`Voici un message secret : chaque nombre cache une lettre. Résous ${path.steps.length} anagrammes. Chaque mot trouvé te donne ${ruleText()} et son nombre : une ligne de la clé. Avec la clé, décode le message !`,
+                  `Here is a secret message: each number hides a letter. Solve ${path.steps.length} anagrams. Each word you find gives you ${ruleText()} and its number: one line of the key. With the key, decode the message!`)}
+              </p>
+              {codedMessage}
+            </>
+          )}
+          {path.game === 'theme' && (
             <p className="anagram-game__clue">
               {t(`Résous ${path.steps.length} anagrammes. Tous les mots trouvés ont un point commun : devine le thème qui les relie !`,
                 `Solve ${path.steps.length} anagrams. All the words you find have something in common: guess the theme that links them!`)}
@@ -467,7 +513,7 @@ export default function MysteryGame() {
             wordIndex={index}
             language={language}
             initialTries={mstate.steps[index].tries}
-            markedIndex={isWordGame ? step.secretIndex : null}
+            markedIndex={isLetterGame ? step.secretIndex : null}
             onFound={(answer) => { update(recordStepFound(mstate, answer)); progress(true, answer.id) }}
             onWrong={() => update(recordStepWrong(mstate))}
             onShowSolution={() => { update(recordStepShown(mstate)); progress(false, step.id) }}
@@ -475,10 +521,10 @@ export default function MysteryGame() {
             onNext={() => update(advance(mstate))}
           >
             <p className="mystery-won" role="status">
-              {isWordGame
-                ? t('Lettre gagnée : ', 'Letter won: ')
-                : t('Mot gagné : ', 'Word won: ')}
-              <strong>{step.secret}</strong>
+              {isWordGame && t('Lettre gagnée : ', 'Letter won: ')}
+              {isCodeGame && t('Ligne de la clé gagnée : ', 'Key line won: ')}
+              {path.game === 'theme' && t('Mot gagné : ', 'Word won: ')}
+              <strong>{isCodeGame ? keyLine(step.code, step.secret) : step.secret}</strong>
             </p>
           </AnagramBoard>
           {footer}
@@ -503,7 +549,9 @@ export default function MysteryGame() {
         <div className="anagram-finished__container">
           <h1>{found ? t('Mystère résolu !', 'Mystery solved!') : t('Parcours terminé', 'Path completed')}</h1>
           <p className="mystery-victory__solution">
-            {isWordGame ? t('Le mot mystère : ', 'The mystery word: ') : t('Le thème : ', 'The theme: ')}
+            {isWordGame && t('Le mot mystère : ', 'The mystery word: ')}
+            {isCodeGame && t('Le message décodé : ', 'The decoded message: ')}
+            {path.game === 'theme' && t('Le thème : ', 'The theme: ')}
             <strong>{path.final.display}</strong>
           </p>
           <p className="mystery-stars" role="img" aria-label={t(`${stars} étoile${stars > 1 ? 's' : ''} sur 3`, `${stars} star${stars > 1 ? 's' : ''} out of 3`)}>
@@ -516,9 +564,9 @@ export default function MysteryGame() {
             <ul>
               <li>{t('Vocabulaire : comprendre une définition', 'Vocabulary: understanding a definition')}</li>
               <li>{t('Orthographe : remettre les lettres dans l\'ordre', 'Spelling: putting letters in order')}</li>
-              {isWordGame
-                ? <li>{t('Logique : assembler des lettres pour former un mot', 'Logic: putting letters together to make a word')}</li>
-                : <li>{t('Classer : trouver ce qui relie des mots', 'Sorting: finding what links words')}</li>}
+              {isWordGame && <li>{t('Logique : assembler des lettres pour former un mot', 'Logic: putting letters together to make a word')}</li>}
+              {isCodeGame && <li>{t('Logique : décoder un message avec une clé', 'Logic: decoding a message with a key')}</li>}
+              {path.game === 'theme' && <li>{t('Classer : trouver ce qui relie des mots', 'Sorting: finding what links words')}</li>}
             </ul>
           </div>
           <p className="anagram-game__seed">
@@ -594,6 +642,130 @@ export default function MysteryGame() {
             nextLabel={t('Voir mon résultat', 'See my result')}
             onNext={() => setReviewFinal(false)}
           />
+          {footer}
+        </div>
+      </div>
+    )
+  }
+
+  // Jeu 5 : une case sous chaque nombre (C5). Une lettre écrite dans une case
+  // est reportée sous tous les nombres identiques ; un indice révèle une lettre
+  // du mot (toutes ses occurrences) ; la clé gagnée reste affichée.
+  if (isCodeGame) {
+    const entries = codeEntries ?? initialCodeEntries(path, mstate)
+    const full = entries.every(e => e !== '')
+    const hintsLeft = finalHintLimit(path) - mstate.final.hints
+    const progressFinal = (isCorrect) =>
+      saveUserProgress(user?.id, null, isCorrect, null, { gameType: GAME_TYPE, itemId: 'final' })
+    // Après une lettre, la case vide suivante prend la main
+    const focusNextEmpty = (next, from) => {
+      const inputs = codeRef.current?.querySelectorAll('input') ?? []
+      const after = next.findIndex((e, i) => i > from && e === '')
+      const target = after !== -1 ? after : next.indexOf('')
+      if (target !== -1) inputs[target]?.focus()
+    }
+    const handleType = (index, text) => {
+      if (finalDone) return
+      const next = fillCodeEntry(path, mstate, entries, index, text)
+      setCodeEntries(next)
+      setFinalFeedback('')
+      if (next[index] !== '') focusNextEmpty(next, index)
+    }
+    const handleCodeValidate = () => {
+      if (finalDone || !full) return
+      const answer = checkFinalAnswer(path, entries.join(''))
+      if (answer) {
+        setFinalFeedback(t('Bravo !', 'Well done!'))
+        endFinal(recordFinalFound(mstate, answer))
+        progressFinal(true)
+        return
+      }
+      const s = recordFinalWrong(mstate, path)
+      const n = correctCodeBoxes(path, entries)
+      const parts = [t(
+        `Il y a ${n} ${n > 1 ? 'cases justes' : 'case juste'}. Vérifie avec la clé.`,
+        `${n} ${n > 1 ? 'boxes are' : 'box is'} right. Check with the key.`
+      )]
+      if (s.final.tries >= TRIES_BEFORE_SOLUTION) parts.push(t('Tu peux essayer encore ou voir la solution.', 'You can try again or see the answer.'))
+      setFinalFeedback(parts.join(' '))
+      update(s)
+    }
+    const handleCodeHint = () => {
+      if (finalDone || hintsLeft <= 0) return
+      const s = recordFinalHint(mstate, path, entries)
+      if (s === mstate) return
+      const letter = s.final.revealed[s.final.revealed.length - 1]
+      setCodeEntries(applyRevealed(path, s, entries))
+      setFinalFeedback(t(`Indice : la lettre ${letter} est écrite sous tous ses nombres.`, `Hint: the letter ${letter} is written under all its numbers.`))
+      update(s)
+    }
+    const handleCodeShow = () => {
+      if (finalDone || mstate.final.tries < TRIES_BEFORE_SOLUTION) return
+      setCodeEntries([...path.final.solution])
+      setFinalFeedback('')
+      endFinal(recordFinalShown(mstate))
+      progressFinal(false)
+    }
+    return (
+      <div className="anagram-game">
+        {header}
+        {elementsBar}
+        <div className="anagram-game__card">
+          <h2 className="anagram-game__clue-title">{t('Le message codé', 'The coded message')}</h2>
+          <p className="anagram-game__clue">{path.final.prompt}</p>
+          <div className="mystery-code" role="group" aria-label={t('Message à décoder', 'Message to decode')} ref={codeRef}>
+            {path.final.message.map((number, i) => {
+              const revealed = isRevealedBox(path, mstate, i)
+              return (
+                <label key={i} className={`mystery-code__box ${revealed ? 'mystery-code__box--revealed' : ''}`}>
+                  <span className="mystery-code__number">{number}</span>
+                  <input
+                    className="mystery-code__input"
+                    type="text"
+                    value={entries[i]}
+                    onChange={e => handleType(i, e.target.value)}
+                    readOnly={revealed || finalDone}
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    aria-label={t(`Lettre du nombre ${number}, case ${i + 1}${revealed ? ', donnée par un indice' : ''}`,
+                      `Letter for number ${number}, box ${i + 1}${revealed ? ', given by a hint' : ''}`)}
+                  />
+                </label>
+              )
+            })}
+          </div>
+          {!finalDone && (
+            <div className="anagram-game__actions">
+              <button className="anagram-game__btn anagram-game__btn--secondary" onClick={() => setCodeEntries(initialCodeEntries(path, mstate))}>
+                {t('Effacer', 'Clear')}
+              </button>
+              <button className="anagram-game__btn anagram-game__btn--validate" onClick={handleCodeValidate} disabled={!full}>
+                {t('Valider', 'Check')}
+              </button>
+            </div>
+          )}
+          <p className="anagram-game__feedback" role="status" aria-live="polite">{finalFeedback}</p>
+          {!finalDone && hintsLeft > 0 && (
+            <button className="anagram-game__btn anagram-game__btn--secondary mystery-final__hint-btn" onClick={handleCodeHint}>
+              {t(`Indice (encore ${hintsLeft})`, `Hint (${hintsLeft} left)`)}
+            </button>
+          )}
+          {!finalDone && mstate.final.tries >= TRIES_BEFORE_SOLUTION && (
+            <button className="anagram-game__btn anagram-game__btn--solution" onClick={handleCodeShow}>
+              {t('Voir la solution', 'Show the answer')}
+            </button>
+          )}
+          {finalDone && (
+            <div className="anagram-game__result">
+              {/* Orthographe exacte, avec accents (C4) */}
+              <p className="anagram-game__answer">
+                {mstate.final.status === 'found' ? t('Tu as trouvé : ', 'You found: ') : t('Le message était : ', 'The message was: ')}
+                <strong>{path.final.display}</strong>
+              </p>
+              {showResult}
+            </div>
+          )}
           {footer}
         </div>
       </div>

@@ -1,7 +1,7 @@
 # Anagrammes mystères : audit et conception (phases A et B)
 
 - **Date** : 2026-11-03
-- **Statut** : **architecture validée par Isaac le 2026-11-03** (décisions M1 à M8 : toutes les recommandations du §9). **Lot 1 réalisé** le 2026-11-03 sur la branche `feature/anagrammes-mysteres` (non fusionnée) : voir §11.
+- **Statut** : **architecture validée par Isaac le 2026-11-03** (décisions M1 à M8 : toutes les recommandations du §9). **Lot 1 réalisé** le 2026-11-03 (pull request n° 17, fusionnée) : voir §11. **Lot 2 réalisé** le 2026-11-04 sur la branche `feature/anagrammes-mysteres-lot2` (non fusionnée) : voir §12.
 - **Demande** : cahier des charges « Extension du module anagrammes : anagrammes classiques et jeux de mystères lexicaux », fourni par Isaac le 2026-11-03.
 - **Point de départ** : `main` = `53d4244`.
 
@@ -296,7 +296,7 @@ Mots utilisables par langue après toutes les règles (longueurs du niveau, déf
 | CM1-CM2 | La géographie | 12 / 10 | 15 / 13 | Jouable |
 | CM1-CM2 | La digestion | 6 / 6 | 8 / 7 | Jouable |
 
-**Cause principale des écarts** : les définitions du vocabulaire nomment souvent la catégorie (« Animal qui donne du lait », « Couleur du ciel », « Fruit rond… », « Sport où l'on marque des buts… »). La règle 6 du §6.1 interdit qu'une définition donne le thème : ces mots sont écartés. Les comptes plus élevés que ceux de l'educator viennent des sujets regroupés et des mots qu'il n'avait pas comptés. Décision possible pour Isaac : garder ces thèmes retirés hors du jeu, ou faire rédiger des définitions qui ne nomment pas la catégorie (sans modifier `vocabulaire.json` dans ce lot).
+**Cause principale des écarts** : les définitions du vocabulaire nomment souvent la catégorie (« Animal qui donne du lait », « Couleur du ciel », « Fruit rond… », « Sport où l'on marque des buts… »). La règle 6 du §6.1 interdit qu'une définition donne le thème : ces mots sont écartés. Les comptes plus élevés que ceux de l'educator viennent des sujets regroupés et des mots qu'il n'avait pas comptés. **Décision d'Isaac du 2026-11-04** : les 4 thèmes retirés (les animaux, les couleurs, les fruits et légumes en SIL-CP ; les animaux en CE1-CE2) **restent hors du jeu** ; aucune définition n'est réécrite. Il reste 5 thèmes jouables en SIL-CP et 6 en CE1-CE2, ce qui suffit pour un choix parmi 4 propositions.
 
 **Affectation des mots écartés** : la liste de l'educator est globale ; chaque mot est rattaché aux thèmes dont il relève dans le vocabulaire (niveau, langue, sujet). Exceptions suivant le motif donné : JEU et GAME seulement pour les jeux et jouets (pas pour « L'ordinateur », où JEU figure sous Logiciels) ; PAIN seulement en anglais (douleur) ; DOCTEUR, DOCTOR, ONGLE, SANG seulement pour la santé (DOCTOR reste aux métiers). Mots de la liste sans thème concerné : ÉCOLE en CE1-CE2 (Éducation), FEU en CE1-CE2 (Sécurité routière), WASH en SIL-CP (Lessive), SQUARE en CE1-CE2 (Ville).
 
@@ -312,6 +312,73 @@ Vérifié après correction : `npm test` 184 réussis, 2 ignorés, 0 échec ; li
 
 ### 11.5 Reste à faire
 
-- Lot 2 (jeu 5), lot 3 (jeux 2, 3, 6, contenus à rédiger et vérifier), lot 4 (validation par un enseignant, statut `validated`, trophées).
+- Lot 3 (jeux 2, 3, 6, contenus à rédiger et vérifier), lot 4 (validation par un enseignant, statut `validated`, trophées). Lot 2 : voir §12.
 - Validation par un enseignant : liste des thèmes, réglages du §11.2, libellés (« The kitchen », « Craftspeople », « Farming »), lecture des libellés en SIL-CP.
-- Décision d'Isaac sur les 4 thèmes retirés (§11.3).
+
+---
+
+## 12. Lot 2 réalisé (2026-11-04)
+
+Jeu 5 « Message codé » (`game: 'codedMessage'`), parcours généré à partir du vocabulaire. Branche `feature/anagrammes-mysteres-lot2`, créée depuis `main` (`7ecfa71`), non fusionnée.
+
+### 12.1 Décisions d'Isaac du 2026-11-04 (appliquées telles quelles)
+
+| N° | Décision |
+|---|---|
+| C1 | Chaque lettre du mot codé est remplacée par un **nombre tiré au hasard à chaque parcours** (numéro de partie), et non A = 1. Nombres distincts pour des lettres distinctes, tirés dans 1 à 26 sans répétition |
+| C2 | Chaque anagramme donne **une ligne de la clé** (une lettre et son nombre). La lettre est extraite du mot d'étape avec les règles du jeu 1 (première, dernière, 2e ou 3e, case marquée ★ ; jamais la première en SIL-CP, règle 8 du §6.1), une seule règle par parcours. **Une étape par lettre différente** du mot codé. Règles communes du §6.1 applicables |
+| C3 | **Clé complète** à tous les niveaux ; la clé partielle est reportée. Règle 4 du §6.2 « une seule lecture » vérifiée : chaque nombre du message correspond à une seule ligne de la clé, toutes les lettres du mot ont leur ligne, nombres distincts |
+| C4 | **Un mot du vocabulaire** seulement (pas de phrase), codé **sans accents** (lettres normalisées) ; le mot exact, avec accents, est montré à la fin. Longueurs du mot codé : celles du mot mystère du jeu 1 (`MYSTERY_WORD_SETTINGS`) ; au moins 2 lettres différentes |
+| C5 | Résolution finale : **une case sous chaque nombre** ; une lettre écrite dans une case est reportée sous tous les nombres identiques. La clé gagnée reste affichée. **Indice : une lettre du mot révélée** (toutes ses occurrences). La seule réponse est le mot codé (ses anagrammes ne sont pas acceptées : la réponse est le décodage). Étoiles et points comme au lot 1 |
+
+### 12.2 Fichiers
+
+| Rôle | Fichier |
+|---|---|
+| Moteur | `src/utils/mysteryEngine.js` : jeu 5 disponible et ajouté à `GENERATED_GAMES` ; clé (`codeKey`), lecture du message (`decodeMessage`), cases de la résolution (`initialCodeEntries`, `fillCodeEntry` : report sous les nombres identiques, `applyRevealed`, `isRevealedBox`, `correctCodeBoxes`), indices (`finalHintLimit`, `nextHintLetter`, `recordFinalHint`), contrôle de l'état repris (`isValidState`, lettres révélées) |
+| Générateur | `src/utils/mysteryGenerators.js` : `generateCodedMessagePath` ; la fabrication d'une étape à lettre est mise en commun avec le jeu 1 (`buildLetterStep`), sans changer les tirages |
+| Validation | `src/utils/mysteryValidation.js` : `validateCodeFinal` (forme du mot, clé, lecture unique, règles 1, 3 à 7) et mot codé présent dans le vocabulaire (§6.2, règle 2) |
+| Écran | `src/pages/MysteryGame.jsx` (mission avec le message en nombres, lignes de clé gagnées, cases sous les nombres, indice, victoire), `src/styles/MysteryGame.css` |
+| Tests | `src/utils/mysteryGenerators.reference.test.js` (nouveau : empreintes des jeux 1 et 4 figées **avant** la mise en commun du code ; 4 parcours de référence du jeu 5), `mysteryEngine.test.js` (E10 à E14), `mysteryGenerators.test.js` (G8 à G10), `mysteryValidation.test.js` (V12 à V14), `e2e/anagrammes-mysteres.spec.js` (4 tests du jeu 5, accueil à 3 jeux disponibles) |
+
+Format : `MYSTERY_FORMAT_VERSION` reste à 1. Le jeu 5 ajoute ses propres champs (`code` de chaque étape, `final.message`, `final.revealed` de l'état) sans changer les parcours ni les états des jeux 1 et 4 : les parties du lot 1 enregistrées restent reprenables. Les lettres écrites dans les cases de la résolution finale ne sont pas enregistrées (comme les lettres posées d'une anagramme) ; les lettres révélées le sont.
+
+### 12.3 Choix provisoires (à valider par un enseignant)
+
+- **Longueur du mot codé** : 3 à 5 lettres (SIL-CP), 4 à 6 (CE1-CE2), 5 à 7 (CM1-CM2), reprises du jeu 1 (C4).
+- **Indices** : 2 au plus (`CODE_HINTS`), et jamais toutes les lettres : un mot de 2 lettres différentes n'en a qu'un. Ordre des lettres révélées tiré avec le parcours ; une lettre déjà juste dans toutes ses cases est sautée, pour qu'un indice ne soit pas perdu.
+- **Réponse fausse** : le nombre de cases justes est donné (comme « lettres bien placées » d'une anagramme) ; ce n'est pas une aide en soi. Il n'y a pas d'indice automatique au 2e essai faux, mais ce 2e essai faux compte comme une aide pour les étoiles (2 au plus), comme au lot 1 (décision d'Isaac du 2026-11-04, sur réserve du reviewer) ; « Voir la solution » est proposé après 3 essais faux (1 étoile, sans les 10 points du mystère).
+- **Ordre des étapes** mélangé, comme au jeu 1 : les lettres de la barre ne donnent jamais le mot dans l'ordre. Pendant la résolution, la clé est rangée par nombre croissant.
+- **Message montré dès la mission**, en nombres.
+
+### 12.4 Parcours valides mesurés (2026-11-04)
+
+Numéros 0 à 199, par programme (`generateCodedMessagePath` puis `validatePath` avec le vocabulaire) :
+
+| Niveau | Langue | Parcours valides | Mots codés différents | Règles tirées |
+|---|---|---:|---:|---|
+| SIL-CP | français | 200 / 200 | 87 | dernière 101, case marquée 99 |
+| SIL-CP | anglais | 200 / 200 | 117 | dernière 101, case marquée 99 |
+| CE1-CE2 | français | 200 / 200 | 124 | première 58, dernière 55, case marquée 47, position 40 |
+| CE1-CE2 | anglais | 200 / 200 | 146 | idem |
+| CM1-CM2 | français | 200 / 200 | 143 | idem |
+| CM1-CM2 | anglais | 200 / 200 | 144 | idem |
+
+Les tests unitaires vérifient en plus 120 numéros par niveau et par langue (G8).
+
+### 12.5 Tests exécutés
+
+Exécutés le 2026-11-04 :
+
+- `npm test` : 199 tests, 197 réussis, 2 ignorés, 0 échec (avant le lot : 184 réussis, 2 ignorés) ;
+- `npm run lint` et `npm run build` : sans erreur (avertissement habituel de Vite sur la taille du paquet) ;
+- Playwright limité à `e2e/anagrammes.spec.js` et `e2e/anagrammes-mysteres.spec.js`, 3 tailles d'écran : 63 réussis sur 63 ;
+- jeux 1 et 4 inchangés : empreintes de 120 parcours du jeu 1 et de tous les thèmes disponibles du jeu 4 (numéros 0 à 4) identiques avant et après la mise en commun du code (test GR1), ainsi qu'une empreinte plus large (360 parcours du jeu 1, numéros 0 à 9 du jeu 4) contrôlée hors des tests.
+
+La suite Playwright complète n'a pas été lancée.
+
+### 12.6 Reste à faire
+
+- **Clé partielle en CM1-CM2** (fiche L11 du catalogue) : reportée (C3).
+- **Phrases codées** : au lot 3, avec des phrases rédigées et vérifiées (C4).
+- Validation par un enseignant des choix du §12.3 ; relecture par le reviewer.

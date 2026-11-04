@@ -182,3 +182,65 @@
   padding-left: 18px;
   color: #444;
 }
+
+/* Jeu 5, message codé : lignes de la clé, message en nombres, une case sous
+   chaque nombre ; les cases passent à la ligne, jamais de débordement à 320 px */
+.mystery-elements__item--key {
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.mystery-code-message {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #4a3a8a;
+  text-align: center;
+  overflow-wrap: anywhere;
+  margin-bottom: 12px;
+}
+
+.mystery-code {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.mystery-code__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 44px;
+}
+
+.mystery-code__number {
+  font-weight: bold;
+  color: #4a3a8a;
+}
+
+.mystery-code__input {
+  width: 44px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #333;
+  background: white;
+}
+
+.mystery-code__input:focus {
+  outline: 3px solid #ffb300;
+  outline-offset: 1px;
+}
+
+.mystery-code__box--revealed .mystery-code__input {
+  background: #fff8e1;
+  border-color: #ffb300;
+  color: #4a3a00;
+}
