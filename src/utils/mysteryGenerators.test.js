@@ -1,4 +1,4 @@
-// Tests des générateurs des anagrammes mystères (jeux 1 et 4) et de la liste
+// Tests des générateurs des anagrammes mystères (jeux 1, 4 et 5) et de la liste
 // fixe des thèmes — lancer avec : npm test
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -9,13 +9,25 @@ import {
   generateMysteryWordPath,
   generateThemePath,
   generateMysteryPath,
+  generateCodedMessagePath,
   availableThemes,
   themeCandidates,
   MYSTERY_WORD_SETTINGS,
   THEME_STEP_COUNT
 } from './mysteryGenerators.js'
 import { validatePath } from './mysteryValidation.js'
-import { assembleSolution, createMysteryState, startSteps, recordStepFound, isValidState, MYSTERY_FORMAT_VERSION } from './mysteryEngine.js'
+import {
+  assembleSolution,
+  createMysteryState,
+  startSteps,
+  recordStepFound,
+  advance,
+  recordFinalHint,
+  isValidState,
+  decodeMessage,
+  CODE_MAX_NUMBER,
+  MYSTERY_FORMAT_VERSION
+} from './mysteryEngine.js'
 import { THEMES_MYSTERES, THEME_STATUSES } from '../data/themes-mysteres.js'
 
 const vocabulary = JSON.parse(readFileSync(new URL('../data/vocabulaire.json', import.meta.url), 'utf8'))
@@ -200,5 +212,108 @@ test('G7 — reprise : le parcours enregistré (JSON) reste valide sans le vocab
     const altered = vocabulary.filter(v => v.id !== p.steps[0].id)
     assert.notDeepEqual(generateMysteryWordPath(altered, 'CM1-CM2', 99, language), p)
     assert.deepEqual(validatePath(stored.path), [])
+  }
+})
+
+test('G8 — Message codé : longue série de graines, 3 niveaux, 2 langues : toujours un parcours valide, une ligne de clé par lettre différente, lecture unique', () => {
+  let notAlphabet = 0
+  for (const language of LANGUAGES) {
+    for (const level of ANAGRAM_LEVELS) {
+      const { minLength, maxLength } = MYSTERY_WORD_SETTINGS[level]
+      const rules = new Set()
+      for (let seed = 0; seed < SEEDS; seed++) {
+        const p = generateCodedMessagePath(vocabulary, level, seed, language)
+        assert.ok(p, `${language} ${level} graine ${seed} : aucun parcours`)
+        assert.deepEqual(validatePath(p, { vocabulary }), [], `${language} ${level} graine ${seed}`)
+        assert.equal(p.game, 'codedMessage')
+        assert.equal(p.status, 'generated')
+        assert.equal(p.formatVersion, MYSTERY_FORMAT_VERSION)
+        assert.equal(p.final.kind, 'code')
+        rules.add(p.extraction.rule)
+        // C4 : un mot du vocabulaire du niveau, codé sans accents, au moins 2 lettres différentes
+        const solution = p.final.solution
+        assert.match(solution, /^[A-Z]+$/)
+        assert.ok(solution.length >= minLength && solution.length <= maxLength, solution)
+        const letters = new Set(solution)
+        assert.ok(letters.size >= 2)
+        const entry = byId.get(p.final.acceptedAnswers[0].id)
+        assert.equal(entry.niveau_fr, level)
+        assert.equal(normalizeWord(p.final.display), solution)
+        assert.equal(p.final.acceptedAnswers.length, 1, 'seule réponse : le mot codé')
+        // C2 : une étape par lettre différente ; C1 : nombres distincts de 1 à 26
+        assert.equal(p.steps.length, letters.size)
+        assert.deepEqual(new Set(p.steps.map(s => s.secret)), letters)
+        const codes = p.steps.map(s => s.code)
+        assert.equal(new Set(codes).size, codes.length)
+        for (const n of codes) assert.ok(Number.isInteger(n) && n >= 1 && n <= CODE_MAX_NUMBER)
+        if (p.steps.some(s => s.code !== s.secret.charCodeAt(0) - 64)) notAlphabet++
+        // C3 : clé complète, lecture unique
+        assert.equal(p.final.message.length, solution.length)
+        assert.equal(decodeMessage(p), solution)
+        for (const step of p.steps) {
+          assert.notEqual(letterKey(step.word), letterKey(solution))
+          assert.equal(step.slot, null)
+        }
+        // SIL-CP : jamais « first », jamais le secret sur la lettre déjà placée
+        if (level === 'SIL-CP') {
+          assert.notEqual(p.extraction.rule, 'first')
+          for (const step of p.steps) assert.ok(step.secretIndex >= 1)
+        }
+      }
+      assert.ok(rules.size >= 2, `${language} ${level} : ${[...rules]}`)
+    }
+  }
+  // C1 : nombres tirés au hasard, pas A = 1
+  assert.ok(notAlphabet >= SEEDS * 6 - 1, 'les nombres ne suivent pas l\'alphabet')
+})
+
+test('G9 — Message codé : reproductibilité, ordre du vocabulaire sans effet, mots et nombres qui varient, mots interdits', () => {
+  const reversed = [...vocabulary].reverse()
+  for (const language of LANGUAGES) {
+    for (const level of ANAGRAM_LEVELS) {
+      for (const seed of [0, 7, 12345, 4294967295]) {
+        const a = generateCodedMessagePath(vocabulary, level, seed, language)
+        assert.deepEqual(generateCodedMessagePath(vocabulary, level, seed, language), a)
+        assert.deepEqual(generateCodedMessagePath(reversed, level, seed, language), a)
+        assert.deepEqual(generateMysteryPath('codedMessage', vocabulary, level, seed, language), a)
+      }
+    }
+  }
+  const words = new Set()
+  const messages = new Set()
+  for (let seed = 0; seed < 20; seed++) {
+    const p = generateCodedMessagePath(vocabulary, 'CE1-CE2', seed, 'fr')
+    words.add(p.final.solution)
+    messages.add(p.final.message.join(','))
+  }
+  assert.ok(words.size > 10, 'les mots codés varient')
+  assert.ok(messages.size > 10, 'les messages varient')
+  assert.throws(() => generateCodedMessagePath(vocabulary, 'CM3', 1), RangeError)
+  assert.throws(() => generateCodedMessagePath(vocabulary, 'SIL-CP', -1), RangeError)
+  const blockedWords = ['MA', 'NI', 'TE']
+  for (const language of LANGUAGES) {
+    for (const level of ANAGRAM_LEVELS) {
+      for (let seed = 0; seed < 10; seed++) {
+        const p = generateCodedMessagePath(vocabulary, level, seed, language, { blockedWords })
+        assert.ok(p)
+        assert.deepEqual(validatePath(p, { vocabulary, blockedWords }), [])
+        const texts = [p.final.solution, p.steps.map(s => s.secret).join(''), ...p.steps.flatMap(s => [s.word, (s.firstLetter ?? '') + s.tiles.join('')])]
+        for (const text of texts) for (const b of blockedWords) assert.ok(!text.includes(b), `${text} contient ${b}`)
+      }
+    }
+  }
+})
+
+test('G10 — Message codé : reprise, le parcours enregistré (JSON) et l\'état avec indice restent valides sans le vocabulaire', () => {
+  for (const language of LANGUAGES) {
+    const p = generateCodedMessagePath(vocabulary, 'SIL-CP', 42, language)
+    let s = startSteps(createMysteryState(p))
+    for (let i = 0; i < p.steps.length; i++) s = advance(recordStepFound(s, p.steps[i].answers[0]))
+    s = recordFinalHint(s, p)
+    const stored = JSON.parse(JSON.stringify({ formatVersion: MYSTERY_FORMAT_VERSION, path: p, state: s }))
+    assert.deepEqual(stored.path, p)
+    assert.deepEqual(validatePath(stored.path), [])
+    assert.equal(isValidState(stored.state, stored.path), true)
+    assert.equal(stored.state.final.revealed.length, 1)
   }
 })

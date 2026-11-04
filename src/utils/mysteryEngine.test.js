@@ -30,7 +30,19 @@ import {
   computeStars,
   starsFor,
   computeScore,
-  isValidState
+  isValidState,
+  GENERATED_GAMES,
+  CODE_HINTS,
+  codeKey,
+  decodeMessage,
+  codeLetter,
+  initialCodeEntries,
+  applyRevealed,
+  isRevealedBox,
+  fillCodeEntry,
+  correctCodeBoxes,
+  finalHintLimit,
+  nextHintLetter
 } from './mysteryEngine.js'
 
 // Parcours de jeu 1 écrit à la main : mot mystère SEL, règle « dernière lettre »,
@@ -78,9 +90,10 @@ const themePath = () => ({
   }
 })
 
-test('E1 — six jeux annoncés, seuls les jeux 1 et 4 disponibles (lot 1)', () => {
+test('E1 — six jeux annoncés, jeux 1 et 4 (lot 1) et 5 (lot 2) disponibles', () => {
   assert.deepEqual(MYSTERY_GAMES.map(g => g.number), [1, 2, 3, 4, 5, 6])
-  assert.deepEqual(MYSTERY_GAMES.filter(g => g.available).map(g => g.id), ['mysteryWord', 'theme'])
+  assert.deepEqual(MYSTERY_GAMES.filter(g => g.available).map(g => g.id), ['mysteryWord', 'theme', 'codedMessage'])
+  assert.deepEqual([...GENERATED_GAMES], ['mysteryWord', 'theme', 'codedMessage'])
   for (const g of MYSTERY_GAMES) assert.ok(g.fr && g.en)
 })
 
@@ -190,6 +203,9 @@ test('E6 — étoiles : 2 avec un indice ou la première lettre, 1 si une soluti
   assert.equal(computeStars(), 3)
   assert.equal(computeStars({ hints: 1 }), 2)
   assert.equal(computeStars({ hints: 4, shown: 1 }), 1)
+  // Message codé : le 2e essai faux coûte une étoile, comme au lot 1
+  assert.equal(computeStars({ finalKind: 'code', finalTries: 1 }), 3)
+  assert.equal(computeStars({ finalKind: 'code', finalTries: 2 }), 2)
 })
 
 test('E7 — finale à choix (M6) : indices progressifs qui éliminent, proposition fausse éliminée, dernière proposition donnée', () => {
@@ -254,4 +270,148 @@ test('E9 — état lisible pour la reprise : forme, version, cohérence avec le 
   assert.equal(isValidState({ ...s, final: null }, p), false)
   assert.equal(isValidState(null, p), false)
   assert.equal(isValidState('texte', p), false)
+})
+
+// Parcours de jeu 5 écrit à la main : mot codé SALLE (4 lettres différentes,
+// L répétée), règle « dernière lettre » ; clé S = 5, A = 9, L = 14, E = 2
+const codePath = () => ({
+  ...wordPath(),
+  id: 'test-code',
+  game: 'codedMessage',
+  steps: [
+    { id: 'a', word: 'PORTE', display: 'PORTE', definition: 'On l\'ouvre.', answers: [{ id: 'a', word: 'PORTE', display: 'PORTE' }], firstLetter: null, tiles: [...'EOPTR'], secret: 'E', secretIndex: 4, slot: null, code: 2 },
+    { id: 'b', word: 'BOCAL', display: 'BOCAL', definition: 'Récipient.', answers: [{ id: 'b', word: 'BOCAL', display: 'BOCAL' }], firstLetter: null, tiles: [...'LACOB'], secret: 'L', secretIndex: 4, slot: null, code: 14 },
+    { id: 'c', word: 'TAPIS', display: 'TAPIS', definition: 'Au sol.', answers: [{ id: 'c', word: 'TAPIS', display: 'TAPIS' }], firstLetter: null, tiles: [...'APSIT'], secret: 'S', secretIndex: 4, slot: null, code: 5 },
+    { id: 'd', word: 'SOFA', display: 'SOFA', definition: 'Siège.', answers: [{ id: 'd', word: 'SOFA', display: 'SOFA' }], firstLetter: null, tiles: [...'FASO'], secret: 'A', secretIndex: 3, slot: null, code: 9 }
+  ],
+  final: {
+    kind: 'code',
+    prompt: 'Décode le message.',
+    solution: 'SALLE',
+    display: 'SALLE',
+    message: [5, 9, 14, 14, 2],
+    acceptedAnswers: [{ id: 's', word: 'SALLE', display: 'SALLE' }],
+    hints: ['L', 'E', 'S', 'A']
+  }
+})
+
+test('E10 — jeu 5 : clé rangée par nombre, lecture du message, lecture impossible si un nombre a deux lettres ou aucune', () => {
+  const p = codePath()
+  assert.deepEqual(codeKey(p), [{ number: 2, letter: 'E' }, { number: 5, letter: 'S' }, { number: 9, letter: 'A' }, { number: 14, letter: 'L' }])
+  assert.equal(decodeMessage(p), 'SALLE')
+  const twice = codePath()
+  twice.steps[1].code = 2
+  assert.equal(decodeMessage(twice), null)
+  const missing = codePath()
+  missing.final.message[0] = 26
+  assert.equal(decodeMessage(missing), null)
+  assert.equal(decodeMessage(wordPath()), null)
+  // La seule réponse est le mot codé ; accents sans effet ; pas ses anagrammes
+  assert.equal(checkFinalAnswer(p, 'salle').word, 'SALLE')
+  assert.equal(checkFinalAnswer(p, 'SALLÉ').word, 'SALLE')
+  assert.equal(checkFinalAnswer(p, 'LASLE'), null)
+})
+
+test('E11 — jeu 5 : une lettre tapée se reporte sous tous les nombres identiques ; effacer aussi ; cases justes', () => {
+  const p = codePath()
+  const s = { ...createMysteryState(p), phase: 'final' }
+  let entries = initialCodeEntries(p, s)
+  assert.deepEqual(entries, ['', '', '', '', ''])
+  entries = fillCodeEntry(p, s, entries, 2, 'l')
+  assert.deepEqual(entries, ['', '', 'L', 'L', ''], 'L sous les deux 14')
+  entries = fillCodeEntry(p, s, entries, 3, '')
+  assert.deepEqual(entries, ['', '', '', '', ''], 'effacée sous les deux 14')
+  entries = fillCodeEntry(p, s, entries, 4, 'é')
+  assert.deepEqual(entries, ['', '', '', '', 'E'], 'lettre sans accent')
+  entries = fillCodeEntry(p, s, entries, 0, 'AS')
+  assert.equal(entries[0], 'S', 'la dernière lettre tapée compte')
+  assert.deepEqual(fillCodeEntry(p, s, entries, 1, '7'), [...entries.slice(0, 1), '', ...entries.slice(2)])
+  assert.equal(fillCodeEntry(p, s, entries, 9, 'A'), entries, 'case inexistante : rien ne change')
+  assert.equal(codeLetter('œ'), 'E')
+  assert.equal(codeLetter(''), '')
+  assert.equal(codeLetter(null), '')
+  assert.equal(correctCodeBoxes(p, ['S', 'A', 'L', 'E', 'E']), 4)
+})
+
+test('E12 — jeu 5 : indice = une lettre du mot révélée partout (2 au plus), jamais une lettre déjà juste, cases verrouillées', () => {
+  const p = codePath()
+  assert.equal(CODE_HINTS, 2)
+  assert.equal(finalHintLimit(p), 2)
+  // Mot de 2 lettres différentes : 1 seul indice, il reste une lettre à décoder
+  const two = { ...p, final: { ...p.final, solution: 'ELLE', hints: ['E', 'L'] } }
+  assert.equal(finalHintLimit(two), 1)
+  // Jeux 1 et 4 : limite inchangée (nombre d'indices prévus)
+  assert.equal(finalHintLimit(wordPath()), 1)
+  assert.equal(finalHintLimit(themePath()), 2)
+
+  let s = { ...createMysteryState(p), phase: 'final' }
+  assert.deepEqual(s.final.revealed, [])
+  assert.equal(nextHintLetter(s, p), 'L')
+  s = recordFinalHint(s, p)
+  assert.deepEqual(s.final.revealed, ['L'])
+  assert.deepEqual(initialCodeEntries(p, s), ['', '', 'L', 'L', ''])
+  assert.equal(isRevealedBox(p, s, 2), true)
+  assert.equal(isRevealedBox(p, s, 0), false)
+  const entries = applyRevealed(p, s, ['S', '', '', '', 'E'])
+  assert.deepEqual(entries, ['S', '', 'L', 'L', 'E'])
+  assert.equal(fillCodeEntry(p, s, entries, 3, 'X'), entries, 'case révélée verrouillée')
+  // E et S sont déjà justes partout : l'indice suivant révèle A
+  assert.equal(nextHintLetter(s, p, entries), 'A')
+  assert.equal(nextHintLetter(s, p, ['', '', 'L', 'L', '']), 'E')
+  s = recordFinalHint(s, p, entries)
+  assert.deepEqual(s.final.revealed, ['L', 'A'])
+  assert.equal(recordFinalHint(s, p), s, '2 indices au plus')
+  assert.equal(hintsUsed(s, p), 2)
+  assert.equal(starsFor(s, p), 2)
+  assert.equal(nextHintLetter(s, wordPath()), null)
+  // Toutes les lettres prévues déjà justes : la première non révélée
+  assert.equal(nextHintLetter({ ...createMysteryState(p), phase: 'final' }, p, ['S', 'A', 'L', 'L', 'E']), 'L')
+  // Les états des jeux 1 et 4 restent ceux du lot 1 (pas de champ revealed)
+  assert.equal('revealed' in createMysteryState(wordPath()).final, false)
+  assert.equal('revealed' in createMysteryState(themePath()).final, false)
+})
+
+test('E13 — jeu 5 : parcours sans aide = 3 étoiles et 10 points par ligne de clé + 10 ; 2e essai faux = 2 étoiles ; solution montrée après 3 essais = 1 étoile', () => {
+  const p = codePath()
+  let s = startSteps(createMysteryState(p))
+  for (let i = 0; i < p.steps.length; i++) {
+    s = advance(recordStepFound(s, p.steps[i].answers[0]))
+  }
+  assert.equal(s.phase, 'final')
+  assert.deepEqual(collectedElements(p, s), ['E', 'L', 'S', 'A'])
+  const found = recordFinalFound(s, p.final.acceptedAnswers[0])
+  assert.equal(computeScore(found), 4 * POINTS_PER_STEP + POINTS_FINAL)
+  assert.equal(starsFor(found, p), 3)
+  // Un essai faux : 3 étoiles ; le 2e essai faux vaut une aide (2 étoiles,
+  // comme au lot 1), sans indice automatique au jeu 5
+  let w = recordFinalWrong(s, p)
+  assert.equal(starsFor(w, p), 3)
+  w = recordFinalWrong(w, p)
+  assert.equal(hintsUsed(w, p), 0)
+  assert.equal(starsFor(w, p), 2)
+  assert.equal(recordFinalShown(w), w, 'solution seulement après 3 essais')
+  w = recordFinalShown(recordFinalWrong(w, p))
+  assert.equal(w.phase, 'done')
+  assert.equal(starsFor(w, p), 1)
+  assert.equal(computeScore(w), 4 * POINTS_PER_STEP)
+})
+
+test('E14 — jeu 5 : état lisible pour la reprise (lettres révélées contrôlées) ; un état mal formé est refusé sans erreur', () => {
+  const p = codePath()
+  let s = recordFinalHint({ ...createMysteryState(p), phase: 'final', current: p.steps.length }, p)
+  assert.equal(isValidState(s, p), true)
+  assert.equal(isValidState(JSON.parse(JSON.stringify(s)), p), true, 'survit à JSON')
+  const final = (change) => ({ ...s, final: { ...s.final, ...change } })
+  assert.equal(isValidState(final({ revealed: undefined }), p), false)
+  assert.equal(isValidState(final({ revealed: 'L' }), p), false)
+  assert.equal(isValidState(final({ revealed: ['Z'] }), p), false, 'lettre absente du mot')
+  assert.equal(isValidState(final({ revealed: ['L', 'L'], hints: 2 }), p), false, 'lettre en double')
+  assert.equal(isValidState(final({ revealed: [] }), p), false, 'une lettre par indice')
+  assert.equal(isValidState(final({ revealed: ['L', 'E', 'S'], hints: 3 }), p), false, 'plus d\'indices que permis')
+  assert.equal(isValidState(final({ revealed: [null] }), p), false)
+  assert.equal(isValidState(final({ hints: -1, revealed: [] }), p), false)
+  // Un état de jeu 1 (sans revealed) reste valide pour un parcours de jeu 1
+  assert.equal(isValidState(startSteps(createMysteryState(wordPath())), wordPath()), true)
+  s = { ...createMysteryState(p) }
+  assert.equal(isValidState(s, p), true)
 })

@@ -1,5 +1,6 @@
 // Générateurs des anagrammes mystères (lot 1 : jeu 1 « Mot mystère » et
-// jeu 4 « Mystère des thèmes » ; docs/anagrammes-mysteres.md §3, §5, §6).
+// jeu 4 « Mystère des thèmes » ; lot 2 : jeu 5 « Message codé » ;
+// docs/anagrammes-mysteres.md §3, §5, §6, §12).
 // Module pur. Même graine + même niveau + même langue + même vocabulaire (et
 // même thème pour le jeu 4) = même parcours. Chaque parcours produit est
 // contrôlé par validatePath (avec le vocabulaire) : un parcours invalide n'est
@@ -24,13 +25,14 @@ import {
   normalizeBlocked,
   shuffled
 } from './anagramGame.js'
-import { MYSTERY_FORMAT_VERSION, allowedRules, secretIndexFor } from './mysteryEngine.js'
+import { MYSTERY_FORMAT_VERSION, CODE_MAX_NUMBER, allowedRules, secretIndexFor } from './mysteryEngine.js'
 import { validatePath, revealsTheme, wordInLabel } from './mysteryValidation.js'
 import { THEMES_MYSTERES } from '../data/themes-mysteres.js'
 
 // Réglages du jeu 1 par niveau. CHOIX PROVISOIRES, à valider par un enseignant :
 // longueur du mot mystère (= nombre d'étapes) ; positions possibles pour la
-// règle « position » (2e ou 3e lettre).
+// règle « position » (2e ou 3e lettre). Le jeu 5 reprend les mêmes longueurs
+// pour son mot codé (décision C4 du 2026-11-04 ; CHOIX PROVISOIRE aussi).
 export const MYSTERY_WORD_SETTINGS = Object.freeze({
   'SIL-CP': Object.freeze({ minLength: 3, maxLength: 5, positions: Object.freeze([2, 3]) }),
   'CE1-CE2': Object.freeze({ minLength: 4, maxLength: 6, positions: Object.freeze([2, 3]) }),
@@ -61,6 +63,10 @@ const FINAL_PROMPTS = {
   theme: {
     fr: 'Quel thème relie tous les mots trouvés ?',
     en: 'Which theme links all the words you found?'
+  },
+  codedMessage: {
+    fr: 'Avec la clé, écris sous chaque nombre la lettre qui lui correspond.',
+    en: 'Using the key, write under each number the letter that goes with it.'
   }
 }
 
@@ -116,32 +122,42 @@ function stepOrder(solution, acceptedWords, blocked, random) {
   return null
 }
 
+// Étape qui donne la lettre `letter` selon la règle : premier mot du `pool`
+// (déjà mélangé) dont les lettres ne sont pas déjà employées (`usedKeys`, mis à
+// jour), dont la définition ne donne aucun des `hiddenWords` (règle 6) et dont
+// toutes les réponses acceptées portent la lettre à la même position (règle 2).
+// Partagée par les jeux 1 et 5 : les tirages sont consommés dans le même ordre
+// qu'avant la mise en commun (empreintes de mysteryGenerators.reference.test.js).
+function buildLetterStep({ letter, extraction, pool, index, settings, blocked, random, usedKeys, hiddenWords }) {
+  for (const c of pool) {
+    const key = letterKey(c.word)
+    if (usedKeys.has(key)) continue
+    if (hiddenWords.some(w => definitionRevealsWord(c.definition, w))) continue
+    const group = index.get(key)
+    const accepted = group.filter(a => !settings.firstLetterGiven || a.word[0] === c.word[0])
+    const positions = secretPositions(c.word, accepted, letter, extraction, settings.firstLetterGiven)
+    if (positions.length === 0) continue
+    const item = createAnagramItem(c, group, random, { firstLetterGiven: settings.firstLetterGiven, blockedWords: blocked })
+    if (item === null) continue
+    const secretIndex = extraction.rule === 'marked' ? pick(positions, random) : positions[0]
+    usedKeys.add(key)
+    return { ...item, secret: letter, secretIndex }
+  }
+  return null
+}
+
 // Tente de construire un parcours de jeu 1 pour un mot mystère et une règle
 function buildMysteryWord({ solution, extraction, pool, index, settings, blocked, random }) {
   const solutionKey = letterKey(solution.word)
   const solutionAnswers = index.get(solutionKey) ?? []
   const usedKeys = new Set([solutionKey])
+  // Règle 6 : la définition d'étape ne donne pas le mot mystère (ni ses anagrammes)
+  const hiddenWords = solutionAnswers.map(a => a.word)
   const steps = []
   for (const [slot, letter] of [...solution.word].entries()) {
-    let step = null
-    for (const c of pool) {
-      const key = letterKey(c.word)
-      if (usedKeys.has(key)) continue
-      // Règle 6 : la définition d'étape ne donne pas le mot mystère (ni ses anagrammes)
-      if (solutionAnswers.some(a => definitionRevealsWord(c.definition, a.word))) continue
-      const group = index.get(key)
-      const accepted = group.filter(a => !settings.firstLetterGiven || a.word[0] === c.word[0])
-      const positions = secretPositions(c.word, accepted, letter, extraction, settings.firstLetterGiven)
-      if (positions.length === 0) continue
-      const item = createAnagramItem(c, group, random, { firstLetterGiven: settings.firstLetterGiven, blockedWords: blocked })
-      if (item === null) continue
-      const secretIndex = extraction.rule === 'marked' ? pick(positions, random) : positions[0]
-      usedKeys.add(key)
-      step = { ...item, secret: letter, secretIndex, slot }
-      break
-    }
+    const step = buildLetterStep({ letter, extraction, pool, index, settings, blocked, random, usedKeys, hiddenWords })
     if (step === null) return null
-    steps.push(step)
+    steps.push({ ...step, slot })
   }
   const order = stepOrder(solution.word, new Set(solutionAnswers.map(a => a.word)), blocked, random)
   if (order === null) return null
@@ -192,6 +208,94 @@ export function generateMysteryWordPath(vocabulary, level, seed, language = 'fr'
           // vocabulaire sont aussi acceptées (D9)
           acceptedAnswers: built.solutionAnswers.map(a => (a.word === solution.word ? { id: solution.id, word: solution.word, display: solution.display } : a)),
           hints: [solution.definition]
+        },
+        status: 'generated'
+      }
+      if (validatePath(path, { vocabulary, blockedWords: blocked }).length === 0) return path
+    }
+  }
+  return null
+}
+
+// Tente de construire un parcours de jeu 5 pour un mot codé et une règle :
+// une étape par lettre DISTINCTE du mot (C2), puis les nombres de la clé (C1)
+function buildCodedMessage({ solution, extraction, pool, index, settings, blocked, random }) {
+  const solutionKey = letterKey(solution.word)
+  // Règle 3 : aucun mot d'étape n'a les mêmes lettres que le mot codé ni
+  // qu'une de ses anagrammes (elles ont la même clé de lettres)
+  const usedKeys = new Set([solutionKey])
+  // Règle 6 : la définition d'étape ne donne pas le mot codé
+  const hiddenWords = [solution.word]
+  const letters = [...new Set(solution.word)]
+  const steps = []
+  for (const letter of letters) {
+    const step = buildLetterStep({ letter, extraction, pool, index, settings, blocked, random, usedKeys, hiddenWords })
+    if (step === null) return null
+    steps.push(step)
+  }
+  // Ordre des étapes mélangé, comme au jeu 1 : les lettres gagnées, dans
+  // l'ordre de la barre, ne redonnent jamais le mot ni un mot interdit
+  const order = stepOrder(letters.join(''), new Set([solution.word]), blocked, random)
+  if (order === null) return null
+  // C1 : un nombre tiré au hasard par lettre distincte, sans répétition
+  const numbers = shuffled(Array.from({ length: CODE_MAX_NUMBER }, (_, i) => i + 1), random).slice(0, letters.length)
+  const codeOf = new Map(letters.map((l, i) => [l, numbers[i]]))
+  return {
+    steps: order.map(i => ({ ...steps[i], slot: null, code: codeOf.get(letters[i]) })),
+    message: [...solution.word].map(l => codeOf.get(l)),
+    // Ordre dans lequel les indices révèlent les lettres (le nombre d'indices
+    // est limité par finalHintLimit du moteur)
+    hints: shuffled(letters, random)
+  }
+}
+
+// Jeu 5 : Message codé. Un mot du vocabulaire du niveau (C4 : pas de phrase),
+// codé sans accents ; clé complète à tous les niveaux (C3). Renvoie un
+// parcours valide, ou null.
+export function generateCodedMessagePath(vocabulary, level, seed, language = 'fr', { blockedWords = BLOCKED_WORDS } = {}) {
+  const settings = ANAGRAM_SETTINGS[level]
+  if (!settings) throw new RangeError(`generateCodedMessagePath : niveau inconnu (${level})`)
+  if (!isValidSeed(seed)) throw new RangeError('generateCodedMessagePath : graine invalide')
+  const blocked = normalizeBlocked(blockedWords)
+  const index = buildAnswerIndex(vocabulary, level, language)
+  const byId = new Map(vocabulary.filter(Boolean).map(v => [v.id, v]))
+  const random = createRandom(seed)
+
+  // Même démarche que le jeu 1 : règle et mot tirés au hasard, premier
+  // parcours valide retenu. Mots codés : ceux du jeu 1 (au moins 2 lettres
+  // différentes, sinon la clé n'aurait qu'une ligne)
+  const rules = shuffled(allowedRules(level), random)
+  const solutions = shuffled(listSolutionCandidates(vocabulary, level, language), random)
+    .filter(s => !containsBlocked(s.word, blocked))
+  const candidates = listAnagramCandidates(vocabulary, level, language)
+  for (const rule of rules) {
+    const extraction = rule === 'position'
+      ? { rule, position: pick(MYSTERY_WORD_SETTINGS[level].positions, random) }
+      : { rule }
+    for (const solution of solutions) {
+      const pool = shuffled(candidates, random)
+      const built = buildCodedMessage({ solution, extraction, pool, index, settings, blocked, random })
+      if (built === null) continue
+      const path = {
+        formatVersion: MYSTERY_FORMAT_VERSION,
+        id: `codedMessage-${language}-${level}-${seed}`,
+        game: 'codedMessage',
+        language,
+        level,
+        seed,
+        theme: null,
+        difficulty: roundedDifficulty(built.steps.map(s => byId.get(s.id))),
+        extraction,
+        steps: built.steps,
+        final: {
+          kind: 'code',
+          prompt: FINAL_PROMPTS.codedMessage[language === 'en' ? 'en' : 'fr'],
+          solution: solution.word,
+          display: solution.display,
+          message: built.message,
+          // Seule réponse : le mot codé (le décodage), montré avec ses accents à la fin
+          acceptedAnswers: [{ id: solution.id, word: solution.word, display: solution.display }],
+          hints: built.hints
         },
         status: 'generated'
       }
@@ -286,5 +390,6 @@ export function generateThemePath(vocabulary, level, seed, language = 'fr', them
 export function generateMysteryPath(game, vocabulary, level, seed, language = 'fr', { themeId = null, themes = THEMES_MYSTERES, blockedWords = BLOCKED_WORDS } = {}) {
   if (game === 'mysteryWord') return generateMysteryWordPath(vocabulary, level, seed, language, { blockedWords })
   if (game === 'theme') return generateThemePath(vocabulary, level, seed, language, themeId, { themes, blockedWords })
+  if (game === 'codedMessage') return generateCodedMessagePath(vocabulary, level, seed, language, { blockedWords })
   return null
 }

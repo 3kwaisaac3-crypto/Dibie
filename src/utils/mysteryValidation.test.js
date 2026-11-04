@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { validatePath, isValidPath, revealsTheme, themeStems, wordInLabel } from './mysteryValidation.js'
-import { generateMysteryWordPath, generateThemePath } from './mysteryGenerators.js'
+import { generateMysteryWordPath, generateThemePath, generateCodedMessagePath } from './mysteryGenerators.js'
 import { THEMES_MYSTERES } from '../data/themes-mysteres.js'
 
 const vocabulary = JSON.parse(readFileSync(new URL('../data/vocabulaire.json', import.meta.url), 'utf8'))
@@ -213,4 +213,106 @@ test('V11 — §6.2 règle 3 : thème et propositions de la liste fixe (R3 : th�
   label.final.acceptedAnswers = [{ id: null, word: 'X', display: label.final.solution }]
   label.final.options[label.final.options.indexOf(theme.final.solution)] = label.final.solution
   fails(label, '6.2.3', {})
+})
+
+// Jeu 5 « Message codé » (lot 2) : premiers parcours générés qui vérifient la condition
+function findCodePath(level, language, condition = () => true) {
+  for (let seed = 0; seed < 500; seed++) {
+    const p = generateCodedMessagePath(vocabulary, level, seed, language)
+    if (p && condition(p)) return p
+  }
+  throw new Error(`aucun parcours codé ${level} ${language}`)
+}
+
+// Mot codé avec une lettre répétée (deux nombres identiques dans le message)
+const code = findCodePath('CE1-CE2', 'fr', p => new Set(p.final.solution).size < p.final.solution.length)
+const codeSil = findCodePath('SIL-CP', 'en')
+
+test('V12 — jeu 5 : parcours valides ; forme du mot codé ; la clé a une ligne par lettre différente, nombres distincts de 1 à 26', () => {
+  for (const p of [code, codeSil]) {
+    assert.deepEqual(validatePath(p, { vocabulary }), [])
+    assert.deepEqual(validatePath(p), [])
+  }
+  const kind = clone(code)
+  kind.final.kind = 'word'
+  fails(kind, 'forme', {})
+  const accents = clone(code)
+  accents.final.solution = accents.final.display.toLowerCase()
+  fails(accents, 'forme', {})
+  const sameCode = clone(code)
+  sameCode.steps[1].code = sameCode.steps[0].code
+  fails(sameCode, '6.2.4', {})
+  for (const n of [0, 27, 1.5, '3', null]) {
+    const range = clone(code)
+    range.steps[0].code = n
+    fails(range, '6.2.4', {})
+  }
+  // Ligne de clé manquante : une lettre du mot n'a pas de nombre
+  const missing = clone(code)
+  missing.steps.pop()
+  fails(missing, '6.1.4', {})
+})
+
+test('V13 — jeu 5, §6.2 règle 4 : une seule lecture du message avec la clé complète', () => {
+  // Nombre du message absent de la clé
+  const unknown = clone(code)
+  const used = new Set(unknown.steps.map(s => s.code))
+  unknown.final.message[0] = [...Array(26).keys()].map(i => i + 1).find(n => !used.has(n))
+  fails(unknown, '6.2.4', {})
+  // Message qui se lit autrement que le mot codé
+  const other = clone(code)
+  const m = other.final.message
+  const j = m.findIndex(n => n !== m[0])
+  ;[m[0], m[j]] = [m[j], m[0]]
+  fails(other, '6.2.4', {})
+  // Un nombre de moins que de lettres
+  const short = clone(code)
+  short.final.message.pop()
+  fails(short, '6.2.4', {})
+})
+
+test('V14 — jeu 5 : règles 1, 3, 5, 6, 7, 8 du §6.1 et règle 2 du §6.2 (mot du vocabulaire)', () => {
+  // Règle 1 : les lettres gagnées, dans l'ordre des étapes, ne donnent pas le mot
+  const distinct = findCodePath('CE1-CE2', 'fr', p => new Set(p.final.solution).size === p.final.solution.length)
+  const ordered = clone(distinct)
+  ordered.steps.sort((a, b) => distinct.final.solution.indexOf(a.secret) - distinct.final.solution.indexOf(b.secret))
+  fails(ordered, '6.1.1', {})
+  // Règle 3 : le mot codé n'a pas les mêmes lettres qu'un mot d'étape
+  const same = clone(code)
+  same.final.solution = same.steps[0].word
+  fails(same, '6.1.3', {})
+  // Règle 5 : une seule réponse acceptée, le mot codé ; orthographe exacte cohérente
+  const two = clone(code)
+  two.final.acceptedAnswers.push({ id: 'y', word: [...code.final.solution].reverse().join(''), display: 'Y' })
+  fails(two, '6.1.5', {})
+  const display = clone(code)
+  display.final.display = 'AUTRE'
+  fails(display, '6.1.5', {})
+  // Règle 6 : définition qui donne le mot codé ; indices hors du mot ou en double
+  const def = clone(code)
+  def.steps[0].definition = `Comme une ${code.final.solution.toLowerCase()}.`
+  fails(def, '6.1.6', {})
+  const hint = clone(code)
+  hint.final.hints = [...hint.final.hints.slice(0, -1), 'Z' === hint.final.solution[0] ? 'Y' : 'Z']
+  fails(hint, '6.1.6', {})
+  const hintTwice = clone(code)
+  hintTwice.final.hints = [hintTwice.final.hints[0], hintTwice.final.hints[0]]
+  fails(hintTwice, '6.1.6', {})
+  // Règle 7 : mot interdit dans le mot codé ou dans les lettres gagnées
+  fails(code, '6.1.7', { blockedWords: [code.final.solution] })
+  fails(code, '6.1.7', { blockedWords: [code.steps.map(s => s.secret).join('')] })
+  // Règle 8 : jamais « first » en SIL-CP
+  const first = clone(codeSil)
+  first.extraction = { rule: 'first' }
+  fails(first, '6.1.8', {})
+  // §6.2 règle 2 : le mot codé est l'entrée du vocabulaire du niveau et de la langue
+  const absent = vocabulary.filter(v => v.id !== code.final.acceptedAnswers[0].id)
+  fails(code, '6.2.2', { vocabulary: absent })
+  const level = vocabulary.map(v => (v.id === code.final.acceptedAnswers[0].id ? { ...v, niveau_fr: 'CM1-CM2' } : v))
+  fails(code, '6.2.2', { vocabulary: level })
+  // Parcours mal formé : jamais d'exception, une erreur
+  const broken = clone(code)
+  broken.final.acceptedAnswers = null
+  broken.final.message = 'texte'
+  assert.ok(validatePath(broken, { vocabulary }).length > 0)
 })

@@ -1,16 +1,32 @@
-// Anagrammes mystères (lot 1, docs/anagrammes-mysteres.md) : accueil des deux
-// familles, jeu classique toujours accessible, mot mystère complet en français
-// et en anglais, mystère des thèmes complet, mauvaise réponse finale, indices,
-// étoiles, reprise après rechargement, score et progrès enregistrés, retour au
-// tableau de bord, affichage à 320 px.
+// Anagrammes mystères (lots 1 et 2, docs/anagrammes-mysteres.md) : accueil des
+// deux familles, jeu classique toujours accessible, mot mystère complet en
+// français et en anglais, mystère des thèmes complet, message codé complet
+// (lot 2), mauvaise réponse finale, indices, étoiles, reprise après
+// rechargement, score et progrès enregistrés, retour au tableau de bord,
+// affichage à 320 px.
 // Le parcours attendu est calculé par les générateurs purs avec le vocabulaire
 // lu sur le disque : l'écran doit montrer le même.
 import { test, expect } from '@playwright/test'
 import { connecterEleve, suivreErreurs, totalAffiche, vocabulaire } from './outils.js'
-import { generateMysteryWordPath, generateThemePath, availableThemes } from '../src/utils/mysteryGenerators.js'
+import { generateMysteryWordPath, generateThemePath, generateCodedMessagePath, availableThemes } from '../src/utils/mysteryGenerators.js'
+import { codeKey } from '../src/utils/mysteryEngine.js'
 
 const motMystere = (niveau, numero, langue = 'fr') => generateMysteryWordPath(vocabulaire, niveau, numero, langue)
 const themes = (niveau, langue = 'fr') => availableThemes(vocabulaire, niveau, langue)
+const messageCode = (niveau, numero, langue = 'fr') => generateCodedMessagePath(vocabulaire, niveau, numero, langue)
+
+// Premier numéro (à partir de 1) dont le message codé vérifie la condition
+function chercherNumeroCode(niveau, langue, condition) {
+  for (let numero = 1; numero < 2000; numero++) {
+    const p = messageCode(niveau, numero, langue)
+    if (p && condition(p)) return numero
+  }
+  return null
+}
+
+// Élément gagné tel qu'affiché : une lettre, un mot, ou une ligne de clé (jeu 5)
+const elementAffiche = (parcours, etape) =>
+  parcours.game === 'codedMessage' ? `${etape.code} = ${etape.secret}` : etape.secret
 
 // Premier numéro (à partir de 1) dont le parcours vérifie la condition
 function chercherNumero(niveau, langue, condition) {
@@ -58,7 +74,8 @@ async function valider(page, langue = 'fr') {
 // case de la lettre secrète et élément gagné
 async function jouerEtapes(page, parcours, { langue = 'fr', debut = 0 } = {}) {
   const fr = langue === 'fr'
-  const motJeu = parcours.game === 'mysteryWord'
+  // Jeux 1 et 5 : chaque étape donne une lettre (case marquée)
+  const motJeu = parcours.game !== 'theme'
   for (let i = debut; i < parcours.steps.length; i++) {
     const etape = parcours.steps[i]
     await expect(page.locator('.anagram-game__clue')).toHaveText(etape.definition)
@@ -71,8 +88,8 @@ async function jouerEtapes(page, parcours, { langue = 'fr', debut = 0 } = {}) {
     }
     await ecrire(page, etape.word, etape.firstLetter !== null)
     await valider(page, langue)
-    await expect(page.locator('.mystery-won strong')).toHaveText(etape.secret)
-    await expect(page.locator('.mystery-elements__item').nth(i)).toHaveText(etape.secret)
+    await expect(page.locator('.mystery-won strong')).toHaveText(elementAffiche(parcours, etape))
+    await expect(page.locator('.mystery-elements__item').nth(i)).toHaveText(elementAffiche(parcours, etape))
     const derniere = i === parcours.steps.length - 1
     await page.getByRole('button', { name: derniere ? (fr ? 'Vers le mystère' : 'To the mystery') : (fr ? 'Anagramme suivante' : 'Next anagram') }).click()
   }
@@ -100,7 +117,7 @@ async function controlerVictoire(page, parcours, { score, etoiles, aides, langue
   expect(reprise).toEqual([])
 }
 
-test('Accueil du module : deux familles, jeu classique inchangé, six jeux mystères dont 2 disponibles, niveau du profil par défaut', async ({ page }) => {
+test('Accueil du module : deux familles, jeu classique inchangé, six jeux mystères dont 3 disponibles, niveau du profil par défaut', async ({ page }) => {
   const erreurs = suivreErreurs(page)
   await connecterEleve(page, { pseudo: 'Accueil', niveau: 'CM1-CM2' })
   await page.getByRole('button', { name: /Anagrammes/ }).click()
@@ -122,8 +139,8 @@ test('Accueil du module : deux familles, jeu classique inchangé, six jeux myst�
   await page.getByRole('button', { name: /Anagrammes mystères/ }).click()
   const jeux = page.locator('.mystery-games__btn')
   await expect(jeux).toHaveCount(6)
-  await expect(page.locator('.mystery-games__btn:not(:disabled)')).toHaveCount(2)
-  for (const n of [2, 3, 5, 6]) {
+  await expect(page.locator('.mystery-games__btn:not(:disabled)')).toHaveCount(3)
+  for (const n of [2, 3, 6]) {
     const bouton = page.locator('.mystery-games__btn', { hasText: new RegExp(`^${n}\\.`) })
     await expect(bouton).toBeDisabled()
     await expect(bouton).toContainText('Bientôt')
@@ -378,5 +395,157 @@ test('Pas de débordement horizontal à 320 px : choix, mission, étape de 10 le
   await page.getByLabel('Numéro de partie (facultatif)').fill('9')
   await page.locator('.anagram-select__start').click()
   await expect(page.locator('.mystery-mission')).toBeVisible()
+  expect(await deborde(page)).toBe(false)
+})
+
+// --- Jeu 5 : Message codé (lot 2) ---
+
+// Résolution finale du jeu 5 : écrit, case par case, les lettres attendues
+// dans les cases encore vides (une lettre se reporte sous les nombres identiques)
+async function decoder(page, parcours) {
+  const cases = page.locator('.mystery-code__input')
+  for (let i = 0; i < parcours.final.message.length; i++) {
+    if (await cases.nth(i).inputValue() === '') await cases.nth(i).fill(parcours.final.solution[i])
+  }
+}
+
+const lignesCle = (parcours) => codeKey(parcours).map(l => `${l.number} = ${l.letter}`)
+
+test('Message codé complet en français : clé gagnée, nombres identiques remplis ensemble, mot exact avec accents, 3 étoiles, score', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Code FR', niveau: 'CE1-CE2' })
+  // Un mot accentué avec une lettre répétée (deux nombres identiques)
+  const numero = chercherNumeroCode('CE1-CE2', 'fr', p =>
+    p.final.display !== p.final.solution && new Set(p.final.solution).size < p.final.solution.length)
+  expect(numero).not.toBeNull()
+  const parcours = messageCode('CE1-CE2', numero)
+  await ouvrirMysteres(page)
+  await page.locator('.mystery-games__btn', { hasText: /^5\./ }).click()
+  await page.getByLabel('Numéro de partie (facultatif)').fill(String(numero))
+  await page.locator('.anagram-select__start').click()
+  await expect(page.locator('.mystery-mission')).toContainText(`Résous ${parcours.steps.length} anagrammes`)
+  await expect(page.locator('.mystery-code-message')).toHaveText(parcours.final.message.join(' · '))
+  await page.getByRole('button', { name: 'C\'est parti !' }).click()
+  await expect(page.locator('.mystery-elements__item--hidden')).toHaveCount(parcours.steps.length)
+  await jouerEtapes(page, parcours)
+
+  // Finale : la clé complète reste affichée, rangée par nombre ; une case sous chaque nombre
+  expect(await page.locator('.mystery-elements__item').allTextContents()).toEqual(lignesCle(parcours))
+  expect(await page.locator('.mystery-code__number').allTextContents()).toEqual(parcours.final.message.map(String))
+  const cases = page.locator('.mystery-code__input')
+  // La lettre répétée, tapée une fois, est écrite sous tous ses nombres
+  const repete = [...parcours.final.solution].findIndex((l, i) => parcours.final.solution.indexOf(l) !== i)
+  const lettre = parcours.final.solution[repete]
+  await cases.nth(repete).fill(lettre.toLowerCase())
+  for (let i = 0; i < parcours.final.message.length; i++) {
+    await expect(cases.nth(i)).toHaveValue(parcours.final.solution[i] === lettre ? lettre : '')
+  }
+  await expect(page.getByRole('button', { name: 'Valider', exact: true })).toBeDisabled()
+  await decoder(page, parcours)
+  await page.getByRole('button', { name: 'Valider', exact: true }).click()
+  // Le mot exact, avec ses accents, est montré à la fin
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText(parcours.final.display)
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  const score = (parcours.steps.length + 1) * 10
+  await controlerVictoire(page, parcours, { score, etoiles: 3, aides: 0 })
+  await expect(page.locator('.anagram-finished h1')).toHaveText('Mystère résolu !')
+  await expect(page.locator('.mystery-victory__solution')).toContainText('Le message décodé')
+  await page.getByRole('button', { name: 'Retour' }).click()
+  await totalAffiche(page, score)
+  expect(erreurs).toEqual([])
+})
+
+test('Message codé en anglais (SIL-CP) : réponse fausse, indice qui révèle une lettre partout, 2 étoiles', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Code EN', niveau: 'SIL-CP' })
+  await page.getByRole('button', { name: 'English' }).click()
+  const numero = 777
+  const parcours = messageCode('SIL-CP', numero, 'en')
+  expect(parcours.extraction.rule).not.toBe('first')
+  await ouvrirMysteres(page, 'en')
+  await lancer(page, { jeu: 5, numero, langue: 'en' })
+  await expect(page.locator('.anagram-slot--given')).toHaveText(parcours.steps[0].firstLetter)
+  await jouerEtapes(page, parcours, { langue: 'en' })
+  await expect(page.getByRole('heading', { name: 'The coded message' })).toBeVisible()
+
+  // Réponse fausse : une lettre absente du mot partout
+  const fausse = [...'ZQXJKV'].find(l => !parcours.final.solution.includes(l))
+  const cases = page.locator('.mystery-code__input')
+  for (let i = 0; i < parcours.final.message.length; i++) await cases.nth(i).fill(fausse)
+  await page.getByRole('button', { name: 'Check', exact: true }).click()
+  await expect(page.locator('.anagram-game__feedback')).toContainText('0 box is right')
+
+  // Indice : la première lettre prévue est écrite sous tous ses nombres, cases verrouillées
+  const revelee = parcours.final.hints[0]
+  await page.getByRole('button', { name: /^Hint/ }).click()
+  await expect(page.locator('.anagram-game__feedback')).toContainText(`the letter ${revelee}`)
+  const attendues = [...parcours.final.solution].filter(l => l === revelee).length
+  await expect(page.locator('.mystery-code__box--revealed')).toHaveCount(attendues)
+  for (let i = 0; i < parcours.final.message.length; i++) {
+    if (parcours.final.solution[i] === revelee) {
+      await expect(cases.nth(i)).toHaveValue(revelee)
+      await expect(cases.nth(i)).toHaveAttribute('readonly', '')
+    }
+  }
+  // Les autres cases : la bonne lettre (elle remplace la fausse)
+  for (let i = 0; i < parcours.final.message.length; i++) {
+    if (parcours.final.solution[i] !== revelee) await cases.nth(i).fill(parcours.final.solution[i])
+  }
+  await page.getByRole('button', { name: 'Check', exact: true }).click()
+  await page.getByRole('button', { name: 'See my result' }).click()
+  await controlerVictoire(page, parcours, { score: (parcours.steps.length + 1) * 10, etoiles: 2, aides: 1, langue: 'en' })
+  await expect(page.locator('.anagram-finished h1')).toHaveText('Mystery solved!')
+  expect(erreurs).toEqual([])
+})
+
+test('Message codé : reprise après rechargement pendant la résolution finale, lettre révélée conservée', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Code reprise', niveau: 'CM1-CM2' })
+  const numero = 2026
+  const parcours = messageCode('CM1-CM2', numero)
+  await ouvrirMysteres(page)
+  await lancer(page, { jeu: 5, numero })
+  await jouerEtapes(page, parcours)
+  await page.getByRole('button', { name: /^Indice/ }).click()
+  const enregistre = await page.evaluate(() => JSON.parse(localStorage.getItem('dibieMysteryInProgress')))
+  expect(enregistre[0]).toMatchObject({ formatVersion: 1, path: { id: parcours.id, game: 'codedMessage' }, state: { phase: 'final', final: { hints: 1 } } })
+  const revelee = enregistre[0].state.final.revealed[0]
+  expect(parcours.final.solution).toContain(revelee)
+
+  await page.reload()
+  await expect(page.getByText('Tu as un mystère en cours')).toBeVisible()
+  await expect(page.getByText('Message codé')).toBeVisible()
+  await page.getByRole('button', { name: 'Reprendre' }).click()
+  expect(await page.locator('.mystery-elements__item').allTextContents()).toEqual(lignesCle(parcours))
+  await expect(page.locator('.mystery-code__box--revealed')).toHaveCount([...parcours.final.solution].filter(l => l === revelee).length)
+  await expect(page.locator('.anagram-game__progress')).toContainText(`${parcours.steps.length * 10} points`)
+  await decoder(page, parcours)
+  await page.getByRole('button', { name: 'Valider', exact: true }).click()
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  await controlerVictoire(page, parcours, { score: (parcours.steps.length + 1) * 10, etoiles: 2, aides: 1 })
+  expect(erreurs).toEqual([])
+})
+
+test('Message codé : pas de débordement horizontal à 320 px (mot de 7 lettres, clé, cases, victoire)', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 })
+  const numero = chercherNumeroCode('CM1-CM2', 'fr', p => p.final.solution.length === 7 && p.steps.some(s => s.word.length >= 9))
+  expect(numero).not.toBeNull()
+  const parcours = messageCode('CM1-CM2', numero)
+  await connecterEleve(page, { pseudo: 'Petit code', niveau: 'CM1-CM2' })
+  await ouvrirMysteres(page)
+  await page.locator('.mystery-games__btn', { hasText: /^5\./ }).click()
+  await page.getByLabel('Numéro de partie (facultatif)').fill(String(numero))
+  await page.locator('.anagram-select__start').click()
+  await expect(page.locator('.mystery-mission')).toBeVisible()
+  expect(await deborde(page)).toBe(false)
+  await page.getByRole('button', { name: 'C\'est parti !' }).click()
+  await jouerEtapes(page, parcours)
+  await expect(page.locator('.mystery-code__input')).toHaveCount(7)
+  expect(await deborde(page)).toBe(false)
+  await decoder(page, parcours)
+  await page.getByRole('button', { name: 'Valider', exact: true }).click()
+  expect(await deborde(page)).toBe(false)
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  await expect(page.locator('.anagram-finished')).toBeVisible()
   expect(await deborde(page)).toBe(false)
 })
