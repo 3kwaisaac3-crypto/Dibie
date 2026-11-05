@@ -28,6 +28,7 @@ import {
 import { MYSTERY_FORMAT_VERSION, CODE_MAX_NUMBER, allowedRules, secretIndexFor } from './mysteryEngine.js'
 import { validatePath, revealsTheme, wordInLabel } from './mysteryValidation.js'
 import { THEMES_MYSTERES } from '../data/themes-mysteres.js'
+import { generatePresetPath } from './mysteryPresets.js'
 
 // Réglages du jeu 1 par niveau. CHOIX PROVISOIRES, à valider par un enseignant :
 // longueur du mot mystère (= nombre d'étapes) ; positions possibles pour la
@@ -386,10 +387,12 @@ export function generateThemePath(vocabulary, level, seed, language = 'fr', them
   return validatePath(path, { vocabulary, themes, blockedWords: blocked }).length === 0 ? path : null
 }
 
-// Point d'entrée commun aux jeux générés
+// Point d'entrée commun aux jeux générés (1, 4, 5) et aux jeux à parcours
+// préconçus (2, 3 : choix et assemblage d'un parcours du contenu, mysteryPresets.js)
 export function generateMysteryPath(game, vocabulary, level, seed, language = 'fr', { themeId = null, themes = THEMES_MYSTERES, blockedWords = BLOCKED_WORDS } = {}) {
   if (game === 'mysteryWord') return generateMysteryWordPath(vocabulary, level, seed, language, { blockedWords })
   if (game === 'theme') return generateThemePath(vocabulary, level, seed, language, themeId, { themes, blockedWords })
   if (game === 'codedMessage') return generateCodedMessagePath(vocabulary, level, seed, language, { blockedWords })
+  if (game === 'syllables' || game === 'secretSentence') return generatePresetPath(game, vocabulary, level, seed, language, { blockedWords })
   return null
 }

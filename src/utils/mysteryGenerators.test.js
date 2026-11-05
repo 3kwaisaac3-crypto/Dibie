@@ -97,9 +97,12 @@ test('G2 — Mystère des thèmes : chaque thème disponible, longue série de g
       }
     }
   }
-  // Thème inconnu ou jeu non disponible : aucun parcours
+  // Thème inconnu ou jeu non disponible (jeu 6) : aucun parcours. Les jeux 2 et
+  // 3 (lot 3) passent par le même point d'entrée (parcours préconçus)
   assert.equal(generateThemePath(vocabulary, 'CE1-CE2', 1, 'fr', 'inconnu'), null)
-  assert.equal(generateMysteryPath('syllables', vocabulary, 'CE1-CE2', 1, 'fr'), null)
+  assert.equal(generateMysteryPath('grandRiddle', vocabulary, 'CE1-CE2', 1, 'fr'), null)
+  assert.equal(generateMysteryPath('syllables', vocabulary, 'CE1-CE2', 1, 'fr')?.game, 'syllables')
+  assert.equal(generateMysteryPath('secretSentence', vocabulary, 'CE1-CE2', 1, 'fr')?.game, 'secretSentence')
 })
 
 test('G3 — reproductibilité : même graine, niveau, langue (et thème) = même parcours ; ordre du vocabulaire sans effet', () => {

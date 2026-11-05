@@ -7,7 +7,22 @@
 // - Sans `vocabulary` : règles communes du §6.1 (forme du parcours). C'est le
 //   contrôle fait à la reprise : le parcours enregistré est complet, il ne
 //   dépend pas du vocabulaire (un import local peut l'avoir changé depuis).
-// - Avec `vocabulary` : en plus, règles des parcours générés du §6.2.
+// - Avec `vocabulary` : en plus, règles des parcours générés du §6.2, ou, pour
+//   les parcours préconçus (jeux 2 et 3, §6.3), contrôle des identifiants du
+//   vocabulaire et des anagrammes du vocabulaire à accepter (D9).
+//
+// Parcours préconçus (lot 3, partie 1 ; §13 du document) : règles communes du
+// §6.1 et règles propres, nommées ainsi dans les erreurs :
+// - '6.3.1' : étape préconçue (id, définition non vide qui ne donne pas le mot,
+//   orthographe, longueur du niveau — jeu 3 en CM1-CM2 : 4 à 10 lettres, I3 —,
+//   identifiant du vocabulaire) ;
+// - 'J2' : jeu 2, la syllabe donnée est une syllabe du mot à sa place, et les
+//   syllabes, collées dans l'ordre, forment le mot mystère ;
+// - 'J3' : jeu 3, mots trouvés + mots donnés = la phrase ; chaque phrase
+//   acceptée utilise exactement les mêmes mots ; étiquettes en capitales hors
+//   SIL-CP (I5) ;
+// - 'D9' : toute anagramme du vocabulaire (niveau, langue, lettre placée en
+//   SIL-CP) est une réponse acceptée de l'étape.
 
 import { normalizeWord } from './wordSearchGenerator.js'
 import { BLOCKED_WORDS, entryText } from './wordSearchGame.js'
@@ -25,14 +40,19 @@ import {
   CODE_MAX_NUMBER,
   GENERATED_GAMES,
   LETTER_GAMES,
+  PRESET_GAMES,
   allowedRules,
   assembleSolution,
   decodeMessage,
   extractSecret,
+  labelWords,
+  presetElement,
+  presetLengths,
   secretIndexFor,
   finalTiles
 } from './mysteryEngine.js'
 import { THEMES_MYSTERES, THEME_STATUSES } from '../data/themes-mysteres.js'
+import { PRESET_STATUSES } from '../data/parcours-mysteres.js'
 
 // Radicaux d'un nom de thème : mots de 4 lettres ou plus (les articles
 // « les », « the » sont ignorés), réduits à leurs 4 ou 5 premières lettres
@@ -76,7 +96,7 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
   const settings = ANAGRAM_SETTINGS[path.level]
   if (!settings) errors.push(err('forme', `niveau inconnu : ${path.level}`))
   if (!['fr', 'en'].includes(path.language)) errors.push(err('forme', `langue inconnue : ${path.language}`))
-  if (!GENERATED_GAMES.includes(path.game)) errors.push(err('forme', `jeu non disponible : ${path.game}`))
+  if (!GENERATED_GAMES.includes(path.game) && !PRESET_GAMES.includes(path.game)) errors.push(err('forme', `jeu non disponible : ${path.game}`))
   if (path.steps.length === 0) errors.push(err('forme', 'aucune étape'))
   if (!['generated', 'draft', 'validated'].includes(path.status)) errors.push(err('forme', `statut inconnu : ${path.status}`))
   if (errors.length > 0) return errors
@@ -86,6 +106,8 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
   const isCodeGame = path.game === 'codedMessage'
   // Jeux 1 et 5 : chaque étape donne une lettre
   const isLetterGame = LETTER_GAMES.includes(path.game)
+  // Jeux 2 et 3 : parcours préconçus (§6.3)
+  const isPreset = PRESET_GAMES.includes(path.game)
   const blocked = normalizeBlocked(blockedWords)
 
   // Une seule règle d'extraction, adaptée au jeu ; règle 8 : jamais « first » en SIL-CP
@@ -95,6 +117,15 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
     }
     if (isWordGame && final.kind !== 'word') errors.push(err('forme', 'le mot mystère se résout par un mot'))
     if (isCodeGame && final.kind !== 'code') errors.push(err('forme', 'le message codé se résout par un décodage'))
+  } else if (isPreset) {
+    // Jeu 2 : chaque étape donne une syllabe, finale par syllabes ; jeu 3 :
+    // chaque étape donne un mot, finale par phrase. La règle 8 (pas de 1re
+    // lettre en SIL-CP) n'est pas étendue aux syllabes (décision I14).
+    const syllables = path.game === 'syllables'
+    if (extraction?.rule !== (syllables ? 'syllable' : 'word')) errors.push(err('forme', 'règle d\'extraction incohérente avec le jeu'))
+    if (final.kind !== (syllables ? 'syllables' : 'sentence')) errors.push(err('forme', 'résolution finale incohérente avec le jeu'))
+    // Un parcours préconçu est rédigé (draft) ou validé par un enseignant (validated), jamais « generated » (§6.3, règle 3)
+    if (!PRESET_STATUSES.includes(path.status)) errors.push(err('forme', `statut d'un parcours préconçu : ${path.status}`))
   } else {
     if (extraction?.rule !== 'word') errors.push(err('forme', 'le mystère des thèmes gagne des mots'))
     if (final.kind !== 'choice') errors.push(err('forme', 'le mystère des thèmes se résout par un choix'))
@@ -131,10 +162,13 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
       if (settings.firstLetterGiven && step.secretIndex === 0) errors.push(err('6.1.8', `${where} : secret sur la lettre déjà placée`))
     }
     for (const a of step.answers) {
-      if (extractSecret(a, extraction, step.secretIndex) !== step.secret) {
-        errors.push(err('6.1.2', `${where} : ${a.word} donnerait un autre élément secret`))
-      }
+      // Parcours préconçus : syllabe à la même place (jeu 2), mot lui-même (jeu 3)
+      const same = isPreset
+        ? presetElement(a, step, path.game) === normalizeWord(String(step.secret ?? '')) && normalizeWord(String(step.secret ?? '')) !== ''
+        : extractSecret(a, extraction, step.secretIndex) === step.secret
+      if (!same) errors.push(err('6.1.2', `${where} : ${a.word} donnerait un autre élément secret`))
     }
+    if (isPreset) validatePresetStep(path, step, where, errors)
 
     // Règle 3 : jamais deux mots aux mêmes lettres
     const key = letterKey(step.word)
@@ -150,10 +184,191 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
 
   if (isWordGame) validateWordFinal(path, keys, blocked, errors)
   else if (isCodeGame) validateCodeFinal(path, keys, blocked, errors)
+  else if (path.game === 'syllables') validateSyllableFinal(path, keys, blocked, errors)
+  else if (path.game === 'secretSentence') validateSentenceFinal(path, blocked, errors)
   else validateChoiceFinal(path, errors)
 
-  if (vocabulary) validateGenerated(path, { vocabulary, themes }, errors)
+  if (vocabulary && isPreset) validatePresetVocabulary(path, vocabulary, errors)
+  else if (vocabulary) validateGenerated(path, { vocabulary, themes }, errors)
   return errors
+}
+
+// --- Parcours préconçus (jeux 2 et 3, §6.3 ; lot 3, partie 1) ---
+
+const isText = (v) => typeof v === 'string' && v.trim() !== ''
+const sameList = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort())
+
+// Étape préconçue (§6.3, règle 1) : elle porte sa définition et ses réponses ;
+// ses mots peuvent être absents du vocabulaire
+function validatePresetStep(path, step, where, errors) {
+  const lengths = presetLengths(path.game, path.level)
+  if (!isText(step.id)) errors.push(err('6.3.1', `${where} : identifiant absent`))
+  if (!isText(step.definition)) errors.push(err('6.3.1', `${where} : définition absente`))
+  else if (definitionRevealsWord(step.definition, step.word)) errors.push(err('6.1.6', `${where} : la définition donne le mot ${step.word}`))
+  if (typeof step.display !== 'string' || normalizeWord(step.display) !== step.word) errors.push(err('6.3.1', `${where} : orthographe incohérente`))
+  if (step.word.length < lengths.minLength || step.word.length > lengths.maxLength) {
+    errors.push(err('6.3.1', `${where} : ${step.word} hors des longueurs du niveau (${lengths.minLength} à ${lengths.maxLength} lettres)`))
+  }
+  if (step.wordId !== null && !isText(step.wordId)) errors.push(err('6.3.1', `${where} : identifiant du vocabulaire invalide`))
+  if (path.game !== 'syllables') return
+  // Jeu 2 : la syllabation redonne le mot, et la syllabe donnée est une de ses
+  // syllabes, à la place indiquée par secretIndex
+  const syllables = Array.isArray(step.syllables) ? step.syllables : []
+  if (syllables.length < 2 || !syllables.every(isText) || normalizeWord(syllables.join('')) !== step.word) {
+    errors.push(err('J2', `${where} : syllabation incohérente avec le mot ${step.word}`))
+    return
+  }
+  let start = 0
+  const places = syllables.map(s => {
+    const place = { start, letters: normalizeWord(s) }
+    start += place.letters.length
+    return place
+  })
+  if (!places.some(p => p.start === step.secretIndex && p.letters === normalizeWord(String(step.secret ?? '')))) {
+    errors.push(err('J2', `${where} : la syllabe donnée n'est pas une syllabe du mot à cette place`))
+  }
+}
+
+// Jeu 2 : résolution finale, remettre les syllabes (étiquettes) dans l'ordre
+function validateSyllableFinal(path, keys, blocked, errors) {
+  const { final, steps } = path
+  const solution = final.solution
+  if (typeof solution !== 'string' || !/^[A-Z]+$/.test(solution) || solution.length < MIN_WORD_LENGTH) {
+    errors.push(err('forme', 'mot mystère invalide'))
+    return
+  }
+  // Règle 3 : le mot mystère n'a pas les mêmes lettres qu'un mot d'étape
+  if (keys.has(letterKey(solution))) errors.push(err('6.1.3', 'le mot mystère a les mêmes lettres qu\'un mot d\'étape'))
+  // Règle 4 : une étape par syllabe du mot mystère, à un rang distinct
+  const slots = steps.map(s => s.slot)
+  if (!slots.every(n => Number.isInteger(n) && n >= 0 && n < steps.length) || new Set(slots).size !== slots.length) {
+    errors.push(err('6.1.4', 'rangs des syllabes incohérents'))
+    return
+  }
+  // J2 : les syllabes collées dans l'ordre forment le mot mystère
+  const ordered = [...steps].sort((a, b) => a.slot - b.slot).map(s => normalizeWord(s.secret))
+  if (ordered.join('') !== solution) errors.push(err('J2', 'les syllabes, dans l\'ordre, ne forment pas le mot mystère'))
+  if (!Array.isArray(final.syllables) || final.syllables.map(s => normalizeWord(String(s))).join('|') !== ordered.join('|')) {
+    errors.push(err('J2', 'syllabation du mot mystère différente des syllabes gagnées'))
+  }
+  // Étiquettes : les syllabes gagnées, dans l'ordre des étapes, qui ne
+  // redonnent pas le mot mystère (règle 1 : mélange différent de la réponse)
+  const labels = Array.isArray(final.labels) ? final.labels : []
+  if (JSON.stringify(labels) !== JSON.stringify(steps.map(s => s.secret))) errors.push(err('forme', 'étiquettes différentes des syllabes gagnées'))
+  if (normalizeWord(labels.join('')) === solution) errors.push(err('6.1.1', 'les syllabes gagnées donnent déjà le mot mystère dans l\'ordre'))
+  // Règle 5 : une seule réponse, le mot mystère
+  const accepted = Array.isArray(final.acceptedAnswers) ? final.acceptedAnswers : []
+  if (accepted.length !== 1 || accepted[0]?.word !== solution || normalizeWord(String(accepted[0]?.display ?? '')) !== solution ||
+    normalizeWord(String(final.display ?? '')) !== solution) {
+    errors.push(err('6.1.5', 'une seule réponse acceptée : le mot mystère'))
+  }
+  // Règle 6 : ni définition d'étape ni indice ne donne le mot mystère
+  for (const [n, step] of steps.entries()) {
+    if (definitionRevealsWord(step.definition, solution)) errors.push(err('6.1.6', `étape ${n + 1} : la définition donne le mot mystère`))
+  }
+  const hints = Array.isArray(final.hints) ? final.hints : []
+  if (hints.length === 0 || !hints.every(isText)) errors.push(err('forme', 'indices de la finale absents'))
+  for (const hint of hints) {
+    if (definitionRevealsWord(hint, solution)) errors.push(err('6.1.6', 'un indice donne le mot mystère'))
+  }
+  // Règle 7 : mots interdits dans le mot mystère et dans les syllabes collées
+  if (containsBlocked(solution, blocked) || containsBlocked(normalizeWord(labels.join('')), blocked)) errors.push(err('6.1.7', 'mot interdit dans le mot mystère'))
+}
+
+// Jeu 3 : résolution finale, remettre les étiquettes de mots dans l'ordre
+function validateSentenceFinal(path, blocked, errors) {
+  const { final, steps } = path
+  const words = typeof final.solution === 'string' ? final.solution.split(' ') : []
+  if (words.length === 0 || !words.every(w => /^[A-Z]+$/.test(w)) || typeof final.display !== 'string' || labelWords([final.display]) !== final.solution) {
+    errors.push(err('forme', 'phrase de référence invalide'))
+    return
+  }
+  // J3 : chaque mot trouvé est à sa place dans la phrase ; mots trouvés + mots
+  // donnés = exactement les mots de la phrase
+  const slots = steps.map(s => s.slot)
+  if (!slots.every(n => Number.isInteger(n) && n >= 0 && n < words.length) || new Set(slots).size !== slots.length ||
+    steps.some(s => words[s.slot] !== s.word)) {
+    errors.push(err('J3', 'un mot trouvé n\'est pas à sa place dans la phrase'))
+  }
+  // Mots donnés : toujours un tableau (éventuellement vide), sinon l'écran
+  // planterait à la reprise d'une partie enregistrée altérée
+  if (!Array.isArray(final.given)) errors.push(err('forme', 'mots donnés absents'))
+  const given = Array.isArray(final.given) ? final.given : []
+  if (!given.every(isText) || !sameList([...steps.map(s => s.word), ...given.map(g => normalizeWord(g))], words)) {
+    errors.push(err('J3', 'mots trouvés et mots donnés ne forment pas exactement la phrase'))
+  }
+  // Étiquettes : un mot chacune, les mots trouvés et les mots donnés ; en
+  // capitales hors SIL-CP (décision I5)
+  const labels = Array.isArray(final.labels) ? final.labels : []
+  if (!labels.every(l => typeof l === 'string' && normalizeWord(l) !== '') || !sameList(labels, [...steps.map(s => s.secret), ...given])) {
+    errors.push(err('J3', 'étiquettes différentes des mots trouvés et des mots donnés'))
+  }
+  if (path.level !== 'SIL-CP' && !labels.every(l => typeof l === 'string' && l === l.toLocaleUpperCase('fr-FR'))) {
+    errors.push(err('J3', 'étiquettes en capitales attendues (I5)'))
+  }
+  // J3 et règle 5 : phrases acceptées listées, la phrase de référence comprise,
+  // chacune avec exactement les mêmes mots
+  const accepted = Array.isArray(final.acceptedAnswers) ? final.acceptedAnswers : []
+  if (!accepted.some(a => a?.word === final.solution)) errors.push(err('6.1.5', 'la phrase de référence n\'est pas parmi les phrases acceptées'))
+  if (new Set(accepted.map(a => a?.word)).size !== accepted.length) errors.push(err('6.1.5', 'phrase acceptée en double'))
+  for (const a of accepted) {
+    if (typeof a?.display !== 'string' || a.word !== labelWords([a.display])) {
+      errors.push(err('J3', 'phrase acceptée incohérente avec son texte'))
+    } else if (!sameList(a.word.split(' '), words)) {
+      errors.push(err('J3', `phrase acceptée qui n'utilise pas exactement les mêmes mots : ${a.display}`))
+    }
+  }
+  // Règle 1 : les étiquettes, dans l'ordre affiché, ne forment aucune phrase acceptée
+  if (accepted.some(a => a?.word === labelWords(labels))) errors.push(err('6.1.1', 'les étiquettes donnent déjà la phrase dans l\'ordre'))
+  // Règle 6 : aucune définition ne contient un autre mot à trouver de la phrase.
+  // Les indices du jeu 3 donnent volontairement le premier mot et le verbe (I9).
+  for (const [n, step] of steps.entries()) {
+    for (const other of steps) {
+      if (other !== step && definitionRevealsWord(step.definition, other.word)) {
+        errors.push(err('6.1.6', `étape ${n + 1} : la définition donne le mot ${other.word}`))
+      }
+    }
+  }
+  const hints = Array.isArray(final.hints) ? final.hints : []
+  if (hints.length === 0 || !hints.every(isText)) errors.push(err('forme', 'indices de la finale absents'))
+  // Règle 7 : mots interdits dans la phrase
+  if (accepted.some(a => typeof a?.word === 'string' && (containsBlocked(a.word.replace(/ /g, ''), blocked) || a.word.split(' ').some(w => containsBlocked(w, blocked))))) {
+    errors.push(err('6.1.7', 'mot interdit dans la phrase'))
+  }
+}
+
+// Parcours préconçus contrôlés avec le vocabulaire : identifiants du
+// vocabulaire cohérents (même niveau, même langue, même orthographe) et
+// anagrammes du vocabulaire toutes acceptées (D9)
+function validatePresetVocabulary(path, vocabulary, errors) {
+  const { level, language } = path
+  const byId = new Map(vocabulary.filter(v => v && typeof v === 'object').map(v => [v.id, v]))
+  const index = buildAnswerIndex(vocabulary, level, language)
+  const settings = ANAGRAM_SETTINGS[level]
+  const linked = (id, word) => {
+    const v = byId.get(id)
+    return Boolean(v) && v.niveau_fr === level && v.actif !== false && typeof entryText(v, language) === 'string' &&
+      normalizeWord(entryText(v, language)) === word
+  }
+  for (const [n, step] of path.steps.entries()) {
+    const where = `étape ${n + 1}`
+    if (step.wordId !== null && !linked(step.wordId, step.word)) {
+      errors.push(err('6.3.1', `${where} : ${step.wordId} n'est pas ${step.word} dans le vocabulaire du niveau et de la langue`))
+    }
+    for (const a of step.answers) {
+      if (a.id !== null && a.id !== undefined && !linked(a.id, a.word)) errors.push(err('6.3.1', `${where} : réponse ${a.word} reliée à ${a.id}, incohérent`))
+    }
+    const missing = (index.get(letterKey(step.word)) ?? [])
+      .filter(a => !settings.firstLetterGiven || a.word[0] === step.word[0])
+      .filter(a => !step.answers.some(b => b.word === a.word))
+    for (const a of missing) errors.push(err('D9', `${where} : anagramme du vocabulaire non acceptée : ${a.word} (${a.id})`))
+  }
+  if (path.game === 'syllables') {
+    const answer = path.final.acceptedAnswers[0]
+    if (answer.id !== null && answer.id !== undefined && !linked(answer.id, path.final.solution)) {
+      errors.push(err('6.3.1', `mot mystère relié à ${answer.id}, incohérent`))
+    }
+  }
 }
 
 // Jeu 1 : résolution finale par un mot

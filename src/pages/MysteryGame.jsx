@@ -37,24 +37,35 @@ import {
   fillCodeEntry,
   isRevealedBox,
   correctCodeBoxes,
-  finalHintLimit
+  finalHintLimit,
+  PRESET_GAMES,
+  LABEL_KINDS,
+  checkLabelAnswer,
+  solutionLabels,
+  correctLabelPositions,
+  wonSyllableIndex
 } from '../utils/mysteryEngine'
 import { validatePath } from '../utils/mysteryValidation'
 import { generateMysteryPath, availableThemes } from '../utils/mysteryGenerators'
+import { availablePresets } from '../utils/mysteryPresets'
 import { libelleNiveau } from '../data/niveaux'
 import AnagramBoard from '../components/AnagramBoard'
 import '../styles/AnagramGame.css'
 import '../styles/MysteryGame.css'
 
-// Anagrammes mystères (famille B du module anagrammes ; lots 1 et 2 de
+// Anagrammes mystères (famille B du module anagrammes ; lots 1, 2 et 3 de
 // docs/anagrammes-mysteres.md, architecture validée par Isaac le 2026-11-03).
-// Jeux disponibles : 1 « Mot mystère », 4 « Mystère des thèmes » et 5
-// « Message codé » (lot 2) ; les jeux 2, 3 et 6 sont annoncés « bientôt ». Écrans : choix du jeu, du niveau (et
-// du thème), mission, anagrammes avec la barre des éléments gagnés,
-// résolution finale, victoire. La langue des mots suit l'interface au
-// lancement (§7). Parcours générés automatiquement, marqués « démonstration »
-// (statut generated, M2). Interface : CHOIX PROVISOIRE, à valider par un
-// enseignant. Pas de chronomètre (D5).
+// Jeux disponibles : 1 « Mot mystère », 4 « Mystère des thèmes », 5
+// « Message codé » (lot 2), 2 « Casse-tête des syllabes » et 3 « Phrase
+// secrète » (lot 3, partie 1) ; le jeu 6 est annoncé « bientôt ». Écrans :
+// choix du jeu, du niveau (et du thème), mission, anagrammes avec la barre des
+// éléments gagnés, résolution finale, victoire. La langue des mots suit
+// l'interface au lancement (§7). Jeux 1, 4, 5 : parcours générés
+// automatiquement, marqués « démonstration » (statut generated, M2). Jeux 2
+// et 3 : parcours préconçus (src/data/parcours-mysteres.js), choisis avec le
+// numéro de partie, marqués « démonstration, brouillon » (statut draft).
+// Interface : CHOIX PROVISOIRE, à valider par un enseignant. Pas de
+// chronomètre (D5).
 
 const GAME_TYPE = 'anagramMystery'
 
@@ -101,6 +112,11 @@ export default function MysteryGame() {
   // l'état, lettres révélées comprises). Non enregistrées pour la reprise,
   // comme les lettres posées d'une anagramme.
   const [codeEntries, setCodeEntries] = useState(null)
+  // Jeux 2 et 3 : étiquette posée dans chaque case de la résolution finale
+  // (indice dans final.labels, ou null). Non enregistrées, comme les lettres.
+  const [labelSlots, setLabelSlots] = useState(null)
+  // Jeux 2 et 3 : nombre de parcours valides pour le niveau et la langue
+  const [presetCounts, setPresetCounts] = useState({})
   const busyRef = useRef(false)
   const codeRef = useRef(null)
 
@@ -123,6 +139,19 @@ export default function MysteryGame() {
       if (cancelled) return
       setThemes(list)
       setThemeId(current => (list.some(th => th.id === current) ? current : list[0]?.id ?? null))
+    }
+    load()
+    return () => { cancelled = true }
+  }, [level, language])
+
+  // Jeux 2 et 3 : parcours préconçus valides pour ce niveau et la langue de
+  // l'interface ; sans parcours valide, le jeu est indisponible
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      const vocabulary = await getVocabByLevel(level)
+      const counts = Object.fromEntries(PRESET_GAMES.map(g => [g, availablePresets(g, vocabulary, level, language).length]))
+      if (!cancelled) setPresetCounts(counts)
     }
     load()
     return () => { cancelled = true }
@@ -161,6 +190,7 @@ export default function MysteryGame() {
       setFinalFeedback('')
       setReviewFinal(false)
       setCodeEntries(null)
+      setLabelSlots(null)
       persist(p, s)
       setScreen('playing')
     } catch (e) {
@@ -195,6 +225,7 @@ export default function MysteryGame() {
     setFinalFeedback('')
     setReviewFinal(false)
     setCodeEntries(null)
+    setLabelSlots(null)
     setScreen('playing')
   }
 
@@ -274,7 +305,10 @@ export default function MysteryGame() {
   }
 
   if (screen === 'choose' || !path || !mstate) {
-    const canStart = !generating && (gameId !== 'theme' || themeId !== null)
+    const isPresetChoice = PRESET_GAMES.includes(gameId)
+    // Jeux 2 et 3 : indisponibles sans parcours valide pour le niveau et la langue
+    const noPreset = isPresetChoice && presetCounts[gameId] === 0
+    const canStart = !generating && (gameId !== 'theme' || themeId !== null) && !noPreset
     return (
       <div className="anagram-select">
         <div className="anagram-select__container">
@@ -366,9 +400,18 @@ export default function MysteryGame() {
             </p>
           </div>
 
+          {noPreset && (
+            <p className="anagram-select__hint" role="status">
+              {t('Aucun parcours disponible pour ce niveau dans cette langue.', 'No path available for this level in this language.')}
+            </p>
+          )}
+
           <p className="mystery-demo">
-            {t('Démonstration : mystères créés automatiquement à partir du vocabulaire, en cours de validation par un enseignant.',
-              'Demonstration: mysteries made automatically from the vocabulary, being checked by a teacher.')}
+            {isPresetChoice
+              ? t('Démonstration : parcours rédigés à l\'avance, encore en brouillon, en cours de validation par un enseignant.',
+                'Demonstration: paths written in advance, still in draft, being checked by a teacher.')
+              : t('Démonstration : mystères créés automatiquement à partir du vocabulaire, en cours de validation par un enseignant.',
+                'Demonstration: mysteries made automatically from the vocabulary, being checked by a teacher.')}
           </p>
 
           <button className="anagram-select__start" onClick={handleStart} disabled={!canStart}>
@@ -388,7 +431,14 @@ export default function MysteryGame() {
   const isCodeGame = path.game === 'codedMessage'
   // Jeux 1 et 5 : chaque étape donne une lettre (case marquée ★)
   const isLetterGame = LETTER_GAMES.includes(path.game)
+  // Jeux 2 et 3 : parcours préconçus, résolution par étiquettes
+  const isSyllableGame = path.game === 'syllables'
+  const isSentenceGame = path.game === 'secretSentence'
   const pathLanguage = path.language === 'en' ? t('anglais', 'English') : t('français', 'French')
+  // Statut montré à l'adulte : généré (démonstration) ou rédigé, en brouillon
+  const statusText = path.status === 'draft'
+    ? t('Démonstration (brouillon)', 'Demonstration (draft)')
+    : t('Démonstration', 'Demonstration')
   const score = computeScore(mstate)
   const elements = collectedElements(path, mstate)
   const header = (
@@ -401,7 +451,7 @@ export default function MysteryGame() {
         {score} {t('points', 'points')}
       </div>
       <p className="anagram-game__seed">
-        {t('Partie n°', 'Game no.')} {path.seed} · {pathLanguage} · {t('Démonstration', 'Demonstration')}
+        {t('Partie n°', 'Game no.')} {path.seed} · {pathLanguage} · {statusText}
       </p>
     </div>
   )
@@ -429,6 +479,14 @@ export default function MysteryGame() {
         </span>
       ))}
     </div>
+  )
+
+  // Jeu 3 : mots donnés d'office (décision I4), montrés dès la mission et dans la finale
+  const givenWords = isSentenceGame && (path.final.given ?? []).length > 0 && (
+    <p className="mystery-given">
+      {t('Mots déjà donnés : ', 'Words already given: ')}
+      {(path.final.given ?? []).map((g, i) => <span key={i} className="mystery-given__word">{g}</span>)}
+    </p>
   )
 
   // Jeu 5 : le message, suite de nombres
@@ -482,6 +540,21 @@ export default function MysteryGame() {
                 `Solve ${path.steps.length} anagrams. All the words you find have something in common: guess the theme that links them!`)}
             </p>
           )}
+          {isSyllableGame && (
+            <p className="anagram-game__clue">
+              {t(`Résous ${path.steps.length} anagrammes. Chaque mot trouvé te donne une syllabe. Remets les syllabes dans l'ordre pour écrire le mot mystère !`,
+                `Solve ${path.steps.length} anagrams. Each word you find gives you a syllable. Put the syllables in the right order to write the mystery word!`)}
+            </p>
+          )}
+          {isSentenceGame && (
+            <>
+              <p className="anagram-game__clue">
+                {t(`Résous ${path.steps.length} anagrammes. Chaque mot trouvé est un mot d'une phrase secrète. Remets ensuite tous les mots dans l'ordre pour retrouver la phrase !`,
+                  `Solve ${path.steps.length} anagrams. Each word you find is a word of a secret sentence. Then put all the words in the right order to find the sentence!`)}
+              </p>
+              {givenWords}
+            </>
+          )}
           <button className="anagram-select__start" onClick={() => update(startSteps(mstate))}>
             {t('C\'est parti !', 'Let\'s go!')}
           </button>
@@ -496,6 +569,10 @@ export default function MysteryGame() {
     const step = path.steps[index]
     const progress = (isCorrect, wordId) =>
       saveUserProgress(user?.id, wordId, isCorrect, null, { gameType: GAME_TYPE, itemId: step.id })
+    // Mot de l'étape pour les progrès quand la solution est montrée : l'entrée
+    // du vocabulaire ; pour une étape préconçue, wordId (null si le mot n'est
+    // pas relié au vocabulaire, décision I10)
+    const shownWordId = PRESET_GAMES.includes(path.game) ? step.wordId : step.id
     // Dernière étape : toutes les autres sont terminées (l'étape en cours peut
     // l'être déjà, quand son résultat est affiché)
     const last = mstate.steps.every((s, i) => i === index || s.status !== 'pending')
@@ -516,16 +593,29 @@ export default function MysteryGame() {
             markedIndex={isLetterGame ? step.secretIndex : null}
             onFound={(answer) => { update(recordStepFound(mstate, answer)); progress(true, answer.id) }}
             onWrong={() => update(recordStepWrong(mstate))}
-            onShowSolution={() => { update(recordStepShown(mstate)); progress(false, step.id) }}
+            onShowSolution={() => { update(recordStepShown(mstate)); progress(false, shownWordId) }}
             nextLabel={last ? t('Vers le mystère', 'To the mystery') : t('Anagramme suivante', 'Next anagram')}
             onNext={() => update(advance(mstate))}
           >
             <p className="mystery-won" role="status">
               {isWordGame && t('Lettre gagnée : ', 'Letter won: ')}
               {isCodeGame && t('Ligne de la clé gagnée : ', 'Key line won: ')}
-              {path.game === 'theme' && t('Mot gagné : ', 'Word won: ')}
+              {(path.game === 'theme' || isSentenceGame) && t('Mot gagné : ', 'Word won: ')}
+              {isSyllableGame && t('Syllabe gagnée : ', 'Syllable won: ')}
               <strong>{isCodeGame ? keyLine(step.code, step.secret) : step.secret}</strong>
             </p>
+            {/* Jeu 2 : la syllabe gagnée est signalée dans le mot trouvé (décision I11),
+                sur sa syllabation, comme la case ★ du jeu 1 */}
+            {isSyllableGame && (
+              <p className="mystery-syllables" aria-label={t(`Syllabes du mot : ${step.syllables.join(', ')}`, `Syllables of the word: ${step.syllables.join(', ')}`)}>
+                {step.syllables.map((s, i) => (
+                  <React.Fragment key={i}>
+                    {i > 0 && <span className="mystery-syllables__cut" aria-hidden="true">-</span>}
+                    <span className={wonSyllableIndex(step) === i ? 'mystery-syllables__won' : 'mystery-syllables__part'}>{s}</span>
+                  </React.Fragment>
+                ))}
+              </p>
+            )}
           </AnagramBoard>
           {footer}
         </div>
@@ -552,7 +642,11 @@ export default function MysteryGame() {
             {isWordGame && t('Le mot mystère : ', 'The mystery word: ')}
             {isCodeGame && t('Le message décodé : ', 'The decoded message: ')}
             {path.game === 'theme' && t('Le thème : ', 'The theme: ')}
-            <strong>{path.final.display}</strong>
+            {isSyllableGame && t('Le mot mystère : ', 'The mystery word: ')}
+            {isSentenceGame && t('La phrase secrète : ', 'The secret sentence: ')}
+            {/* Jeu 3 : la phrase correcte de la variante trouvée (majuscule,
+                virgules, point ; décision I6) */}
+            <strong>{isSentenceGame && found ? mstate.final.answer?.display ?? path.final.display : path.final.display}</strong>
           </p>
           <p className="mystery-stars" role="img" aria-label={t(`${stars} étoile${stars > 1 ? 's' : ''} sur 3`, `${stars} star${stars > 1 ? 's' : ''} out of 3`)}>
             {'★'.repeat(stars)}{'☆'.repeat(3 - stars)}
@@ -567,6 +661,8 @@ export default function MysteryGame() {
               {isWordGame && <li>{t('Logique : assembler des lettres pour former un mot', 'Logic: putting letters together to make a word')}</li>}
               {isCodeGame && <li>{t('Logique : décoder un message avec une clé', 'Logic: decoding a message with a key')}</li>}
               {path.game === 'theme' && <li>{t('Classer : trouver ce qui relie des mots', 'Sorting: finding what links words')}</li>}
+              {isSyllableGame && <li>{t('Lecture : assembler des syllabes pour former un mot', 'Reading: putting syllables together to make a word')}</li>}
+              {isSentenceGame && <li>{t('Phrase : remettre les mots dans l\'ordre', 'Sentences: putting words in the right order')}</li>}
             </ul>
           </div>
           <p className="anagram-game__seed">
@@ -598,6 +694,149 @@ export default function MysteryGame() {
     setMstate(s)
     setReviewFinal(true)
     finish(s)
+  }
+
+  // Jeux 2 et 3 : étiquettes à toucher dans l'ordre (fiche L13). Toucher une
+  // étiquette la pose dans la première case vide ; toucher une case remplie la
+  // rend. Réponse fausse : nombre d'étiquettes bien placées ; le 2e essai faux
+  // compte comme une aide (étoiles) ; « Voir la solution » après 3 essais.
+  // Indices (décision I9) : jeu 2, définition puis première syllabe ; jeu 3,
+  // premier mot puis verbe.
+  if (LABEL_KINDS.includes(path.final.kind)) {
+    const labels = path.final.labels
+    const slots = labelSlots ?? labels.map(() => null)
+    const used = new Set(slots.filter(i => i !== null))
+    const full = slots.every(i => i !== null)
+    const sequence = slots.map(i => (i === null ? '' : labels[i]))
+    const hintsLeft = finalHintLimit(path) - mstate.final.hints
+    const unit = isSyllableGame
+      ? (n) => t(n > 1 ? 'syllabes bien placées' : 'syllabe bien placée', n !== 1 ? 'syllables are in the right place' : 'syllable is in the right place')
+      : (n) => t(n > 1 ? 'mots bien placés' : 'mot bien placé', n !== 1 ? 'words are in the right place' : 'word is in the right place')
+    const progressFinal = (isCorrect) =>
+      saveUserProgress(user?.id, null, isCorrect, null, { gameType: GAME_TYPE, itemId: 'final' })
+    const handleLabel = (i) => {
+      if (finalDone || used.has(i)) return
+      const free = slots.indexOf(null)
+      if (free === -1) return
+      setLabelSlots(slots.map((k, n) => (n === free ? i : k)))
+      setFinalFeedback('')
+    }
+    const handleSlot = (n) => {
+      if (finalDone || slots[n] === null) return
+      setLabelSlots(slots.map((k, m) => (m === n ? null : k)))
+    }
+    const handleLabelValidate = () => {
+      if (finalDone || !full) return
+      const answer = checkLabelAnswer(path, sequence)
+      if (answer) {
+        setFinalFeedback(t('Bravo !', 'Well done!'))
+        endFinal(recordFinalFound(mstate, answer))
+        progressFinal(true)
+        return
+      }
+      const s = recordFinalWrong(mstate, path)
+      const n = correctLabelPositions(path, sequence)
+      const parts = [t(`Il y a ${n} ${unit(n)}.`, `${n} ${unit(n)}.`)]
+      parts.push(s.final.tries >= TRIES_BEFORE_SOLUTION
+        ? t('Tu peux essayer encore ou voir la solution.', 'You can try again or see the answer.')
+        : t('Essaie encore !', 'Try again!'))
+      setFinalFeedback(parts.join(' '))
+      update(s)
+    }
+    const handleLabelShow = () => {
+      if (finalDone || mstate.final.tries < TRIES_BEFORE_SOLUTION) return
+      // Les étiquettes sont posées dans l'ordre de la solution de référence
+      const left = labels.map((_, i) => i)
+      setLabelSlots(solutionLabels(path).map(l => left.splice(left.findIndex(i => labels[i] === l), 1)[0]))
+      setFinalFeedback('')
+      endFinal(recordFinalShown(mstate))
+      progressFinal(false)
+    }
+    const shownAnswer = mstate.final.status === 'found' ? mstate.final.answer?.display : path.final.display
+    return (
+      <div className="anagram-game">
+        {header}
+        {elementsBar}
+        <div className="anagram-game__card">
+          <h2 className="anagram-game__clue-title">
+            {isSyllableGame ? t('Le mot mystère', 'The mystery word') : t('La phrase secrète', 'The secret sentence')}
+          </h2>
+          <p className="anagram-game__clue">{path.final.prompt}</p>
+          {givenWords}
+          {path.final.hints.slice(0, mstate.final.hints).map((hint, i) => (
+            <p key={i} className="mystery-final__hint" role="status">{t('Indice : ', 'Hint: ')}{hint}</p>
+          ))}
+          <div className="mystery-labels__slots" role="group" aria-label={isSyllableGame ? t('Mot à écrire', 'Word to write') : t('Phrase à écrire', 'Sentence to write')}>
+            {slots.map((i, n) => (
+              <button
+                key={n}
+                className={`mystery-labels__slot ${i === null ? 'mystery-labels__slot--empty' : ''} ${mstate.final.status === 'found' ? 'mystery-labels__slot--found' : ''}`}
+                onClick={() => handleSlot(n)}
+                disabled={finalDone || i === null}
+                aria-label={i === null
+                  ? t(`case ${n + 1} vide`, `box ${n + 1} empty`)
+                  : t(`${labels[i]}, case ${n + 1}, toucher pour rendre l'étiquette`, `${labels[i]}, box ${n + 1}, tap to give the label back`)}
+              >
+                {i === null ? '' : labels[i]}
+              </button>
+            ))}
+            {/* Jeu 3 : le point final est fixe (fiche L13) */}
+            {isSentenceGame && <span className="mystery-labels__point" aria-hidden="true">.</span>}
+          </div>
+          {!finalDone && (
+            <div className="mystery-labels__pool" role="group" aria-label={isSyllableGame ? t('Syllabes gagnées', 'Syllables won') : t('Mots de la phrase', 'Words of the sentence')}>
+              {labels.map((label, i) => (
+                <button
+                  key={i}
+                  className={`mystery-labels__label ${used.has(i) ? 'mystery-labels__label--used' : ''}`}
+                  onClick={() => handleLabel(i)}
+                  disabled={used.has(i)}
+                  aria-label={label}
+                >
+                  {used.has(i) ? '' : label}
+                </button>
+              ))}
+            </div>
+          )}
+          {!finalDone && (
+            <div className="anagram-game__actions">
+              <button className="anagram-game__btn anagram-game__btn--secondary" onClick={() => setLabelSlots(labels.map(() => null))} disabled={used.size === 0}>
+                {t('Effacer', 'Clear')}
+              </button>
+              <button className="anagram-game__btn anagram-game__btn--validate" onClick={handleLabelValidate} disabled={!full}>
+                {t('Valider', 'Check')}
+              </button>
+            </div>
+          )}
+          <p className="anagram-game__feedback" role="status" aria-live="polite">{finalFeedback}</p>
+          {!finalDone && hintsLeft > 0 && (
+            <button className="anagram-game__btn anagram-game__btn--secondary mystery-final__hint-btn" onClick={() => update(recordFinalHint(mstate, path))}>
+              {t(`Indice (encore ${hintsLeft})`, `Hint (${hintsLeft} left)`)}
+            </button>
+          )}
+          {!finalDone && mstate.final.tries >= TRIES_BEFORE_SOLUTION && (
+            <button className="anagram-game__btn anagram-game__btn--solution" onClick={handleLabelShow}>
+              {t('Voir la solution', 'Show the answer')}
+            </button>
+          )}
+          {finalDone && (
+            <div className="anagram-game__result">
+              {/* Orthographe exacte ; jeu 3 : la phrase correcte, avec majuscule,
+                  virgules et point (décision I6) */}
+              <p className="anagram-game__answer">
+                {mstate.final.status === 'found' ? t('Tu as trouvé : ', 'You found: ') : t('La solution était : ', 'The answer was: ')}
+                <strong>{shownAnswer}</strong>
+              </p>
+              {mstate.final.status !== 'found' && (
+                <p className="anagram-game__other">{t('Le mystère ne compte pas de points.', 'The mystery gives no points.')}</p>
+              )}
+              {showResult}
+            </div>
+          )}
+          {footer}
+        </div>
+      </div>
+    )
   }
 
   if (isWordGame) {

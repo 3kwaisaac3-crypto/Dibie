@@ -244,3 +244,106 @@
   border-color: #ffb300;
   color: #4a3a00;
 }
+
+/* Jeux 2 et 3 (lot 3) : syllabe gagnée signalée dans le mot trouvé (I11),
+   mots donnés d'office (I4), étiquettes à toucher dans l'ordre (fiche L13).
+   Cases et étiquettes passent à la ligne : jamais de débordement à 320 px. */
+.mystery-syllables {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #444;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+}
+
+.mystery-syllables__cut {
+  color: #999;
+  margin: 0 2px;
+}
+
+.mystery-syllables__won {
+  background: #ffe082;
+  color: #4a3a00;
+  border-radius: 6px;
+  padding: 0 4px;
+  outline: 2px solid #ffb300;
+}
+
+.mystery-given {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #4a3a8a;
+  margin-bottom: 12px;
+}
+
+.mystery-given__word {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #ede7f6;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.mystery-labels__slots,
+.mystery-labels__pool {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.mystery-labels__slot,
+.mystery-labels__label {
+  min-width: 48px;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.mystery-labels__slot {
+  border: 2px solid #667eea;
+  background: white;
+  color: #333;
+}
+
+.mystery-labels__slot--empty {
+  border-style: dashed;
+  background: #f3f4ff;
+  cursor: default;
+}
+
+.mystery-labels__slot--found {
+  background: #c8f2d0;
+  border-color: #4caf50;
+  color: #1b5e20;
+}
+
+.mystery-labels__slot:disabled { opacity: 1; }
+
+.mystery-labels__label {
+  border: 2px solid #ffb300;
+  background: #ffe082;
+  color: #4a3a00;
+}
+
+.mystery-labels__label--used {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: #ddd;
+  cursor: default;
+}
+
+.mystery-labels__point {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #333;
+}

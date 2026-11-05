@@ -8,18 +8,29 @@
 //
 // Modèle d'un parcours (document de conception §5) :
 // {
-//   formatVersion, id, game: 'mysteryWord' | 'theme' | 'codedMessage', language, level, seed,
+//   formatVersion, id, game: 'mysteryWord' | 'syllables' | 'secretSentence' | 'theme' | 'codedMessage', language, level, seed,
 //   theme,              // jeu 4 : id du thème de la liste fixe ; jeux 1 et 5 : null
 //   difficulty,         // 1, 2 ou 3 (moyenne arrondie du champ difficulte des étapes)
 //   extraction: { rule, position? },  // une seule règle par parcours
 //   steps: [{ id, word, display, definition, answers, firstLetter, tiles, secret, secretIndex, slot, code? }],
-//   final: { kind: 'word' | 'choice' | 'code', prompt, solution, display, acceptedAnswers, hints, options?, message? },
+//   final: { kind: 'word' | 'choice' | 'code' | 'syllables' | 'sentence', prompt, solution, display, acceptedAnswers, hints,
+//            options?, message?, labels?, given?, syllables? },
 //   status: 'generated'  // generated | draft | validated
 // }
 // Jeu 5 (lot 2) : chaque étape porte en plus `code`, le nombre de sa lettre
 // (une ligne de la clé : secret ↔ code) ; final.message est la suite des
 // nombres du mot codé ; final.hints, les lettres du mot dans l'ordre où les
 // indices les révèlent.
+// Jeux 2 et 3 (lot 3, partie 1) : parcours PRÉCONÇUS (src/data/parcours-mysteres.js,
+// assemblés par mysteryPresets.js), statut 'draft'. Chaque étape porte en plus
+// `wordId` (entrée du vocabulaire de même sens et de même niveau, ou null).
+// Jeu 2 : `secret` est une syllabe, `secretIndex` sa position (en lettres) dans
+// le mot, `syllables` la syllabation du mot, `slot` le rang de la syllabe dans
+// le mot mystère. Jeu 3 : `secret` est le mot tel qu'il s'affiche sur son
+// étiquette, `slot` sa place dans la phrase de référence. final.labels :
+// étiquettes de la résolution finale, dans l'ordre affiché ; final.given (jeu 3) :
+// mots donnés d'office ; final.solution (jeu 3) : les mots de la phrase de
+// référence en lettres de grille, séparés par une espace.
 //
 // Décisions appliquées : étoiles selon les aides (M5) ; 10 points par
 // anagramme et 10 pour le mystère final, sans bonus (D10, M8) ; reprise d'une
@@ -27,7 +38,7 @@
 // selon les décisions C1 à C5 d'Isaac du 2026-11-04 (§12 du document).
 
 import { normalizeWord } from './wordSearchGenerator.js'
-import { POINTS_PER_WORD, TRIES_BEFORE_HINT, TRIES_BEFORE_SOLUTION } from './anagramGame.js'
+import { ANAGRAM_SETTINGS, POINTS_PER_WORD, TRIES_BEFORE_HINT, TRIES_BEFORE_SOLUTION, gridTokens } from './anagramGame.js'
 
 // Version du format d'un parcours et de son état (reprise) : une donnée
 // enregistrée avec une autre version n'est jamais reprise. Inchangée au lot 2 :
@@ -39,11 +50,12 @@ export const POINTS_PER_STEP = POINTS_PER_WORD // 10 points par anagramme (D10)
 export const POINTS_FINAL = POINTS_PER_WORD // 10 points pour le mystère final (M8 : pas de bonus)
 
 // Les six jeux de la famille B ; jeux 1 et 4 réalisés au lot 1, jeu 5 au
-// lot 2. Les jeux 2, 3 et 6 attendent des contenus rédigés et vérifiés (lot 3).
+// lot 2, jeux 2 et 3 au lot 3 (partie 1, parcours préconçus). Le jeu 6 attend
+// des contenus rédigés et vérifiés (lot 3, partie 2).
 export const MYSTERY_GAMES = Object.freeze([
   Object.freeze({ id: 'mysteryWord', number: 1, fr: 'Mot mystère', en: 'Mystery word', available: true }),
-  Object.freeze({ id: 'syllables', number: 2, fr: 'Casse-tête des syllabes', en: 'Syllable puzzle', available: false }),
-  Object.freeze({ id: 'secretSentence', number: 3, fr: 'Phrase secrète', en: 'Secret sentence', available: false }),
+  Object.freeze({ id: 'syllables', number: 2, fr: 'Casse-tête des syllabes', en: 'Syllable puzzle', available: true }),
+  Object.freeze({ id: 'secretSentence', number: 3, fr: 'Phrase secrète', en: 'Secret sentence', available: true }),
   Object.freeze({ id: 'theme', number: 4, fr: 'Mystère des thèmes', en: 'Theme mystery', available: true }),
   Object.freeze({ id: 'codedMessage', number: 5, fr: 'Message codé', en: 'Coded message', available: true }),
   Object.freeze({ id: 'grandRiddle', number: 6, fr: 'Grande énigme', en: 'Great riddle', available: false })
@@ -53,6 +65,13 @@ export const GENERATED_GAMES = Object.freeze(['mysteryWord', 'theme', 'codedMess
 
 // Jeux dont chaque étape donne une lettre (règles d'extraction du jeu 1)
 export const LETTER_GAMES = Object.freeze(['mysteryWord', 'codedMessage'])
+
+// Jeux à parcours préconçus (lot 3, partie 1 ; §6.3 du document de conception)
+export const PRESET_GAMES = Object.freeze(['syllables', 'secretSentence'])
+
+// Résolutions finales par étiquettes à toucher dans l'ordre (fiche L13) :
+// syllabes (jeu 2), mots d'une phrase (jeu 3)
+export const LABEL_KINDS = Object.freeze(['syllables', 'sentence'])
 
 // Jeu 5 : nombres de la clé tirés dans 1 à CODE_MAX_NUMBER, sans répétition (C1)
 export const CODE_MAX_NUMBER = 26
@@ -134,6 +153,95 @@ export function checkFinalAnswer(path, typed) {
   if (final.kind === 'choice') return final.acceptedAnswers.find(a => a.display === typed) ?? null
   const word = normalizeWord(typed)
   return final.acceptedAnswers.find(a => a.word === word) ?? null
+}
+
+// --- Jeux 2 et 3 : parcours préconçus, résolution par étiquettes (lot 3) ---
+
+// Longueurs des mots d'étape d'un parcours préconçu : celles des anagrammes
+// classiques, sauf au jeu 3 en CM1-CM2, de 4 à 10 lettres (décision I3 d'Isaac
+// du 2026-11-05 : sinon la plupart des noms et verbes d'une phrase naturelle
+// seraient donnés d'office). CHOIX À VALIDER PAR UN ENSEIGNANT.
+export function presetLengths(game, level) {
+  const settings = ANAGRAM_SETTINGS[level]
+  if (!settings) return null
+  if (game === 'secretSentence' && level === 'CM1-CM2') return { minLength: 4, maxLength: 10 }
+  return { minLength: settings.minLength, maxLength: settings.maxLength }
+}
+
+// Étiquette d'un mot du jeu 3 (décision I5) : en SIL-CP, écrit comme dans la
+// phrase (la majuscule du premier mot reste : aide assumée) ; en CE1-CE2 et
+// CM1-CM2, en capitales (accents gardés), pour ne pas désigner le premier mot.
+export const sentenceLabel = (level, text) => (level === 'SIL-CP' ? text : text.toLocaleUpperCase('fr-FR'))
+
+// Élément gagné par une réponse acceptée d'une étape préconçue, en lettres de
+// grille : jeu 2, les lettres à la place de la syllabe (LECTEUR donne LEC,
+// comme LECTURE) ; jeu 3, le mot lui-même. null si impossible.
+export function presetElement(answer, step, game) {
+  if (game === 'secretSentence') return typeof answer?.word === 'string' ? answer.word : null
+  const length = normalizeWord(step.secret).length
+  if (!Number.isInteger(step.secretIndex) || step.secretIndex < 0 || length === 0) return null
+  const part = String(answer?.word ?? '').slice(step.secretIndex, step.secretIndex + length)
+  return part.length === length ? part : null
+}
+
+// Jeu 2 : rang, dans la syllabation du mot d'étape, de la syllabe gagnée
+// (celle qui commence à secretIndex), ou -1 ; sert à la signaler (décision I11)
+export function wonSyllableIndex(step) {
+  let start = 0
+  for (const [i, s] of (step.syllables ?? []).entries()) {
+    if (start === step.secretIndex) return i
+    start += normalizeWord(s).length
+  }
+  return -1
+}
+
+// Mots (lettres de grille) d'une suite d'étiquettes, sans majuscules ni
+// ponctuation : c'est sur eux que porte la comparaison (fiche L13)
+export const labelWords = (labels) => gridTokens(labels.join(' ')).join(' ')
+
+// Réponse acceptée correspondant à l'ordre des étiquettes posées, ou null.
+// Jeu 2 : les syllabes collées forment le mot mystère. Jeu 3 : les mots, dans
+// cet ordre, sont ceux d'une phrase acceptée (variantes, décision I7).
+export function checkLabelAnswer(path, sequence) {
+  if (!Array.isArray(sequence) || sequence.some(l => typeof l !== 'string')) return null
+  const { final } = path
+  if (final.kind === 'syllables') {
+    const word = normalizeWord(sequence.join(''))
+    return final.acceptedAnswers.find(a => a.word === word) ?? null
+  }
+  if (final.kind === 'sentence') {
+    const words = labelWords(sequence)
+    return final.acceptedAnswers.find(a => a.word === words) ?? null
+  }
+  return null
+}
+
+// Étiquettes dans l'ordre de la solution de référence (montrée après 3 essais) :
+// jeu 2, les syllabes rangées par rang ; jeu 3, une étiquette par mot de la phrase
+export function solutionLabels(path) {
+  if (path.final.kind === 'syllables') {
+    return [...path.steps].sort((a, b) => a.slot - b.slot).map(s => s.secret)
+  }
+  const left = [...path.final.labels]
+  return path.final.solution.split(' ').map(word => {
+    const i = left.findIndex(l => normalizeWord(l) === word)
+    return i === -1 ? null : left.splice(i, 1)[0]
+  })
+}
+
+// Nombre d'étiquettes bien placées (retour après une réponse fausse, sans dire
+// lesquelles) : jeu 2, comparé aux syllabes du mot mystère ; jeu 3, comparé à
+// la phrase acceptée la plus proche (comme correctPositions)
+export function correctLabelPositions(path, sequence) {
+  const typed = sequence.map(l => normalizeWord(l ?? ''))
+  if (path.final.kind === 'syllables') {
+    const expected = solutionLabels(path).map(normalizeWord)
+    return typed.filter((l, i) => l !== '' && l === expected[i]).length
+  }
+  return Math.max(0, ...path.final.acceptedAnswers.map(a => {
+    const words = a.word.split(' ')
+    return typed.filter((l, i) => l !== '' && l === words[i]).length
+  }))
 }
 
 // --- Jeu 5 : message codé (C1 à C5) ---
@@ -342,13 +450,18 @@ export function hintsUsed(state, path) {
 export const solutionsShown = (state) =>
   state.steps.filter(s => s.status === 'shown').length + (state.final.status === 'shown' ? 1 : 0)
 
+// Finales où le 2e essai faux vaut une aide pour les étoiles, sans indice
+// automatique : choix (jeu 4), code (jeu 5), étiquettes (jeux 2 et 3)
+const FINAL_TRY_AID_KINDS = ['choice', 'code', ...LABEL_KINDS]
+
 // Étoiles (M5, sans chronomètre) : 3 sans aide ; 2 avec un indice ou la
-// première lettre ; 1 si une solution a été montrée. Pour la finale à choix et
-// le message codé, le 2e essai faux vaut une aide (comme le 2e essai faux d'un
-// mot, qui montre la première lettre ; décision d'Isaac du 2026-11-04 pour le code).
+// première lettre ; 1 si une solution a été montrée. Pour la finale à choix,
+// le message codé et les étiquettes (jeux 2 et 3), le 2e essai faux vaut une
+// aide (comme le 2e essai faux d'un mot, qui montre la première lettre ;
+// décision d'Isaac du 2026-11-04 pour le code, reprise au lot 3).
 export function computeStars({ hints = 0, shown = 0, finalTries = 0, finalKind = 'word' } = {}) {
   if (shown > 0) return 1
-  if (hints > 0 || ((finalKind === 'choice' || finalKind === 'code') && finalTries >= TRIES_BEFORE_HINT)) return 2
+  if (hints > 0 || (FINAL_TRY_AID_KINDS.includes(finalKind) && finalTries >= TRIES_BEFORE_HINT)) return 2
   return 3
 }
 
@@ -383,6 +496,8 @@ export function isValidState(state, path) {
   const finalOk = isObject(f) && ['pending', 'found', 'shown'].includes(f.status) && Number.isInteger(f.tries) &&
     Number.isInteger(f.hints) && f.hints >= 0 && Array.isArray(f.eliminated)
   if (!finalOk) return false
+  // Jeux 2 et 3 : pas plus d'indices que prévu (décision I9 : 2)
+  if (LABEL_KINDS.includes(path.final.kind)) return Array.isArray(path.final.hints) && f.hints <= path.final.hints.length
   if (path.final.kind !== 'code') return true
   // Jeu 5 : lettres révélées distinctes, prises dans le mot, une par indice
   const r = f.revealed

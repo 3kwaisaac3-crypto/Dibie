@@ -1,7 +1,7 @@
 # Anagrammes mystères : audit et conception (phases A et B)
 
 - **Date** : 2026-11-03
-- **Statut** : **architecture validée par Isaac le 2026-11-03** (décisions M1 à M8 : toutes les recommandations du §9). **Lot 1 réalisé** le 2026-11-03 (pull request n° 17, fusionnée) : voir §11. **Lot 2 réalisé** le 2026-11-04 sur la branche `feature/anagrammes-mysteres-lot2` (non fusionnée) : voir §12.
+- **Statut** : **architecture validée par Isaac le 2026-11-03** (décisions M1 à M8 : toutes les recommandations du §9). **Lot 1 réalisé** le 2026-11-03 (pull request n° 17, fusionnée) : voir §11. **Lot 2 réalisé** le 2026-11-04 (pull request n° 18, fusionnée dans `main` par `3922fff`) : voir §12. **Lot 3, partie 1, réalisé** le 2026-11-05 sur la branche `feature/anagrammes-mysteres-lot3` (non commité à la rédaction) : jeux 2 et 3 en parcours préconçus, voir §13.
 - **Demande** : cahier des charges « Extension du module anagrammes : anagrammes classiques et jeux de mystères lexicaux », fourni par Isaac le 2026-11-03.
 - **Point de départ** : `main` = `53d4244`.
 
@@ -312,14 +312,14 @@ Vérifié après correction : `npm test` 184 réussis, 2 ignorés, 0 échec ; li
 
 ### 11.5 Reste à faire
 
-- Lot 3 (jeux 2, 3, 6, contenus à rédiger et vérifier), lot 4 (validation par un enseignant, statut `validated`, trophées). Lot 2 : voir §12.
+- Lot 3, partie 2 (jeu 6, contenus à rédiger et vérifier), lot 4 (validation par un enseignant, statut `validated`, trophées). Lot 2 : voir §12 ; lot 3, partie 1 (jeux 2 et 3) : voir §13.
 - Validation par un enseignant : liste des thèmes, réglages du §11.2, libellés (« The kitchen », « Craftspeople », « Farming »), lecture des libellés en SIL-CP.
 
 ---
 
 ## 12. Lot 2 réalisé (2026-11-04)
 
-Jeu 5 « Message codé » (`game: 'codedMessage'`), parcours généré à partir du vocabulaire. Branche `feature/anagrammes-mysteres-lot2`, créée depuis `main` (`7ecfa71`), non fusionnée.
+Jeu 5 « Message codé » (`game: 'codedMessage'`), parcours généré à partir du vocabulaire. Branche `feature/anagrammes-mysteres-lot2`, créée depuis `main` (`7ecfa71`), fusionnée par la pull request n° 18 (commit de fusion `3922fff`).
 
 ### 12.1 Décisions d'Isaac du 2026-11-04 (appliquées telles quelles)
 
@@ -380,5 +380,93 @@ La suite Playwright complète n'a pas été lancée.
 ### 12.6 Reste à faire
 
 - **Clé partielle en CM1-CM2** (fiche L11 du catalogue) : reportée (C3).
-- **Phrases codées** : au lot 3, avec des phrases rédigées et vérifiées (C4).
+- **Phrases codées** : avec des phrases rédigées et vérifiées (C4) ; non prévues au lot 3, partie 1 (§13).
 - Validation par un enseignant des choix du §12.3 ; relecture par le reviewer.
+---
+
+## 13. Lot 3, partie 1 réalisé (2026-11-05)
+
+Jeu 2 « Casse-tête des syllabes » (`game: 'syllables'`) et jeu 3 « Phrase secrète » (`game: 'secretSentence'`), en **parcours préconçus**. Branche `feature/anagrammes-mysteres-lot3`, créée depuis `main` (`3922fff`).
+
+### 13.1 Source du contenu et validations
+
+- **Source** : « Parcours préconçus des anagrammes mystères, lot 3 (partie 1) — v0.1 » (`DIBIE/contenus/parcours-mysteres-v0.1.md`, dépôt JARVIS) : **44 parcours**, 20 du jeu 2 (français 4, 4, 4 ; anglais 2, 3, 3) et 24 du jeu 3 (4 par niveau et par langue).
+- **Validations** : proposé par l'educator le 2026-11-04 ; vérifié en partie par le researcher le 2026-11-04 (convention de syllabation française confirmée par des sources rapportées ; 12 mots anglais sans coupure vérifiée ; aucun manuel camerounais consulté) ; relu par le reviewer le 2026-11-05 ; **validé par Isaac le 2026-11-05** (contenus et décisions I1 à I14, selon les recommandations). **À valider par un enseignant** : statut `draft` de chaque parcours.
+- **Recopie** : `src/data/parcours-mysteres.js` reprend fidèlement mots, syllabations, syllabes données et leur rang, définitions, identifiants du vocabulaire, phrases, mots donnés, phrases acceptées et indices. Différences de forme seulement : mots et syllabes anglais écrits en capitales (comme les tuiles) ; la phrase à sujet inversé du parcours `phrase-secrete-fr-ce1-ce2-03` (« Dans la cour jouent les enfants. ») est retirée, conformément à I13. Aucun contenu n'a été modifié ni ajouté.
+
+### 13.2 Décisions appliquées
+
+| N° | Application |
+|---|---|
+| I1 | 44 parcours ; `syllabes-en-sil-cp-02` (MONDAY) gardé |
+| I2 | Jeu 2 proposé en SIL-CP français (4 parcours) |
+| I3 | Jeu 3 en CM1-CM2 : mots à trouver de 4 à 10 lettres (`presetLengths`) ; ailleurs, longueurs des anagrammes classiques |
+| I4 | Mots donnés d'office : étiquettes disponibles dès la finale, listés aussi dans la mission et la finale (« Mots déjà donnés ») |
+| I5 | Étiquettes du jeu 3 : en SIL-CP, écrites comme dans la phrase (majuscule du premier mot) ; en CE1-CE2 et CM1-CM2, en capitales |
+| I6 | À la fin, la phrase correcte de la variante trouvée (majuscule, virgules, point) ; « Sunday », « Monday » avec majuscule ; point final fixe affiché après les cases |
+| I7 | Toutes les phrases acceptées du contenu sont acceptées, « à confirmer » comprises |
+| I8 | Étapes présentées dans un ordre mélangé, tiré avec le numéro de partie ; jamais l'ordre de la solution |
+| I9 | Indices de la finale, tels que rédigés : jeu 2, définition du mot mystère puis première syllabe ; jeu 3, premier mot puis verbe |
+| I10 | TABLE, CÔTÉ, GROS et PLAY : `wordId: null`, réponse sans id ; l'étape garde un id propre au parcours |
+| I11 | Après chaque mot trouvé (ou montré), sa syllabation est affichée et la syllabe gagnée y est surlignée |
+| I12 | Non réalisée ici (validation par un enseignant, lot 4) |
+| I13 | Sujet inversé refusé en CE1-CE2 (phrase retirée des données), accepté en CM1-CM2 |
+| I14 | Première syllabe autorisée en SIL-CP : la règle 8 du §6.1 n'est pas étendue aux syllabes |
+
+### 13.3 Fichiers
+
+| Rôle | Fichier |
+|---|---|
+| Contenu | `src/data/parcours-mysteres.js` (nouveau) : les 44 parcours, statut `draft` |
+| Assemblage | `src/utils/mysteryPresets.js` (nouveau, pur) : choix du parcours par le numéro, mélanges (`createAnagramItem`), ordre des étapes, étiquettes ; `availablePresets`, `validateAllPresets`, `generatePresetPath` |
+| Moteur | `src/utils/mysteryEngine.js` : jeux 2 et 3 disponibles ; `PRESET_GAMES`, `LABEL_KINDS`, `presetLengths`, `sentenceLabel`, `presetElement`, `wonSyllableIndex`, `checkLabelAnswer`, `solutionLabels`, `correctLabelPositions` ; étoiles (2e essai faux de la finale) ; `isValidState` (indices bornés) |
+| Validation | `src/utils/mysteryValidation.js` : `validatePath` étendue aux parcours préconçus (§13.4) |
+| Point d'entrée | `src/utils/mysteryGenerators.js` : `generateMysteryPath` transmet les jeux 2 et 3 à `generatePresetPath` (jeux 1, 4 et 5 inchangés) |
+| Écran | `src/pages/MysteryGame.jsx` (mission, syllabe signalée, étiquettes à toucher, indices, victoire, statut « brouillon »), `src/styles/MysteryGame.css` |
+| Tests | `src/utils/mysteryPresets.test.js` (nouveau, P1 à P12), `mysteryEngine.test.js` (E1), `mysteryGenerators.test.js` (G2), `e2e/anagrammes-mysteres.spec.js` (accueil à 5 jeux disponibles, 6 tests des jeux 2 et 3) |
+
+Format : `MYSTERY_FORMAT_VERSION` reste à 1 ; les jeux 2 et 3 ajoutent leurs propres champs (§5 et `docs/data-dictionary.md`), sans changer les parcours ni les états des jeux 1, 4 et 5.
+
+### 13.4 Règles de validation des parcours préconçus (§6.3)
+
+Les règles communes du §6.1 s'appliquent (mêmes lettres et mélange différent de toute réponse, 3 lettres au moins, toutes les réponses donnent le même élément, jamais deux mots aux mêmes lettres, mot mystère compris, définitions qui ne donnent ni le mot d'étape ni la solution, mots interdits). Règles propres, nommées ainsi dans les erreurs de `validatePath` :
+
+- **`6.3.1`** : étape préconçue (id, définition non vide qui ne donne pas le mot, orthographe, longueur du niveau, identifiant du vocabulaire de même niveau, même langue et même orthographe) ;
+- **`J2`** (jeu 2) : la syllabe donnée est une syllabe du mot, à sa place ; les syllabes collées dans l'ordre forment le mot mystère ;
+- **`J3`** (jeu 3) : mots trouvés + mots donnés = exactement les mots de la phrase ; chaque phrase acceptée utilise exactement les mêmes mots ; étiquettes en capitales hors SIL-CP ; les étiquettes affichées ne forment aucune phrase acceptée ; aucune définition ne contient un autre mot à trouver de la phrase ;
+- **`D9`** (avec le vocabulaire) : toute anagramme du vocabulaire du niveau et de la langue (commençant par la lettre placée en SIL-CP) est une réponse acceptée de l'étape.
+
+Les indices du jeu 3 donnent volontairement le premier mot et le verbe (I9) : ils ne sont pas soumis à la règle 6. Un parcours qui échoue n'est jamais montré : il est écarté du choix ; sans parcours valide, le jeu est indisponible pour ce niveau et cette langue (bouton « Commencer » désactivé, message).
+
+### 13.5 Résultat de la validation des 44 parcours (par programme, 2026-11-05)
+
+`validatePath` avec le vocabulaire (`validateAllPresets`), numéros de partie 0, 1 et 12345 : **44 parcours valides sur 44 ; aucun parcours écarté**. Les tests unitaires le revérifient (P2 : numéros 0, 1, 2, 777 et 12345 ; P3 : numéros 0 à 59 par jeu, niveau et langue, chaque parcours atteint).
+
+- Seule anagramme du vocabulaire trouvée : LECTEUR (vocab_0335) pour LECTURE ; elle est acceptée et donne la même syllabe LEC, comme l'annonçait le contenu.
+- **Limite (D9)** : le seul dictionnaire est le vocabulaire Dibiè. Les anagrammes réelles absentes du vocabulaire (RAIDS, TENTA, GÉNOIS, TWINER…) ne sont pas détectées et seraient refusées ; leur relevé par l'educator reste fait de mémoire.
+- Un défaut de l'assemblage a été trouvé et corrigé pendant les tests (P9) : pour TÊTE (TÊ-TE, syllabe donnée TE, la 2e), la syllabe était d'abord cherchée par ses lettres et la 1re était signalée. Le rang du contenu est désormais enregistré (`syllableRank`) et utilisé.
+
+### 13.6 Choix provisoires (à valider par un enseignant)
+
+- **Choix du parcours** : le numéro de partie tire l'ordre des parcours du niveau et de la langue ; le premier valide est joué. Même numéro, même version, même niveau, même langue = même parcours et mêmes mélanges.
+- **Statut affiché** : « Démonstration (brouillon) » dans l'en-tête de la partie ; à l'écran de choix, « parcours rédigés à l'avance, encore en brouillon, en cours de validation par un enseignant ».
+- **Résolution finale** : cases et étiquettes à toucher (une étiquette touchée va dans la première case vide ; une case touchée rend l'étiquette). Réponse fausse : nombre de syllabes ou de mots bien placés (phrase acceptée la plus proche), sans dire lesquels. Pas d'indice automatique au 2e essai faux, mais ce 2e essai compte comme une aide pour les étoiles (2 au plus), comme au jeu 5 ; « Voir la solution » après 3 essais faux (1 étoile, sans les 10 points du mystère). Étoiles et points comme aux lots 1 et 2.
+- **Jeu 2** : étiquettes = syllabes gagnées dans l'ordre des étapes. La syllabe gagnée est signalée sur la syllabation du mot de l'étape, même si l'élève a écrit une autre anagramme acceptée (LECTEUR : LEC-TU-RE affiché).
+- **Jeu 3** : étiquettes mélangées à part (mots trouvés et mots donnés) ; l'ordre des étapes n'est jamais celui de la phrase. Les capitales gardent les accents (MÛRE, GARÇON, DÉBORDENT), contrairement aux tuiles.
+- **Orthographe montrée à la fin du jeu 2** : en capitales, comme le vocabulaire (TÉLÉPHONE, CARPENTER), sauf « Sunday » et « Monday » (I6).
+- **Progrès** : `itemId` = id propre à l'étape (`<id du parcours>-<n>`) ; `wordId` = id du vocabulaire de même sens et de même niveau, sinon `null`. `difficulty: null` (le contenu n'a pas de champ difficulté).
+
+### 13.7 Tests exécutés (2026-11-05)
+
+- `npm test` : 211 tests, 209 réussis, 2 ignorés, 0 échec (avant le lot : 199 tests, 197 réussis, 2 ignorés). Les empreintes des jeux 1, 4 et 5 (GR1, GR2) sont inchangées.
+- `npm run lint` et `npm run build` : sans erreur (avertissement habituel de Vite sur la taille du paquet).
+- Playwright limité à `e2e/anagrammes.spec.js` et `e2e/anagrammes-mysteres.spec.js`, 3 tailles d'écran : 81 réussis sur 81 (dont, par taille d'écran, 6 nouveaux tests des jeux 2 et 3 : partie complète du jeu 2 en français et en anglais, partie complète du jeu 3 avec une variante acceptée, sujet inversé refusé en CE1-CE2 et solution montrée, reprise pendant la finale, indices, 320 px).
+
+La suite Playwright complète n'a pas été lancée.
+
+### 13.8 Reste à faire
+
+- **Jeu 6 « Grande énigme »** (lot 3, partie 2) : contenus à rédiger et vérifier.
+- **Validation par un enseignant** (I12 ; points R1 à R7 du contenu) : syllabations (MOI-TIÉ, É-CO-LIER, mon-ey, fly-ing, trac-tor…), variantes « à confirmer », mots (JUDO, PÉPIN, LACET, COLIS, TRIMESTRE, MORTAR, LOTION, ATTEMPT), sens local de TRICOT, « Mum », balafon, lecture audio des définitions en SIL-CP ; puis statut `validated`.
+- Affichage du signe → (définition d'ARROW) : non vérifié sur des appareils réels ; le parcours `syllabes-en-ce1-ce2-03` n'est pas joué dans les tests navigateur.
+- Relecture par le reviewer.
