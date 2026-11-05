@@ -17,7 +17,8 @@
 - [x] Jeu Mots Mêlés (français ou anglais, selon la langue de l'interface ; liste de mots interdits encore vide, démonstration seulement)
 - [x] Jeu Anagrammes (phase 2, 2026-11-02 ; français ou anglais selon la langue de l'interface ; réglages par niveau provisoires, à valider par un enseignant ; liste de mots interdits encore vide, démonstration seulement)
 - [x] Anagrammes mystères, lot 1 (2026-11-03, fusionné) : accueil des deux familles, jeu 1 « Mot mystère » et jeu 4 « Mystère des thèmes », moteur, règles de validation, reprise, étoiles ; liste des thèmes validée par Isaac, à valider par un enseignant
-- [x] Anagrammes mystères, lot 2 (2026-11-04, branche `feature/anagrammes-mysteres-lot2`, non fusionnée) : jeu 5 « Message codé » (décisions C1 à C5 d'Isaac) ; jeux 2, 3 et 6 à venir
+- [x] Anagrammes mystères, lot 2 (2026-11-04, fusionné, pull request n° 18) : jeu 5 « Message codé » (décisions C1 à C5 d'Isaac)
+- [x] Anagrammes mystères, lot 3 partie 1 (2026-11-05, branche `feature/anagrammes-mysteres-lot3`, non commitée) : jeu 2 « Casse-tête des syllabes » et jeu 3 « Phrase secrète » en 44 parcours préconçus (validés par Isaac le 2026-11-05, décisions I1 à I14 ; à valider par un enseignant) ; jeu 6 à venir
 - [x] Jeu Pyramides additives et multiplicatives et pavé numérique réutilisable (phase 3, 2026-11-03 ; réglés par classe et sous-système du profil ; bornes reprises des programmes, provisoires, à valider par un enseignant de chaque sous-système)
 - [x] Dashboard Élève (scores, badges, streaks)
 - [x] Dashboard Enseignant (score total et nombre de parties par profil)
@@ -82,6 +83,7 @@ dibie-app/
 │   │   ├── vocabulaire.json
 │   │   ├── sujets-matieres.js
 │   │   ├── themes-mysteres.js [liste fixe des thèmes du jeu 4]
+│   │   ├── parcours-mysteres.js [parcours préconçus des jeux 2 et 3]
 │   │   └── reglages-maths.js [bornes et tables par classe et sous-système]
 │   ├── styles/               [CSS pages]
 │   │   ├── Login.css
@@ -145,7 +147,7 @@ Utilisez uniquement des données fictives : les profils et les rôles ne sont pa
 ### Phase 2 (Septembre)
 - [ ] Intégrer Anthropic API pour indices IA
 - [x] Ajouter jeu Anagrammes (2026-11-02)
-- [x] Anagrammes mystères, lot 1 (2026-11-03) et lot 2, jeu 5 (2026-11-04) ; lot 3 (jeux 2, 3, 6), lot 4 (validation enseignant) à faire
+- [x] Anagrammes mystères, lot 1 (2026-11-03), lot 2, jeu 5 (2026-11-04), lot 3 partie 1, jeux 2 et 3 (2026-11-05) ; lot 3 partie 2 (jeu 6), lot 4 (validation enseignant) à faire
 - [x] Ajouter jeu Pyramides et pavé numérique (2026-11-03)
 - [ ] Ajouter jeu Dominos
 - [ ] Améliorer UI animations

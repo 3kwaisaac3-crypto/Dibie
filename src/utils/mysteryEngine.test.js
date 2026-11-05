@@ -90,9 +90,10 @@ const themePath = () => ({
   }
 })
 
-test('E1 — six jeux annoncés, jeux 1 et 4 (lot 1) et 5 (lot 2) disponibles', () => {
+test('E1 — six jeux annoncés, jeux 1 et 4 (lot 1), 5 (lot 2), 2 et 3 (lot 3, parcours préconçus) disponibles', () => {
   assert.deepEqual(MYSTERY_GAMES.map(g => g.number), [1, 2, 3, 4, 5, 6])
-  assert.deepEqual(MYSTERY_GAMES.filter(g => g.available).map(g => g.id), ['mysteryWord', 'theme', 'codedMessage'])
+  assert.deepEqual(MYSTERY_GAMES.filter(g => g.available).map(g => g.id), ['mysteryWord', 'syllables', 'secretSentence', 'theme', 'codedMessage'])
+  assert.deepEqual(MYSTERY_GAMES.filter(g => !g.available).map(g => g.id), ['grandRiddle'])
   assert.deepEqual([...GENERATED_GAMES], ['mysteryWord', 'theme', 'codedMessage'])
   for (const g of MYSTERY_GAMES) assert.ok(g.fr && g.en)
 })

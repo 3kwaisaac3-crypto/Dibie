@@ -1,7 +1,8 @@
-// Anagrammes mystères (lots 1 et 2, docs/anagrammes-mysteres.md) : accueil des
+// Anagrammes mystères (lots 1, 2 et 3, docs/anagrammes-mysteres.md) : accueil des
 // deux familles, jeu classique toujours accessible, mot mystère complet en
 // français et en anglais, mystère des thèmes complet, message codé complet
-// (lot 2), mauvaise réponse finale, indices, étoiles, reprise après
+// (lot 2), casse-tête des syllabes et phrase secrète (lot 3, parcours
+// préconçus), mauvaise réponse finale, indices, étoiles, reprise après
 // rechargement, score et progrès enregistrés, retour au tableau de bord,
 // affichage à 320 px.
 // Le parcours attendu est calculé par les générateurs purs avec le vocabulaire
@@ -9,7 +10,9 @@
 import { test, expect } from '@playwright/test'
 import { connecterEleve, suivreErreurs, totalAffiche, vocabulaire } from './outils.js'
 import { generateMysteryWordPath, generateThemePath, generateCodedMessagePath, availableThemes } from '../src/utils/mysteryGenerators.js'
-import { codeKey } from '../src/utils/mysteryEngine.js'
+import { generatePresetPath } from '../src/utils/mysteryPresets.js'
+import { codeKey, LETTER_GAMES } from '../src/utils/mysteryEngine.js'
+import { normalizeWord } from '../src/utils/wordSearchGenerator.js'
 
 const motMystere = (niveau, numero, langue = 'fr') => generateMysteryWordPath(vocabulaire, niveau, numero, langue)
 const themes = (niveau, langue = 'fr') => availableThemes(vocabulaire, niveau, langue)
@@ -75,7 +78,7 @@ async function valider(page, langue = 'fr') {
 async function jouerEtapes(page, parcours, { langue = 'fr', debut = 0 } = {}) {
   const fr = langue === 'fr'
   // Jeux 1 et 5 : chaque étape donne une lettre (case marquée)
-  const motJeu = parcours.game !== 'theme'
+  const motJeu = LETTER_GAMES.includes(parcours.game)
   for (let i = debut; i < parcours.steps.length; i++) {
     const etape = parcours.steps[i]
     await expect(page.locator('.anagram-game__clue')).toHaveText(etape.definition)
@@ -96,10 +99,10 @@ async function jouerEtapes(page, parcours, { langue = 'fr', debut = 0 } = {}) {
 }
 
 // Contrôles communs de la victoire et des enregistrements
-async function controlerVictoire(page, parcours, { score, etoiles, aides, langue = 'fr' }) {
+async function controlerVictoire(page, parcours, { score, etoiles, aides, langue = 'fr', solution = parcours.final.display }) {
   const fr = langue === 'fr'
   await expect(page.locator('.anagram-finished')).toBeVisible()
-  await expect(page.locator('.mystery-victory__solution strong')).toHaveText(parcours.final.display)
+  await expect(page.locator('.mystery-victory__solution strong')).toHaveText(solution)
   await expect(page.getByRole('img', { name: fr ? `${etoiles} étoile${etoiles > 1 ? 's' : ''} sur 3` : `${etoiles} star${etoiles > 1 ? 's' : ''} out of 3` })).toBeVisible()
   await expect(page.locator('.anagram-finished__score')).toHaveText(String(score))
   await expect(page.locator('.mystery-skills li')).toHaveCount(3)
@@ -117,7 +120,7 @@ async function controlerVictoire(page, parcours, { score, etoiles, aides, langue
   expect(reprise).toEqual([])
 }
 
-test('Accueil du module : deux familles, jeu classique inchangé, six jeux mystères dont 3 disponibles, niveau du profil par défaut', async ({ page }) => {
+test('Accueil du module : deux familles, jeu classique inchangé, six jeux mystères dont 5 disponibles, niveau du profil par défaut', async ({ page }) => {
   const erreurs = suivreErreurs(page)
   await connecterEleve(page, { pseudo: 'Accueil', niveau: 'CM1-CM2' })
   await page.getByRole('button', { name: /Anagrammes/ }).click()
@@ -139,8 +142,8 @@ test('Accueil du module : deux familles, jeu classique inchangé, six jeux myst�
   await page.getByRole('button', { name: /Anagrammes mystères/ }).click()
   const jeux = page.locator('.mystery-games__btn')
   await expect(jeux).toHaveCount(6)
-  await expect(page.locator('.mystery-games__btn:not(:disabled)')).toHaveCount(3)
-  for (const n of [2, 3, 6]) {
+  await expect(page.locator('.mystery-games__btn:not(:disabled)')).toHaveCount(5)
+  for (const n of [6]) {
     const bouton = page.locator('.mystery-games__btn', { hasText: new RegExp(`^${n}\\.`) })
     await expect(bouton).toBeDisabled()
     await expect(bouton).toContainText('Bientôt')
@@ -547,5 +550,221 @@ test('Message codé : pas de débordement horizontal à 320 px (mot de 7 lettres
   expect(await deborde(page)).toBe(false)
   await page.getByRole('button', { name: 'Voir mon résultat' }).click()
   await expect(page.locator('.anagram-finished')).toBeVisible()
+  expect(await deborde(page)).toBe(false)
+})
+
+// --- Jeux 2 et 3 : Casse-tête des syllabes, Phrase secrète (lot 3, parcours préconçus) ---
+
+const preconcu = (jeu, niveau, numero, langue = 'fr') => generatePresetPath(jeu, vocabulaire, niveau, numero, langue)
+
+// Premier numéro (à partir de 1) qui choisit le parcours `id` du contenu
+function numeroDuParcours(jeu, niveau, langue, id) {
+  for (let numero = 1; numero < 500; numero++) {
+    if (preconcu(jeu, niveau, numero, langue)?.id === id) return numero
+  }
+  return null
+}
+
+// Pose les étiquettes de la finale dans l'ordre des textes donnés (mots ou
+// syllabes comparés en lettres de grille ; une étiquette déjà posée est sautée)
+async function poserEtiquettes(page, parcours, textes) {
+  const libres = parcours.final.labels.map((l, i) => ({ l, i }))
+  for (const texte of textes) {
+    const k = libres.findIndex(x => normalizeWord(x.l) === normalizeWord(texte))
+    const { i } = libres.splice(k, 1)[0]
+    await page.locator('.mystery-labels__pool button').nth(i).click()
+  }
+}
+
+const motsDe = (phrase) => phrase.replace(/[,.]/g, '').split(' ')
+
+test('Casse-tête des syllabes complet en français : syllabes gagnées signalées, étiquettes remises dans l\'ordre, 3 étoiles, score, brouillon affiché', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Syllabes FR', niveau: 'CE1-CE2' })
+  const numero = numeroDuParcours('syllables', 'CE1-CE2', 'fr', 'syllabes-fr-ce1-ce2-01')
+  expect(numero).not.toBeNull()
+  const parcours = preconcu('syllables', 'CE1-CE2', numero)
+  await ouvrirMysteres(page)
+  await page.locator('.mystery-games__btn', { hasText: /^2\./ }).click()
+  await expect(page.locator('.mystery-demo')).toContainText('brouillon')
+  await page.getByLabel('Numéro de partie (facultatif)').fill(String(numero))
+  await page.locator('.anagram-select__start').click()
+  await expect(page.locator('.mystery-mission')).toContainText(`Résous ${parcours.steps.length} anagrammes. Chaque mot trouvé te donne une syllabe.`)
+  await expect(page.locator('.anagram-game__seed')).toHaveText(`Partie n° ${numero} · français · Démonstration (brouillon)`)
+  await page.getByRole('button', { name: 'C\'est parti !' }).click()
+  for (let i = 0; i < parcours.steps.length; i++) {
+    const etape = parcours.steps[i]
+    await expect(page.locator('.anagram-game__clue')).toHaveText(etape.definition)
+    expect(await page.locator('.anagram-tile').allTextContents()).toEqual(etape.tiles)
+    await ecrire(page, etape.word, false)
+    await valider(page)
+    await expect(page.locator('.mystery-won')).toContainText('Syllabe gagnée')
+    await expect(page.locator('.mystery-won strong')).toHaveText(etape.secret)
+    // La syllabe gagnée est signalée dans la syllabation du mot trouvé (I11)
+    await expect(page.locator('.mystery-syllables__won')).toHaveText(etape.secret)
+    await expect(page.locator('.mystery-syllables')).toHaveText(etape.syllables.join('-'))
+    await expect(page.locator('.mystery-elements__item').nth(i)).toHaveText(etape.secret)
+    await page.getByRole('button', { name: i === parcours.steps.length - 1 ? 'Vers le mystère' : 'Anagramme suivante' }).click()
+  }
+  // Finale : les syllabes gagnées, dans l'ordre des étapes, en étiquettes
+  await expect(page.getByRole('heading', { name: 'Le mot mystère' })).toBeVisible()
+  expect(await page.locator('.mystery-labels__pool button').allTextContents()).toEqual(parcours.final.labels)
+  await expect(page.getByRole('button', { name: 'Valider', exact: true })).toBeDisabled()
+  await poserEtiquettes(page, parcours, parcours.final.syllables)
+  await valider(page)
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText('TÉLÉPHONE')
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  const score = (parcours.steps.length + 1) * 10
+  await controlerVictoire(page, parcours, { score, etoiles: 3, aides: 0 })
+  await expect(page.locator('.mystery-victory__solution')).toContainText('Le mot mystère')
+  const progres = await page.evaluate(() => JSON.parse(localStorage.getItem('dibieProgress')))
+  // CÔTÉ : autre sens dans le vocabulaire, non relié (I10)
+  const cote = parcours.steps.find(s => s.word === 'COTE')
+  expect(progres.find(p => p.itemId === cote.id)).toMatchObject({ wordId: null, isCorrect: true })
+  await page.getByRole('button', { name: 'Retour' }).click()
+  await totalAffiche(page, score)
+  expect(erreurs).toEqual([])
+})
+
+test('Casse-tête des syllabes en anglais (SIL-CP) : réponse fausse, indices (définition puis première syllabe), « Sunday » à la fin, 2 étoiles', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Syllables EN', niveau: 'SIL-CP' })
+  await page.getByRole('button', { name: 'English' }).click()
+  const numero = numeroDuParcours('syllables', 'SIL-CP', 'en', 'syllabes-en-sil-cp-01')
+  const parcours = preconcu('syllables', 'SIL-CP', numero, 'en')
+  await ouvrirMysteres(page, 'en')
+  await lancer(page, { jeu: 2, numero, langue: 'en' })
+  await expect(page.locator('.anagram-slot--given')).toHaveText(parcours.steps[0].firstLetter)
+  await jouerEtapes(page, parcours, { langue: 'en' })
+  // Réponse fausse : les syllabes dans l'ordre des étapes (jamais la solution)
+  await poserEtiquettes(page, parcours, parcours.final.labels)
+  await valider(page, 'en')
+  await expect(page.locator('.anagram-game__feedback')).toContainText('0 syllables are in the right place')
+  await page.getByRole('button', { name: 'Clear' }).click()
+  await page.getByRole('button', { name: /^Hint/ }).click()
+  await expect(page.locator('.mystery-final__hint')).toHaveText(`Hint: ${parcours.final.hints[0]}`)
+  await page.getByRole('button', { name: /^Hint/ }).click()
+  await expect(page.locator('.mystery-final__hint').nth(1)).toHaveText('Hint: The word begins with SUN.')
+  await expect(page.getByRole('button', { name: /^Hint/ })).toHaveCount(0)
+  await poserEtiquettes(page, parcours, ['SUN', 'DAY'])
+  await valider(page, 'en')
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText('Sunday')
+  await page.getByRole('button', { name: 'See my result' }).click()
+  await controlerVictoire(page, parcours, { score: 30, etoiles: 2, aides: 2, langue: 'en' })
+  expect(erreurs).toEqual([])
+})
+
+test('Phrase secrète complète en français (CE1-CE2) : mots donnés d\'office, étiquettes en capitales, variante acceptée avec sa phrase correcte, indice, 2 étoiles', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Phrase FR', niveau: 'CE1-CE2' })
+  const numero = numeroDuParcours('secretSentence', 'CE1-CE2', 'fr', 'phrase-secrete-fr-ce1-ce2-03')
+  expect(numero).not.toBeNull()
+  const parcours = preconcu('secretSentence', 'CE1-CE2', numero)
+  await ouvrirMysteres(page)
+  await lancer(page, { jeu: 3, numero })
+  await jouerEtapes(page, parcours)
+  await expect(page.getByRole('heading', { name: 'La phrase secrète' })).toBeVisible()
+  // Mots donnés d'office (I4), étiquettes en capitales (I5)
+  expect(await page.locator('.mystery-given__word').allTextContents()).toEqual(['LES', 'DANS', 'LA'])
+  expect(await page.locator('.mystery-labels__pool button').allTextContents()).toEqual(parcours.final.labels)
+  for (const l of parcours.final.labels) expect(l).toBe(l.toUpperCase())
+  // Indice 1 : le premier mot
+  await page.getByRole('button', { name: /^Indice/ }).click()
+  await expect(page.locator('.mystery-final__hint')).toHaveText('Indice : La phrase commence par Les.')
+  // Variante acceptée (I7) : complément en tête ; la phrase correcte s'affiche (I6)
+  const variante = 'Dans la cour, les enfants jouent.'
+  await poserEtiquettes(page, parcours, motsDe(variante))
+  await valider(page)
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText(variante)
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  await controlerVictoire(page, parcours, { score: 40, etoiles: 2, aides: 1, solution: variante })
+  await expect(page.locator('.mystery-victory__solution')).toContainText('La phrase secrète')
+  expect(erreurs).toEqual([])
+})
+
+test('Phrase secrète : sujet inversé refusé en CE1-CE2 (I13), mots bien placés, solution montrée après 3 essais = 1 étoile', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Phrase refus', niveau: 'CE1-CE2' })
+  const numero = numeroDuParcours('secretSentence', 'CE1-CE2', 'fr', 'phrase-secrete-fr-ce1-ce2-03')
+  const parcours = preconcu('secretSentence', 'CE1-CE2', numero)
+  await ouvrirMysteres(page)
+  await lancer(page, { jeu: 3, numero })
+  await jouerEtapes(page, parcours)
+  for (let essai = 1; essai <= 3; essai++) {
+    const effacer = page.getByRole('button', { name: 'Effacer' })
+    if (await effacer.isEnabled()) await effacer.click()
+    await poserEtiquettes(page, parcours, motsDe('Dans la cour jouent les enfants.'))
+    await valider(page)
+    await expect(page.locator('.anagram-game__feedback')).toContainText('bien placé')
+  }
+  await page.getByRole('button', { name: 'Voir la solution' }).click()
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText(parcours.final.display)
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  await controlerVictoire(page, parcours, { score: 30, etoiles: 1, aides: 0 })
+  await expect(page.locator('.anagram-finished h1')).toHaveText('Parcours terminé')
+  expect(erreurs).toEqual([])
+})
+
+test('Phrase secrète en anglais (SIL-CP) : étiquettes avec la majuscule du premier mot, reprise après rechargement pendant la finale', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Sentence EN', niveau: 'SIL-CP' })
+  await page.getByRole('button', { name: 'English' }).click()
+  const numero = numeroDuParcours('secretSentence', 'SIL-CP', 'en', 'phrase-secrete-en-sil-cp-02')
+  const parcours = preconcu('secretSentence', 'SIL-CP', numero, 'en')
+  await ouvrirMysteres(page, 'en')
+  await lancer(page, { jeu: 3, numero, langue: 'en' })
+  await jouerEtapes(page, parcours, { langue: 'en' })
+  // I5 : en SIL-CP, les étiquettes gardent l'écriture de la phrase
+  expect([...await page.locator('.mystery-labels__pool button').allTextContents()].sort()).toEqual(['Mum', 'cooks', 'rice'])
+  await page.getByRole('button', { name: /^Hint/ }).click()
+  const enregistre = await page.evaluate(() => JSON.parse(localStorage.getItem('dibieMysteryInProgress')))
+  expect(enregistre[0]).toMatchObject({ path: { id: parcours.id, game: 'secretSentence', status: 'draft' }, state: { phase: 'final', final: { hints: 1 } } })
+  await page.reload()
+  await expect(page.getByText('You have a mystery in progress')).toBeVisible()
+  await page.getByRole('button', { name: 'Resume' }).click()
+  await expect(page.locator('.mystery-final__hint')).toHaveText('Hint: The sentence begins with Mum.')
+  await poserEtiquettes(page, parcours, ['Mum', 'cooks', 'rice'])
+  await valider(page, 'en')
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText('Mum cooks rice.')
+  await page.getByRole('button', { name: 'See my result' }).click()
+  await controlerVictoire(page, parcours, { score: 40, etoiles: 2, aides: 1, langue: 'en' })
+  expect(erreurs).toEqual([])
+})
+
+test('Jeux 2 et 3 : pas de débordement horizontal à 320 px (phrase de 10 mots, étiquettes longues, victoire)', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 })
+  const numero = numeroDuParcours('secretSentence', 'CM1-CM2', 'en', 'phrase-secrete-en-cm1-cm2-03')
+  const parcours = preconcu('secretSentence', 'CM1-CM2', numero, 'en')
+  await connecterEleve(page, { pseudo: 'Small sentence', niveau: 'CM1-CM2' })
+  await page.getByRole('button', { name: 'English' }).click()
+  await ouvrirMysteres(page, 'en')
+  await page.locator('.mystery-games__btn', { hasText: /^3\./ }).click()
+  expect(await deborde(page)).toBe(false)
+  await page.getByLabel('Game number (optional)').fill(String(numero))
+  await page.locator('.anagram-select__start').click()
+  await expect(page.locator('.mystery-mission')).toBeVisible()
+  expect(await deborde(page)).toBe(false)
+  await page.getByRole('button', { name: 'Let\'s go!' }).click()
+  await jouerEtapes(page, parcours, { langue: 'en' })
+  await expect(page.locator('.mystery-labels__pool button')).toHaveCount(10)
+  expect(await deborde(page)).toBe(false)
+  await poserEtiquettes(page, parcours, motsDe(parcours.final.display))
+  expect(await deborde(page)).toBe(false)
+  await valider(page, 'en')
+  expect(await deborde(page)).toBe(false)
+  await page.getByRole('button', { name: 'See my result' }).click()
+  await expect(page.locator('.anagram-finished')).toBeVisible()
+  expect(await deborde(page)).toBe(false)
+
+  // Jeu 2 à 320 px : CM1-CM2, SUBTRACTION (11 lettres), finale par syllabes
+  await page.getByRole('button', { name: 'Another mystery' }).click()
+  const n2 = numeroDuParcours('syllables', 'CM1-CM2', 'en', 'syllabes-en-cm1-cm2-02')
+  const p2 = preconcu('syllables', 'CM1-CM2', n2, 'en')
+  await lancer(page, { jeu: 2, numero: n2, langue: 'en' })
+  await jouerEtapes(page, p2, { langue: 'en' })
+  expect(await deborde(page)).toBe(false)
+  await poserEtiquettes(page, p2, p2.final.syllables)
+  await valider(page, 'en')
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText('SUBTRACTION')
   expect(await deborde(page)).toBe(false)
 })
