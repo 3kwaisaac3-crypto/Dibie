@@ -1,10 +1,11 @@
 // Parcours préconçus des anagrammes mystères (lot 3, partie 1 : jeu 2
-// « Casse-tête des syllabes » et jeu 3 « Phrase secrète » ;
-// docs/anagrammes-mysteres.md §6.3 et §13). Module pur.
+// « Casse-tête des syllabes » et jeu 3 « Phrase secrète » ; lot 3, partie 2 :
+// jeu 6 « Grande énigme » ; docs/anagrammes-mysteres.md §6.3, §13 et §14).
+// Module pur.
 //
 // Le contenu (mots, syllabes, définitions, phrases, indices) vient UNIQUEMENT
-// de src/data/parcours-mysteres.js (validé par Isaac le 2026-11-05, à valider
-// par un enseignant). Ce module ne fait qu'assembler un parcours jouable, avec
+// de src/data/parcours-mysteres.js (jeux 2 et 3) et src/data/grande-enigme.js
+// (jeu 6), validés par Isaac le 2026-11-05, à valider par un enseignant. Ce module ne fait qu'assembler un parcours jouable, avec
 // la graine : choix du parcours parmi ceux du niveau et de la langue, mélange
 // des lettres (createAnagramItem : mêmes règles que les anagrammes classiques),
 // ordre des étapes (décision I8) et ordre des étiquettes de la finale.
@@ -19,13 +20,18 @@ import {
   buildAnswerIndex,
   containsBlocked,
   createAnagramItem,
+  definitionRevealsWord,
   letterKey,
   normalizeBlocked,
   shuffled
 } from './anagramGame.js'
-import { MYSTERY_FORMAT_VERSION, PRESET_GAMES, labelWords, sentenceLabel } from './mysteryEngine.js'
+import { MYSTERY_FORMAT_VERSION, PRESET_GAMES, labelWords, riddleKey, sentenceLabel } from './mysteryEngine.js'
 import { validatePath } from './mysteryValidation.js'
 import { PARCOURS_MYSTERES } from '../data/parcours-mysteres.js'
+import { GRANDE_ENIGME } from '../data/grande-enigme.js'
+
+// Tous les parcours préconçus : jeux 2 et 3 (44), jeu 6 (18)
+export const ALL_PRESETS = Object.freeze([...PARCOURS_MYSTERES, ...GRANDE_ENIGME])
 
 const FINAL_PROMPTS = {
   syllables: {
@@ -42,7 +48,7 @@ const FINAL_PROMPTS = {
 const ORDER_TRIES = 50
 
 // Parcours du contenu pour un jeu, un niveau et une langue (ordre du fichier)
-export const presetsFor = (game, level, language, presets = PARCOURS_MYSTERES) =>
+export const presetsFor = (game, level, language, presets = ALL_PRESETS) =>
   presets.filter(p => p.game === game && p.level === level && p.language === language)
 
 // Réponses acceptées d'une étape : celles du contenu, puis les anagrammes du
@@ -94,6 +100,7 @@ function sentenceLabelsOrder(labels, accepted, random) {
 export function buildPresetPath(raw, seed, random, { vocabulary = null, blockedWords = BLOCKED_WORDS } = {}) {
   const settings = ANAGRAM_SETTINGS[raw.level]
   if (!settings || !PRESET_GAMES.includes(raw.game)) return null
+  if (raw.game === 'grandRiddle') return buildRiddlePath(raw, seed, random, { vocabulary, blockedWords })
   const blocked = normalizeBlocked(blockedWords)
   const index = vocabulary ? buildAnswerIndex(vocabulary, raw.level, raw.language) : null
   const isSentence = raw.game === 'secretSentence'
@@ -181,10 +188,95 @@ export function buildPresetPath(raw, seed, random, { vocabulary = null, blockedW
   }
 }
 
+// Jeu 6 : position (en lettres) de l'élément dans le mot. Lettre : son rang
+// moins un ; syllabe : somme des syllabes qui la précèdent ; indice : null.
+function riddleIndex(element) {
+  if (element.type === 'letter') return Number.isInteger(element.rank) ? element.rank - 1 : null
+  if (element.type === 'syllable') return syllableIndex({ syllables: element.syllables, syllableRank: element.rank })
+  return null
+}
+
+// Jeu 6 : assemble un parcours jouable. Même ordre des tirages que les jeux 2
+// et 3 : mélanges des étapes (dans l'ordre du contenu), puis ordre des étapes.
+// Ordre des étapes (E9, comme I8) : les lettres et syllabes, dans l'ordre où
+// elles sont gagnées, ne redonnent jamais la solution ; un indice d'étape qui
+// contient un mot d'étape du parcours n'est donné qu'après cette étape (choix
+// provisoire, §14 du document : sinon l'indice aiderait à résoudre l'anagramme).
+function buildRiddlePath(raw, seed, random, { vocabulary, blockedWords }) {
+  const settings = ANAGRAM_SETTINGS[raw.level]
+  const blocked = normalizeBlocked(blockedWords)
+  const index = vocabulary ? buildAnswerIndex(vocabulary, raw.level, raw.language) : null
+  let piece = 0
+  const built = []
+  for (const [n, s] of raw.steps.entries()) {
+    const candidate = { id: `${raw.id}-${n + 1}`, word: s.word, display: s.display, definition: s.definition }
+    const item = createAnagramItem(candidate, stepAnswers(s, index), random, { firstLetterGiven: settings.firstLetterGiven, blockedWords: blocked })
+    if (item === null) return null
+    const wordId = s.answers[0]?.id ?? null
+    const answers = item.answers.map(a => (a.word === s.word ? { ...a, id: wordId } : a))
+    const element = { ...s.element, ...(s.element.syllables ? { syllables: [...s.element.syllables] } : {}) }
+    const isClue = element.type === 'clue'
+    const step = {
+      ...item,
+      answers,
+      wordId,
+      element,
+      secret: isClue ? element.text : element.value,
+      secretIndex: riddleIndex(element),
+      slot: isClue ? null : piece++
+    }
+    if (element.type === 'syllable') step.syllables = [...element.syllables]
+    built.push(step)
+  }
+
+  const solution = normalizeWord(raw.final.solution)
+  const inOrder = (order) => normalizeWord(order.map(k => built[k]).filter(st => st.slot !== null).map(st => st.secret).join('')) === solution
+  // Un indice qui contient le mot d'une autre étape vient après elle
+  const clueTooEarly = (order) => order.some((k, i) =>
+    built[k].element.type === 'clue' && order.slice(i + 1).some(j => definitionRevealsWord(built[k].secret, built[j].word)))
+  const order = stepOrder(built.length, (o) => inOrder(o) || clueTooEarly(o), random)
+  if (order === null) return null
+  const steps = order.map(k => built[k])
+
+  const display = raw.final.display ?? raw.final.solution
+  // Réponses acceptées : la solution (affichée avec son orthographe montrée),
+  // puis les variantes du contenu ; une seule fois par clé de comparaison
+  const accepted = []
+  for (const text of [display, ...raw.final.acceptedAnswers]) {
+    const word = riddleKey(text)
+    if (!accepted.some(a => a.word === word)) accepted.push({ id: null, word, display: text })
+  }
+  const final = {
+    kind: 'riddle',
+    type: raw.final.kind,
+    prompt: raw.final.prompt,
+    solution,
+    display,
+    acceptedAnswers: accepted,
+    hints: [...raw.final.hints]
+  }
+  if (raw.final.proverbText !== undefined) final.proverbText = raw.final.proverbText
+  if (raw.final.solutionId !== undefined) final.solutionId = raw.final.solutionId
+  return {
+    formatVersion: MYSTERY_FORMAT_VERSION,
+    id: raw.id,
+    game: raw.game,
+    language: raw.language,
+    level: raw.level,
+    seed,
+    theme: null,
+    difficulty: null,
+    extraction: { rule: 'riddle' },
+    steps,
+    final,
+    status: raw.status
+  }
+}
+
 // Parcours du contenu valides pour un jeu, un niveau et une langue (contrôlés
 // avec le vocabulaire, graine 0) : ceux que l'application peut montrer. Un
 // parcours qui échoue est simplement écarté.
-export function availablePresets(game, vocabulary, level, language = 'fr', { presets = PARCOURS_MYSTERES, blockedWords = BLOCKED_WORDS } = {}) {
+export function availablePresets(game, vocabulary, level, language = 'fr', { presets = ALL_PRESETS, blockedWords = BLOCKED_WORDS } = {}) {
   return presetsFor(game, level, language, presets).filter(raw => {
     const path = buildPresetPath(raw, 0, createRandom(0), { vocabulary, blockedWords })
     return path !== null && validatePath(path, { vocabulary, blockedWords }).length === 0
@@ -193,7 +285,7 @@ export function availablePresets(game, vocabulary, level, language = 'fr', { pre
 
 // Erreurs de validation de chaque parcours du contenu (rapport d'intégration
 // et tests) : [{ id, errors }], errors vide si le parcours est valide
-export function validateAllPresets(vocabulary, { presets = PARCOURS_MYSTERES, blockedWords = BLOCKED_WORDS, seed = 0 } = {}) {
+export function validateAllPresets(vocabulary, { presets = ALL_PRESETS, blockedWords = BLOCKED_WORDS, seed = 0 } = {}) {
   return presets.map(raw => {
     const path = buildPresetPath(raw, seed, createRandom(seed), { vocabulary, blockedWords })
     return {
@@ -206,7 +298,7 @@ export function validateAllPresets(vocabulary, { presets = PARCOURS_MYSTERES, bl
 // Jeux 2 et 3 : choisit un parcours parmi ceux du niveau et de la langue, avec
 // la graine, et l'assemble. Le premier parcours valide dans l'ordre tiré est
 // renvoyé ; à défaut (aucun parcours valide), null : le jeu est indisponible.
-export function generatePresetPath(game, vocabulary, level, seed, language = 'fr', { presets = PARCOURS_MYSTERES, blockedWords = BLOCKED_WORDS } = {}) {
+export function generatePresetPath(game, vocabulary, level, seed, language = 'fr', { presets = ALL_PRESETS, blockedWords = BLOCKED_WORDS } = {}) {
   if (!ANAGRAM_SETTINGS[level]) throw new RangeError(`generatePresetPath : niveau inconnu (${level})`)
   if (!isValidSeed(seed)) throw new RangeError('generatePresetPath : graine invalide')
   const blocked = normalizeBlocked(blockedWords)

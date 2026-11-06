@@ -388,11 +388,11 @@ export function generateThemePath(vocabulary, level, seed, language = 'fr', them
 }
 
 // Point d'entrée commun aux jeux générés (1, 4, 5) et aux jeux à parcours
-// préconçus (2, 3 : choix et assemblage d'un parcours du contenu, mysteryPresets.js)
+// préconçus (2, 3, 6 : choix et assemblage d'un parcours du contenu, mysteryPresets.js)
 export function generateMysteryPath(game, vocabulary, level, seed, language = 'fr', { themeId = null, themes = THEMES_MYSTERES, blockedWords = BLOCKED_WORDS } = {}) {
   if (game === 'mysteryWord') return generateMysteryWordPath(vocabulary, level, seed, language, { blockedWords })
   if (game === 'theme') return generateThemePath(vocabulary, level, seed, language, themeId, { themes, blockedWords })
   if (game === 'codedMessage') return generateCodedMessagePath(vocabulary, level, seed, language, { blockedWords })
-  if (game === 'syllables' || game === 'secretSentence') return generatePresetPath(game, vocabulary, level, seed, language, { blockedWords })
+  if (game === 'syllables' || game === 'secretSentence' || game === 'grandRiddle') return generatePresetPath(game, vocabulary, level, seed, language, { blockedWords })
   return null
 }

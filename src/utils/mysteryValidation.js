@@ -23,6 +23,12 @@
 //   SIL-CP (I5) ;
 // - 'D9' : toute anagramme du vocabulaire (niveau, langue, lettre placée en
 //   SIL-CP) est une réponse acceptée de l'étape.
+// - 'J6' (jeu 6, lot 3, partie 2 ; §14 du document) : chaque élément gagné est
+//   une lettre à son rang dans le mot (jamais la première en SIL-CP), une
+//   syllabe du mot à sa place (français seulement, E2) ou un indice textuel ;
+//   les lettres et syllabes, dans l'ordre, reconstituent EXACTEMENT la solution
+//   ou le mot manquant ; un indice d'étape qui contient un autre mot d'étape
+//   n'est donné qu'après cette étape.
 
 import { normalizeWord } from './wordSearchGenerator.js'
 import { BLOCKED_WORDS, entryText } from './wordSearchGame.js'
@@ -41,13 +47,17 @@ import {
   GENERATED_GAMES,
   LETTER_GAMES,
   PRESET_GAMES,
+  RIDDLE_ELEMENTS,
+  RIDDLE_TYPES,
   allowedRules,
+  assembleRiddle,
   assembleSolution,
   decodeMessage,
   extractSecret,
   labelWords,
   presetElement,
   presetLengths,
+  riddleKey,
   secretIndexFor,
   finalTiles
 } from './mysteryEngine.js'
@@ -119,11 +129,13 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
     if (isCodeGame && final.kind !== 'code') errors.push(err('forme', 'le message codé se résout par un décodage'))
   } else if (isPreset) {
     // Jeu 2 : chaque étape donne une syllabe, finale par syllabes ; jeu 3 :
-    // chaque étape donne un mot, finale par phrase. La règle 8 (pas de 1re
-    // lettre en SIL-CP) n'est pas étendue aux syllabes (décision I14).
-    const syllables = path.game === 'syllables'
-    if (extraction?.rule !== (syllables ? 'syllable' : 'word')) errors.push(err('forme', 'règle d\'extraction incohérente avec le jeu'))
-    if (final.kind !== (syllables ? 'syllables' : 'sentence')) errors.push(err('forme', 'résolution finale incohérente avec le jeu'))
+    // chaque étape donne un mot, finale par phrase ; jeu 6 : chaque étape donne
+    // une lettre, une syllabe ou un indice, finale par une réponse tapée. La
+    // règle 8 (pas de 1re lettre en SIL-CP) n'est pas étendue aux syllabes
+    // (décision I14) ; au jeu 6, elle s'applique aux lettres (règle J6).
+    const expected = { syllables: ['syllable', 'syllables'], secretSentence: ['word', 'sentence'], grandRiddle: ['riddle', 'riddle'] }[path.game]
+    if (extraction?.rule !== expected[0]) errors.push(err('forme', 'règle d\'extraction incohérente avec le jeu'))
+    if (final.kind !== expected[1]) errors.push(err('forme', 'résolution finale incohérente avec le jeu'))
     // Un parcours préconçu est rédigé (draft) ou validé par un enseignant (validated), jamais « generated » (§6.3, règle 3)
     if (!PRESET_STATUSES.includes(path.status)) errors.push(err('forme', `statut d'un parcours préconçu : ${path.status}`))
   } else {
@@ -161,10 +173,15 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
       // Règle 8 : en SIL-CP, la lettre secrète n'est jamais la lettre déjà placée
       if (settings.firstLetterGiven && step.secretIndex === 0) errors.push(err('6.1.8', `${where} : secret sur la lettre déjà placée`))
     }
+    // Parcours préconçus : élément attendu (un indice du jeu 6 reste son texte)
+    const expectedElement = path.game === 'grandRiddle' && step.element?.type === 'clue'
+      ? step.secret
+      : normalizeWord(String(step.secret ?? ''))
     for (const a of step.answers) {
-      // Parcours préconçus : syllabe à la même place (jeu 2), mot lui-même (jeu 3)
+      // Parcours préconçus : syllabe à la même place (jeux 2 et 6), mot lui-même
+      // (jeu 3), lettre à la même place (jeu 6), indice (jeu 6)
       const same = isPreset
-        ? presetElement(a, step, path.game) === normalizeWord(String(step.secret ?? '')) && normalizeWord(String(step.secret ?? '')) !== ''
+        ? typeof expectedElement === 'string' && expectedElement !== '' && presetElement(a, step, path.game) === expectedElement
         : extractSecret(a, extraction, step.secretIndex) === step.secret
       if (!same) errors.push(err('6.1.2', `${where} : ${a.word} donnerait un autre élément secret`))
     }
@@ -186,6 +203,7 @@ export function validatePath(path, { vocabulary = null, themes = THEMES_MYSTERES
   else if (isCodeGame) validateCodeFinal(path, keys, blocked, errors)
   else if (path.game === 'syllables') validateSyllableFinal(path, keys, blocked, errors)
   else if (path.game === 'secretSentence') validateSentenceFinal(path, blocked, errors)
+  else if (path.game === 'grandRiddle') validateRiddleFinal(path, keys, blocked, errors)
   else validateChoiceFinal(path, errors)
 
   if (vocabulary && isPreset) validatePresetVocabulary(path, vocabulary, errors)
@@ -210,6 +228,10 @@ function validatePresetStep(path, step, where, errors) {
     errors.push(err('6.3.1', `${where} : ${step.word} hors des longueurs du niveau (${lengths.minLength} à ${lengths.maxLength} lettres)`))
   }
   if (step.wordId !== null && !isText(step.wordId)) errors.push(err('6.3.1', `${where} : identifiant du vocabulaire invalide`))
+  if (path.game === 'grandRiddle') {
+    validateRiddleStep(path, step, where, errors)
+    return
+  }
   if (path.game !== 'syllables') return
   // Jeu 2 : la syllabation redonne le mot, et la syllabe donnée est une de ses
   // syllabes, à la place indiquée par secretIndex
@@ -226,6 +248,138 @@ function validatePresetStep(path, step, where, errors) {
   })
   if (!places.some(p => p.start === step.secretIndex && p.letters === normalizeWord(String(step.secret ?? '')))) {
     errors.push(err('J2', `${where} : la syllabe donnée n'est pas une syllabe du mot à cette place`))
+  }
+}
+
+// Syllabation d'un mot : les syllabes redonnent le mot, et `value` est une de
+// ses syllabes, à la position (en lettres) `index`. Vrai si tout concorde.
+function syllableAt(word, syllables, value, index) {
+  if (!Array.isArray(syllables) || syllables.length < 2 || !syllables.every(isText) || normalizeWord(syllables.join('')) !== word) return false
+  let start = 0
+  return syllables.some(syl => {
+    const ok = start === index && normalizeWord(syl) === normalizeWord(String(value ?? ''))
+    start += normalizeWord(syl).length
+    return ok
+  })
+}
+
+// Jeu 6 : élément gagné d'une étape (règle J6)
+function validateRiddleStep(path, step, where, errors) {
+  const el = step.element
+  if (!el || typeof el !== 'object' || !RIDDLE_ELEMENTS.includes(el.type)) {
+    errors.push(err('J6', `${where} : élément gagné illisible`))
+    return
+  }
+  if (el.type === 'clue') {
+    if (!isText(el.text) || step.secret !== el.text) errors.push(err('J6', `${where} : indice d'étape absent ou incohérent`))
+    if (step.secretIndex !== null || step.slot !== null) errors.push(err('J6', `${where} : un indice n'a ni place dans le mot ni rang dans la solution`))
+    return
+  }
+  const value = normalizeWord(String(el.value ?? ''))
+  if (value === '' || step.secret !== el.value) errors.push(err('J6', `${where} : élément gagné incohérent`))
+  if (!Number.isInteger(el.rank) || el.rank < 1) {
+    errors.push(err('J6', `${where} : rang de l'élément invalide`))
+    return
+  }
+  if (el.type === 'letter') {
+    if (value.length !== 1 || step.secretIndex !== el.rank - 1 || step.word[step.secretIndex] !== value) {
+      errors.push(err('J6', `${where} : ${el.value} n'est pas la lettre n° ${el.rank} de ${step.word}`))
+    }
+    // Règle 8 du §6.1 : en SIL-CP, la première lettre est déjà placée
+    if (ANAGRAM_SETTINGS[path.level]?.firstLetterGiven && step.secretIndex === 0) {
+      errors.push(err('J6', `${where} : en ${path.level}, jamais la première lettre (déjà placée)`))
+    }
+    return
+  }
+  // Syllabe : français seulement (E2), à sa place dans la syllabation du mot
+  if (path.language !== 'fr') errors.push(err('J6', `${where} : pas de syllabe en anglais (E2)`))
+  const syllables = el.syllables
+  if (!Array.isArray(syllables) || JSON.stringify(step.syllables) !== JSON.stringify(syllables) ||
+    normalizeWord(String(syllables[el.rank - 1] ?? '')) !== value || !syllableAt(step.word, syllables, el.value, step.secretIndex)) {
+    errors.push(err('J6', `${where} : ${el.value} n'est pas la syllabe n° ${el.rank} de ${step.word}`))
+  }
+}
+
+// Jeu 6 : résolution finale, réponse tapée (G4, E5, E6) ; reconstitution (J6)
+function validateRiddleFinal(path, keys, blocked, errors) {
+  const { final, steps } = path
+  const solution = final.solution
+  if (typeof solution !== 'string' || !/^[A-Z]+$/.test(solution) || solution.length < MIN_WORD_LENGTH) {
+    errors.push(err('forme', 'solution de l\'énigme invalide'))
+    return
+  }
+  if (!RIDDLE_TYPES.includes(final.type)) errors.push(err('forme', `type d'énigme inconnu : ${final.type}`))
+  if (!isText(final.prompt)) errors.push(err('forme', 'consigne de la finale absente'))
+  // Règle 3 : la solution n'a pas les mêmes lettres qu'un mot d'étape
+  if (keys.has(letterKey(solution))) errors.push(err('6.1.3', 'la solution a les mêmes lettres qu\'un mot d\'étape'))
+
+  // J6 (règle 4) : les lettres et syllabes, rangées dans l'ordre de la
+  // solution, la reconstituent exactement ; les indices s'y ajoutent
+  const pieces = steps.filter(s => s.element?.type !== 'clue')
+  const slots = pieces.map(s => s.slot)
+  if (pieces.length === 0 || !slots.every(n => Number.isInteger(n) && n >= 0 && n < pieces.length) || new Set(slots).size !== slots.length) {
+    errors.push(err('J6', 'rangs des lettres et syllabes incohérents'))
+    return
+  }
+  if (assembleRiddle(path) !== solution) errors.push(err('J6', 'les lettres et syllabes, dans l\'ordre, ne reconstituent pas exactement la solution'))
+  // Règle 1 : dans l'ordre où elles sont gagnées, elles ne donnent pas la solution
+  const gained = pieces.map(s => normalizeWord(String(s.secret ?? ''))).join('')
+  if (gained === solution) errors.push(err('6.1.1', 'les éléments gagnés donnent déjà la solution dans l\'ordre'))
+  // J6 : un indice d'étape ne donne pas le mot d'une étape présentée après lui
+  steps.forEach((step, i) => {
+    if (step.element?.type !== 'clue') return
+    for (const other of steps.slice(i + 1)) {
+      if (definitionRevealsWord(String(step.secret ?? ''), other.word)) {
+        errors.push(err('J6', `étape ${i + 1} : l'indice donne le mot ${other.word}, présenté après lui`))
+      }
+    }
+  })
+  // Règle 6 (et §2.3 du contenu) : aucune définition ne contient un autre mot d'étape
+  for (const [n, step] of steps.entries()) {
+    for (const other of steps) {
+      if (other !== step && definitionRevealsWord(step.definition, other.word)) {
+        errors.push(err('6.1.6', `étape ${n + 1} : la définition donne le mot ${other.word}`))
+      }
+    }
+  }
+
+  // Règle 5 : solution et variantes listées (E6), une fois chacune, chacune
+  // avec la clé de comparaison de son texte (casse, accents, espaces, tirets,
+  // apostrophes ignorés)
+  const accepted = Array.isArray(final.acceptedAnswers) ? final.acceptedAnswers : []
+  if (!isText(final.display) || riddleKey(final.display) !== solution) errors.push(err('6.1.5', 'orthographe affichée incohérente avec la solution'))
+  if (!accepted.some(a => a?.word === solution)) errors.push(err('6.1.5', 'la solution n\'est pas parmi les réponses acceptées'))
+  if (new Set(accepted.map(a => a?.word)).size !== accepted.length) errors.push(err('6.1.5', 'réponse acceptée en double'))
+  for (const a of accepted) {
+    if (!isText(a?.display) || typeof a.word !== 'string' || a.word === '' || a.word !== riddleKey(a.display)) {
+      errors.push(err('6.1.5', 'réponse acceptée incohérente avec son texte'))
+    }
+  }
+
+  // Règle 6 : ni définition, ni indice d'étape, ni indice de la finale, ni
+  // consigne ne contient la solution ou une forme qui commence par elle
+  const hints = Array.isArray(final.hints) ? final.hints : []
+  const texts = [
+    ...steps.map(s => s.definition),
+    ...steps.filter(s => s.element?.type === 'clue').map(s => s.secret),
+    ...hints,
+    final.prompt,
+    final.proverbText
+  ].filter(isText)
+  if (texts.some(text => definitionRevealsWord(text, solution))) errors.push(err('6.1.6', 'un texte du parcours donne la solution'))
+  // E5 : deux indices de finale
+  if (hints.length !== 2 || !hints.every(isText)) errors.push(err('forme', 'indices de la finale : 2 attendus (E5)'))
+  // Proverbe : texte affiché avec un seul trou, repris dans la consigne
+  if (final.type === 'proverb') {
+    if (!isText(final.proverbText) || final.proverbText.split('___').length !== 2 || !String(final.prompt).includes(final.proverbText)) {
+      errors.push(err('forme', 'proverbe : un seul trou, repris dans la consigne'))
+    }
+  } else if (final.proverbText !== undefined) {
+    errors.push(err('forme', 'texte de proverbe hors d\'une énigme de type proverbe'))
+  }
+  // Règle 7 : mots interdits dans la solution, les éléments gagnés et les réponses acceptées
+  if (containsBlocked(solution, blocked) || containsBlocked(gained, blocked) || accepted.some(a => containsBlocked(String(a?.word ?? ''), blocked))) {
+    errors.push(err('6.1.7', 'mot interdit dans la solution'))
   }
 }
 
@@ -362,6 +516,10 @@ function validatePresetVocabulary(path, vocabulary, errors) {
       .filter(a => !settings.firstLetterGiven || a.word[0] === step.word[0])
       .filter(a => !step.answers.some(b => b.word === a.word))
     for (const a of missing) errors.push(err('D9', `${where} : anagramme du vocabulaire non acceptée : ${a.word} (${a.id})`))
+  }
+  // Jeu 6 : entrée du vocabulaire de la solution, si le contenu la cite
+  if (path.game === 'grandRiddle' && path.final.solutionId !== undefined && !linked(path.final.solutionId, path.final.solution)) {
+    errors.push(err('6.3.1', `solution reliée à ${path.final.solutionId}, incohérent`))
   }
   if (path.game === 'syllables') {
     const answer = path.final.acceptedAnswers[0]
