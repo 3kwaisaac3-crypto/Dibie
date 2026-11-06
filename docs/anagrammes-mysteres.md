@@ -1,7 +1,7 @@
 # Anagrammes mystères : audit et conception (phases A et B)
 
 - **Date** : 2026-11-03
-- **Statut** : **architecture validée par Isaac le 2026-11-03** (décisions M1 à M8 : toutes les recommandations du §9). **Lot 1 réalisé** le 2026-11-03 (pull request n° 17, fusionnée) : voir §11. **Lot 2 réalisé** le 2026-11-04 (pull request n° 18, fusionnée dans `main` par `3922fff`) : voir §12. **Lot 3, partie 1, réalisé** le 2026-11-05 sur la branche `feature/anagrammes-mysteres-lot3` (non commité à la rédaction) : jeux 2 et 3 en parcours préconçus, voir §13.
+- **Statut** : **architecture validée par Isaac le 2026-11-03** (décisions M1 à M8 : toutes les recommandations du §9). **Lot 1 réalisé** le 2026-11-03 (pull request n° 17, fusionnée) : voir §11. **Lot 2 réalisé** le 2026-11-04 (pull request n° 18, fusionnée dans `main` par `3922fff`) : voir §12. **Lot 3, partie 1, réalisé** le 2026-11-05 (pull request n° 19, fusionnée) : jeux 2 et 3 en parcours préconçus, voir §13. **Lot 3, partie 2, réalisé** le 2026-11-06 sur la branche `feature/anagrammes-mysteres-lot3-jeu6` (non commité à la rédaction) : jeu 6, voir §14.
 - **Demande** : cahier des charges « Extension du module anagrammes : anagrammes classiques et jeux de mystères lexicaux », fourni par Isaac le 2026-11-03.
 - **Point de départ** : `main` = `53d4244`.
 
@@ -312,7 +312,7 @@ Vérifié après correction : `npm test` 184 réussis, 2 ignorés, 0 échec ; li
 
 ### 11.5 Reste à faire
 
-- Lot 3, partie 2 (jeu 6, contenus à rédiger et vérifier), lot 4 (validation par un enseignant, statut `validated`, trophées). Lot 2 : voir §12 ; lot 3, partie 1 (jeux 2 et 3) : voir §13.
+- Lot 3, partie 2 (jeu 6 : voir §14), lot 4 (validation par un enseignant, statut `validated`, trophées). Lot 2 : voir §12 ; lot 3, partie 1 (jeux 2 et 3) : voir §13.
 - Validation par un enseignant : liste des thèmes, réglages du §11.2, libellés (« The kitchen », « Craftspeople », « Farming »), lecture des libellés en SIL-CP.
 
 ---
@@ -466,7 +466,81 @@ La suite Playwright complète n'a pas été lancée.
 
 ### 13.8 Reste à faire
 
-- **Jeu 6 « Grande énigme »** (lot 3, partie 2) : contenus à rédiger et vérifier.
+- **Jeu 6 « Grande énigme »** (lot 3, partie 2) : réalisé, voir §14.
 - **Validation par un enseignant** (I12 ; points R1 à R7 du contenu) : syllabations (MOI-TIÉ, É-CO-LIER, mon-ey, fly-ing, trac-tor…), variantes « à confirmer », mots (JUDO, PÉPIN, LACET, COLIS, TRIMESTRE, MORTAR, LOTION, ATTEMPT), sens local de TRICOT, « Mum », balafon, lecture audio des définitions en SIL-CP ; puis statut `validated`.
 - Affichage du signe → (définition d'ARROW) : non vérifié sur des appareils réels ; le parcours `syllabes-en-ce1-ce2-03` n'est pas joué dans les tests navigateur.
-- Relecture par le reviewer.
+- ~~Relecture par le reviewer~~ : faite le 2026-11-05 (PRÊT AVEC RÉSERVES, réserve corrigée).
+
+
+---
+
+## 14. Lot 3, partie 2 réalisé (2026-11-06)
+
+Jeu 6 « Grande énigme » (`game: 'grandRiddle'`), en **parcours préconçus**. Branche `feature/anagrammes-mysteres-lot3-jeu6`, créée depuis `main` (`394baf3`).
+
+### 14.1 Source du contenu et validations
+
+- **Source** : « Parcours préconçus des anagrammes mystères, lot 3 (partie 2) : jeu 6 « Grande énigme » — v0.1 » (`DIBIE/contenus/grande-enigme-v0.1.md`, dépôt JARVIS) : **18 parcours**, 3 par niveau et par langue. Faits culturels issus de la fiche du researcher (`grande-enigme-faits-v0.1.md`, en brouillon) ; certains faits sont seulement « rapportés » (ND1 à ND3, T1 à T5, BK3, FM5, P1).
+- **Validations** : rédigé par l'educator le 2026-11-05 ; relu par le reviewer en un passage (PRÊT AVEC RÉSERVES) ; **validé par Isaac le 2026-11-05** (décisions E1 à E10 selon les recommandations, avec E2 option (b) : 7 étapes pour `en-cm1-cm2-01`, et E9 aligné sur les jeux 2 et 3). **À valider par un enseignant** : statut `draft` de chaque parcours.
+- **Recopie** : `src/data/grande-enigme.js` reprend mots, éléments gagnés et rangs, définitions, ids du vocabulaire (« autre niveau », « autre sens », « — » : `wordId: null`), consignes, solutions, réponses acceptées, indices de finale et textes des indices d'étape. Différences de forme seulement : mots anglais en capitales ; l'orthographe « Lobé » / « Ndolé » de la solution anglaise est gardée dans `display`. Aucun contenu n'a été modifié ni ajouté.
+
+### 14.2 Décisions appliquées
+
+| N° | Application |
+|---|---|
+| E1, E3, E4 | Contenu tel que validé (18 parcours ; exception BALAFON / DRUM ; pas de type Mot au CM) |
+| E2 | Pas de syllabe en anglais (la règle J6 le vérifie) ; `en-cm1-cm2-01` : 7 étapes, 6 lettres + 1 indice |
+| E5 | 2 indices de finale (indice 1 fait ou devinette, indice 2 première lettre ou prénom + initiale), tels que rédigés |
+| E6 | Finale **tapée** ; comparaison sur les lettres de grille (casse, accents, espaces, tirets, apostrophes ignorés, `riddleKey`) ; réponses acceptées du contenu ; MILLER, TOGUH et DRUMS refusés |
+| E7 | Proverbe affiché avec un trou (`proverbText`) ; l'élève écrit le seul mot manquant ; proverbe complété montré à la fin |
+| E9 | Étapes dans un ordre mélangé tiré avec le numéro de partie ; éléments affichés dans l'ordre où ils sont gagnés ; indices d'étape rangés dans un **carnet** (repliable pendant les étapes, ouvert à la finale) ; réponse fausse : « relis tes indices », sans indice automatique ; le 2e essai faux compte comme une aide (2 étoiles au plus) ; « Voir la solution » après 3 essais faux (1 étoile, sans les 10 points) |
+| F4 | Une consigne de finale qui contient un mot d'étape n'est affichée qu'à la finale (`riddlePromptAtMission`) : trois parcours concernés, `fr-ce1-ce2-03` (MUSIQUE), `en-cm1-cm2-01` (CHAMPION, OLYMPIC) et `en-cm1-cm2-03` (PROVERB) ; à la mission, « L'énigme te sera donnée à la fin. » |
+| Statut | `draft` affiché « Démonstration (brouillon) », comme les jeux 2 et 3 |
+
+### 14.3 Fichiers
+
+| Rôle | Fichier |
+|---|---|
+| Contenu | `src/data/grande-enigme.js` (nouveau) : les 18 parcours, statut `draft` |
+| Assemblage | `src/utils/mysteryPresets.js` : `buildRiddlePath`, `ALL_PRESETS` (jeux 2, 3 et 6) ; choix du parcours et mélanges comme aux jeux 2 et 3 |
+| Moteur | `src/utils/mysteryEngine.js` : jeu 6 disponible ; `PRESET_GAMES`, `RIDDLE_TYPES`, `RIDDLE_ELEMENTS`, `riddleKey`, `checkRiddleAnswer`, `riddlePieces`, `assembleRiddle`, `riddlePromptAtMission`, `filledProverb` ; `presetElement` (lettre, indice) ; étoiles (2e essai faux, finale `riddle`) ; `isValidState` (indices bornés) |
+| Validation | `src/utils/mysteryValidation.js` : `validateRiddleStep`, `validateRiddleFinal` (règle **J6**) |
+| Point d'entrée | `src/utils/mysteryGenerators.js` : `generateMysteryPath` transmet le jeu 6 à `generatePresetPath` |
+| Écran | `src/pages/MysteryGame.jsx` (mission, barre des éléments, carnet, finale tapée, victoire), `src/styles/MysteryGame.css` |
+| Tests | `src/utils/grandeEnigme.test.js` (nouveau, R1 à R7), `mysteryEngine.test.js` (E1 mis à jour), `mysteryGenerators.test.js` (G2), `e2e/anagrammes-mysteres.spec.js` (accueil à 6 jeux disponibles, 7 tests du jeu 6) |
+
+Format : `MYSTERY_FORMAT_VERSION` reste à 1 ; le jeu 6 ajoute ses propres champs (`element`, `final.type`, `final.proverbText`…), sans changer les parcours ni les états des jeux 1 à 5 (empreintes GR1 et GR2 inchangées, tests réussis). Les jeux 2 et 3 choisissent les mêmes parcours qu'avant (test R3).
+
+### 14.4 Règles de validation (§6.3)
+
+Les règles communes du §6.1 s'appliquent. Règles propres, nommées ainsi dans les erreurs de `validatePath` :
+
+- **`J6`** : chaque élément est une lettre à son rang dans le mot (jamais la première en SIL-CP), une syllabe du mot à sa place (français seulement) ou un indice ; les lettres et syllabes, rangées dans l'ordre de la solution, reconstituent **exactement** la solution (ou le mot manquant) ; un indice d'étape qui contient un autre mot d'étape ne vient jamais avant lui ;
+- **6.1.1** : lettres et syllabes, dans l'ordre où elles sont gagnées, ne donnent pas la solution ;
+- **6.1.5** : solution et variantes listées, chacune avec sa clé de comparaison ; **6.1.6** : ni définition, ni indice, ni consigne ne contient la solution, et aucune définition ne contient un autre mot d'étape ; **6.1.3**, **6.1.7**, **6.3.1** (dont `solutionId`) et **D9** comme aux jeux 2 et 3 ; 2 indices de finale ; proverbe : un seul trou repris dans la consigne.
+
+### 14.5 Résultat de la validation des 18 parcours (par programme, 2026-11-06)
+
+`validatePath` avec le vocabulaire (`validateAllPresets`), numéros de partie 0, 1 et 12345 : **18 parcours valides sur 18 ; aucun parcours écarté ni corrigé**. Le test R2 le revérifie pour les numéros 0, 1, 2, 777 et 12345 ; R3 : numéros 0 à 59 par niveau et par langue, chaque parcours atteint. Aucune autre anagramme du vocabulaire n'a été trouvée pour les mots d'étape (comme l'annonçait le contenu). Limite (D9) : le seul dictionnaire est le vocabulaire Dibiè ; les anagrammes réelles hors vocabulaire (BRAS/BARS, STADE/DATES…) ne sont pas détectées.
+
+### 14.6 Choix provisoires (à valider par un enseignant)
+
+- **Ordre des étapes** : en plus de ne jamais redonner la solution dans l'ordre gagné, un indice d'étape qui contient le mot d'une autre étape est placé après elle (cas : l'indice de PODIUM, « médaille », vient après MÉDAILLE ; sinon il aiderait à résoudre l'anagramme). Cette contrainte n'est pas dans le contenu.
+- **Barre des éléments** : une lettre ou une syllabe s'y affiche ; un indice y est marqué « Indice » et son texte va au carnet. Une lettre est marquée ★ dans le mot trouvé (comme au jeu 1) ; une syllabe est signalée dans sa syllabation (I11).
+- **Réponse affichée** : l'orthographe de la réponse acceptée trouvée (nom complet si l'élève l'a tapé, comme au jeu 3) ; solution montrée : l'orthographe de la source (« Lobé », « Ndolé » en anglais).
+- **Étoiles et points** : comme aux jeux 2 et 3 (10 par anagramme, 10 pour la finale ; `itemId` = id de l'étape ou `final`, `wordId` = id du vocabulaire de même sens ou `null`).
+- Interface du carnet, de la saisie et libellés : provisoires.
+
+### 14.7 Tests exécutés (2026-11-06)
+
+- `npm test` : 218 tests, 216 réussis, 2 ignorés, 0 échec (avant le lot : 211 tests, 209 réussis, 2 ignorés ; 7 nouveaux tests R1 à R7 dans `grandeEnigme.test.js`). Les empreintes des jeux 1, 4 et 5 (GR1, GR2) sont inchangées. Deux tests existants ont été mis à jour parce que le jeu 6 est désormais disponible : `mysteryEngine.test.js` (E1, six jeux disponibles) et `mysteryGenerators.test.js` (G2, `grandRiddle` ne renvoie plus `null`).
+- `npm run lint` et `npm run build` : sans erreur (avertissement habituel de Vite sur la taille du paquet).
+- Playwright limité à `e2e/anagrammes.spec.js` et `e2e/anagrammes-mysteres.spec.js`, 3 tailles d'écran : 102 réussis sur 102 (avant le lot : 81 ; 7 nouveaux tests du jeu 6 par taille d'écran : partie complète en français avec variante acceptée, réponse fausse et accents avec 2 indices, partie complète en anglais à 7 étapes avec consigne montrée seulement à la finale, proverbe, solution montrée, reprise pendant la finale, 320 px ; l'accueil vérifie 6 jeux disponibles).
+
+La suite Playwright complète n'a pas été lancée.
+
+### 14.8 Reste à faire
+
+- **Validation par un enseignant** (E10 ; §8 de la source) : faits « rapportés », connaissance des sujets par les élèves, niveau des mots d'étape, syllabations françaises, lettre M seule pour MBANGO, usage anglophone camerounais, proverbe P1 ; puis statut `validated`.
+- Sujets gardés en réserve (E4) pour un lot ultérieur ; lot 4 (validation, trophées).
+- ~~Relecture par le reviewer~~ : faite le 2026-11-06 en un passage (PRÊT, aucune réserve substantielle ; `npm test` et lint revérifiés par le reviewer ; le Playwright de la partie 14.7 n'a pas pu être revérifié par lui).

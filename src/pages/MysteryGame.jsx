@@ -43,7 +43,10 @@ import {
   checkLabelAnswer,
   solutionLabels,
   correctLabelPositions,
-  wonSyllableIndex
+  wonSyllableIndex,
+  checkRiddleAnswer,
+  riddlePromptAtMission,
+  filledProverb
 } from '../utils/mysteryEngine'
 import { validatePath } from '../utils/mysteryValidation'
 import { generateMysteryPath, availableThemes } from '../utils/mysteryGenerators'
@@ -57,13 +60,14 @@ import '../styles/MysteryGame.css'
 // docs/anagrammes-mysteres.md, architecture validée par Isaac le 2026-11-03).
 // Jeux disponibles : 1 « Mot mystère », 4 « Mystère des thèmes », 5
 // « Message codé » (lot 2), 2 « Casse-tête des syllabes » et 3 « Phrase
-// secrète » (lot 3, partie 1) ; le jeu 6 est annoncé « bientôt ». Écrans :
+// secrète » (lot 3, partie 1), 6 « Grande énigme » (lot 3, partie 2). Écrans :
 // choix du jeu, du niveau (et du thème), mission, anagrammes avec la barre des
 // éléments gagnés, résolution finale, victoire. La langue des mots suit
 // l'interface au lancement (§7). Jeux 1, 4, 5 : parcours générés
 // automatiquement, marqués « démonstration » (statut generated, M2). Jeux 2
-// et 3 : parcours préconçus (src/data/parcours-mysteres.js), choisis avec le
-// numéro de partie, marqués « démonstration, brouillon » (statut draft).
+// 2, 3 et 6 : parcours préconçus (src/data/parcours-mysteres.js,
+// src/data/grande-enigme.js), choisis avec le numéro de partie, marqués
+// « démonstration, brouillon » (statut draft).
 // Interface : CHOIX PROVISOIRE, à valider par un enseignant. Pas de
 // chronomètre (D5).
 
@@ -115,6 +119,8 @@ export default function MysteryGame() {
   // Jeux 2 et 3 : étiquette posée dans chaque case de la résolution finale
   // (indice dans final.labels, ou null). Non enregistrées, comme les lettres.
   const [labelSlots, setLabelSlots] = useState(null)
+  // Jeu 6 : réponse tapée à la finale. Non enregistrée, comme les lettres.
+  const [riddleInput, setRiddleInput] = useState('')
   // Jeux 2 et 3 : nombre de parcours valides pour le niveau et la langue
   const [presetCounts, setPresetCounts] = useState({})
   const busyRef = useRef(false)
@@ -191,6 +197,7 @@ export default function MysteryGame() {
       setReviewFinal(false)
       setCodeEntries(null)
       setLabelSlots(null)
+      setRiddleInput('')
       persist(p, s)
       setScreen('playing')
     } catch (e) {
@@ -226,6 +233,7 @@ export default function MysteryGame() {
     setReviewFinal(false)
     setCodeEntries(null)
     setLabelSlots(null)
+    setRiddleInput('')
     setScreen('playing')
   }
 
@@ -434,6 +442,8 @@ export default function MysteryGame() {
   // Jeux 2 et 3 : parcours préconçus, résolution par étiquettes
   const isSyllableGame = path.game === 'syllables'
   const isSentenceGame = path.game === 'secretSentence'
+  // Jeu 6 : chaque étape donne une lettre, une syllabe ou un indice (carnet)
+  const isRiddleGame = path.game === 'grandRiddle'
   const pathLanguage = path.language === 'en' ? t('anglais', 'English') : t('français', 'French')
   // Statut montré à l'adulte : généré (démonstration) ou rédigé, en brouillon
   const statusText = path.status === 'draft'
@@ -460,7 +470,21 @@ export default function MysteryGame() {
   // lignes de la clé (« nombre = lettre ») dans l'ordre des étapes, puis
   // rangées par nombre pour la résolution finale.
   const keyLine = (number, letter) => `${number} = ${letter}`
-  const elementsBar = isCodeGame && mstate.phase !== 'steps' ? (
+  // Jeu 6 (E9) : la barre montre, dans l'ordre où ils sont gagnés, les lettres
+  // et syllabes ; un indice y est marqué « Indice » et son texte va au carnet
+  const riddleItem = (step, e) => (e === null ? '?' : step.element?.type === 'clue' ? t('Indice', 'Clue') : e)
+  const elementsBar = isRiddleGame ? (
+    <div className="mystery-elements" role="group" aria-label={t('Éléments gagnés', 'Clues won')}>
+      {elements.map((e, i) => (
+        <span
+          key={i}
+          className={`mystery-elements__item ${e === null ? 'mystery-elements__item--hidden' : ''} ${path.steps[i].element?.type === 'letter' ? '' : 'mystery-elements__item--word'} ${e !== null && path.steps[i].element?.type === 'clue' ? 'mystery-elements__item--clue' : ''}`}
+        >
+          {riddleItem(path.steps[i], e)}
+        </span>
+      ))}
+    </div>
+  ) : isCodeGame && mstate.phase !== 'steps' ? (
     <div className="mystery-elements" role="group" aria-label={t('Clé gagnée', 'Key won')}>
       {codeKey(path).map(line => (
         <span key={line.number} className="mystery-elements__item mystery-elements__item--key">
@@ -488,6 +512,31 @@ export default function MysteryGame() {
       {(path.final.given ?? []).map((g, i) => <span key={i} className="mystery-given__word">{g}</span>)}
     </p>
   )
+
+  // Jeu 6 : carnet des indices d'étape gagnés, dans l'ordre où ils sont gagnés
+  // (E9). Repliable pendant les anagrammes, toujours ouvert à la finale.
+  const notebookClues = isRiddleGame
+    ? path.steps.filter((s, i) => s.element?.type === 'clue' && mstate.steps[i]?.status !== 'pending').map(s => s.secret)
+    : []
+  const notebookList = (
+    <ol className="mystery-notebook__list">
+      {notebookClues.map((clue, i) => <li key={i} className="mystery-notebook__clue">{clue}</li>)}
+    </ol>
+  )
+  const notebookTitle = t(`Carnet d'indices (${notebookClues.length})`, `Clue notebook (${notebookClues.length})`)
+  const notebook = notebookClues.length > 0 && (mstate.phase === 'steps'
+    ? (
+      <details className="mystery-notebook">
+        <summary className="mystery-notebook__title">{notebookTitle}</summary>
+        {notebookList}
+      </details>
+    )
+    : (
+      <section className="mystery-notebook mystery-notebook--open" aria-label={notebookTitle}>
+        <h3 className="mystery-notebook__title">{notebookTitle}</h3>
+        {notebookList}
+      </section>
+    ))
 
   // Jeu 5 : le message, suite de nombres
   const codedMessage = isCodeGame && (
@@ -546,6 +595,19 @@ export default function MysteryGame() {
                 `Solve ${path.steps.length} anagrams. Each word you find gives you a syllable. Put the syllables in the right order to write the mystery word!`)}
             </p>
           )}
+          {isRiddleGame && (
+            <>
+              <p className="anagram-game__clue">
+                {t(`Résous ${path.steps.length} anagrammes. Chaque mot trouvé te donne une lettre, une syllabe ou un indice. Avec tout ce que tu as gagné, résous la grande énigme !`,
+                  `Solve ${path.steps.length} anagrams. Each word you find gives you a letter, a syllable or a clue. With everything you have won, solve the great riddle!`)}
+              </p>
+              {/* La consigne n'est montrée dès la mission que si elle ne contient
+                  aucun mot d'étape (remarque F4 du reviewer) ; sinon, à la finale */}
+              {riddlePromptAtMission(path)
+                ? <p className="mystery-riddle__prompt">{t('L\'énigme : ', 'The riddle: ')}{path.final.prompt}</p>
+                : <p className="mystery-riddle__prompt">{t('L\'énigme te sera donnée à la fin.', 'You will get the riddle at the end.')}</p>}
+            </>
+          )}
           {isSentenceGame && (
             <>
               <p className="anagram-game__clue">
@@ -576,6 +638,9 @@ export default function MysteryGame() {
     // Dernière étape : toutes les autres sont terminées (l'étape en cours peut
     // l'être déjà, quand son résultat est affiché)
     const last = mstate.steps.every((s, i) => i === index || s.status !== 'pending')
+    // Jeu 6 : nature de l'élément de l'étape ; une lettre est marquée ★ comme au jeu 1
+    const riddleType = isRiddleGame ? step.element?.type : null
+    const showSyllables = isSyllableGame || riddleType === 'syllable'
     return (
       <div className="anagram-game">
         {header}
@@ -590,7 +655,7 @@ export default function MysteryGame() {
             wordIndex={index}
             language={language}
             initialTries={mstate.steps[index].tries}
-            markedIndex={isLetterGame ? step.secretIndex : null}
+            markedIndex={isLetterGame || riddleType === 'letter' ? step.secretIndex : null}
             onFound={(answer) => { update(recordStepFound(mstate, answer)); progress(true, answer.id) }}
             onWrong={() => update(recordStepWrong(mstate))}
             onShowSolution={() => { update(recordStepShown(mstate)); progress(false, shownWordId) }}
@@ -602,11 +667,14 @@ export default function MysteryGame() {
               {isCodeGame && t('Ligne de la clé gagnée : ', 'Key line won: ')}
               {(path.game === 'theme' || isSentenceGame) && t('Mot gagné : ', 'Word won: ')}
               {isSyllableGame && t('Syllabe gagnée : ', 'Syllable won: ')}
+              {riddleType === 'letter' && t('Lettre gagnée : ', 'Letter won: ')}
+              {riddleType === 'syllable' && t('Syllabe gagnée : ', 'Syllable won: ')}
+              {riddleType === 'clue' && t('Indice gagné, rangé dans ton carnet : ', 'Clue won, kept in your notebook: ')}
               <strong>{isCodeGame ? keyLine(step.code, step.secret) : step.secret}</strong>
             </p>
-            {/* Jeu 2 : la syllabe gagnée est signalée dans le mot trouvé (décision I11),
-                sur sa syllabation, comme la case ★ du jeu 1 */}
-            {isSyllableGame && (
+            {/* Jeux 2 et 6 : la syllabe gagnée est signalée dans le mot trouvé
+                (décision I11), sur sa syllabation, comme la case ★ du jeu 1 */}
+            {showSyllables && (
               <p className="mystery-syllables" aria-label={t(`Syllabes du mot : ${step.syllables.join(', ')}`, `Syllables of the word: ${step.syllables.join(', ')}`)}>
                 {step.syllables.map((s, i) => (
                   <React.Fragment key={i}>
@@ -617,6 +685,7 @@ export default function MysteryGame() {
               </p>
             )}
           </AnagramBoard>
+          {notebook}
           {footer}
         </div>
       </div>
@@ -644,9 +713,15 @@ export default function MysteryGame() {
             {path.game === 'theme' && t('Le thème : ', 'The theme: ')}
             {isSyllableGame && t('Le mot mystère : ', 'The mystery word: ')}
             {isSentenceGame && t('La phrase secrète : ', 'The secret sentence: ')}
+            {isRiddleGame && (path.final.type === 'proverb' ? t('Le proverbe : ', 'The proverb: ') : t('La solution de l\'énigme : ', 'The answer to the riddle: '))}
             {/* Jeu 3 : la phrase correcte de la variante trouvée (majuscule,
-                virgules, point ; décision I6) */}
-            <strong>{isSentenceGame && found ? mstate.final.answer?.display ?? path.final.display : path.final.display}</strong>
+                virgules, point ; décision I6). Jeu 6 : la réponse acceptée
+                trouvée, ou le proverbe complété */}
+            <strong>
+              {isRiddleGame && path.final.type === 'proverb'
+                ? filledProverb(path, path.language)
+                : (isSentenceGame || isRiddleGame) && found ? mstate.final.answer?.display ?? path.final.display : path.final.display}
+            </strong>
           </p>
           <p className="mystery-stars" role="img" aria-label={t(`${stars} étoile${stars > 1 ? 's' : ''} sur 3`, `${stars} star${stars > 1 ? 's' : ''} out of 3`)}>
             {'★'.repeat(stars)}{'☆'.repeat(3 - stars)}
@@ -663,6 +738,7 @@ export default function MysteryGame() {
               {path.game === 'theme' && <li>{t('Classer : trouver ce qui relie des mots', 'Sorting: finding what links words')}</li>}
               {isSyllableGame && <li>{t('Lecture : assembler des syllabes pour former un mot', 'Reading: putting syllables together to make a word')}</li>}
               {isSentenceGame && <li>{t('Phrase : remettre les mots dans l\'ordre', 'Sentences: putting words in the right order')}</li>}
+              {isRiddleGame && <li>{t('Réflexion : rassembler des indices pour résoudre une énigme', 'Thinking: putting clues together to solve a riddle')}</li>}
             </ul>
           </div>
           <p className="anagram-game__seed">
@@ -823,6 +899,105 @@ export default function MysteryGame() {
             <div className="anagram-game__result">
               {/* Orthographe exacte ; jeu 3 : la phrase correcte, avec majuscule,
                   virgules et point (décision I6) */}
+              <p className="anagram-game__answer">
+                {mstate.final.status === 'found' ? t('Tu as trouvé : ', 'You found: ') : t('La solution était : ', 'The answer was: ')}
+                <strong>{shownAnswer}</strong>
+              </p>
+              {mstate.final.status !== 'found' && (
+                <p className="anagram-game__other">{t('Le mystère ne compte pas de points.', 'The mystery gives no points.')}</p>
+              )}
+              {showResult}
+            </div>
+          )}
+          {footer}
+        </div>
+      </div>
+    )
+  }
+
+  // Jeu 6 : réponse tapée au clavier (G4) ; casse, accents, espaces, tirets
+  // et apostrophes ignorés, variantes acceptées (E6). Proverbe : l'élève écrit
+  // le seul mot manquant. Réponse fausse : « relis tes indices », sans indice
+  // automatique ; le 2e essai faux compte comme une aide (E9, comme les jeux 2
+  // et 3) ; « Voir la solution » après 3 essais faux ; 2 indices (E5).
+  if (isRiddleGame) {
+    const hintsLeft = finalHintLimit(path) - mstate.final.hints
+    const isProverb = path.final.type === 'proverb'
+    const progressFinal = (isCorrect) =>
+      saveUserProgress(user?.id, null, isCorrect, null, { gameType: GAME_TYPE, itemId: 'final' })
+    const handleRiddleValidate = (e) => {
+      e?.preventDefault()
+      if (finalDone || riddleInput.trim() === '') return
+      const answer = checkRiddleAnswer(path, riddleInput)
+      if (answer) {
+        setFinalFeedback(t('Bravo !', 'Well done!'))
+        endFinal(recordFinalFound(mstate, answer))
+        progressFinal(true)
+        return
+      }
+      const s = recordFinalWrong(mstate, path)
+      const parts = [t('Ce n\'est pas encore ça : relis tes indices.', 'Not quite yet: read your clues again.')]
+      if (s.final.tries >= TRIES_BEFORE_SOLUTION) parts.push(t('Tu peux essayer encore ou voir la solution.', 'You can try again or see the answer.'))
+      setFinalFeedback(parts.join(' '))
+      update(s)
+    }
+    const handleRiddleShow = () => {
+      if (finalDone || mstate.final.tries < TRIES_BEFORE_SOLUTION) return
+      setFinalFeedback('')
+      endFinal(recordFinalShown(mstate))
+      progressFinal(false)
+    }
+    const shownAnswer = mstate.final.status === 'found' ? mstate.final.answer?.display : path.final.display
+    return (
+      <div className="anagram-game">
+        {header}
+        {elementsBar}
+        <div className="anagram-game__card">
+          <h2 className="anagram-game__clue-title">{t('La grande énigme', 'The great riddle')}</h2>
+          <p className="anagram-game__clue">{path.final.prompt}</p>
+          {notebook}
+          {path.final.hints.slice(0, mstate.final.hints).map((hint, i) => (
+            <p key={i} className="mystery-final__hint" role="status">{t('Indice : ', 'Hint: ')}{hint}</p>
+          ))}
+          <form className="mystery-riddle__form" onSubmit={handleRiddleValidate}>
+            <label className="mystery-riddle__label" htmlFor="mystery-riddle-answer">
+              {isProverb ? t('Le mot manquant', 'The missing word') : t('Ta réponse', 'Your answer')}
+            </label>
+            <input
+              id="mystery-riddle-answer"
+              className="mystery-riddle__input"
+              type="text"
+              value={riddleInput}
+              onChange={e => { setRiddleInput(e.target.value); setFinalFeedback('') }}
+              readOnly={finalDone}
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+            />
+            {!finalDone && (
+              <div className="anagram-game__actions">
+                <button type="button" className="anagram-game__btn anagram-game__btn--secondary" onClick={() => setRiddleInput('')} disabled={riddleInput === ''}>
+                  {t('Effacer', 'Clear')}
+                </button>
+                <button type="submit" className="anagram-game__btn anagram-game__btn--validate" disabled={riddleInput.trim() === ''}>
+                  {t('Valider', 'Check')}
+                </button>
+              </div>
+            )}
+          </form>
+          <p className="anagram-game__feedback" role="status" aria-live="polite">{finalFeedback}</p>
+          {!finalDone && hintsLeft > 0 && (
+            <button className="anagram-game__btn anagram-game__btn--secondary mystery-final__hint-btn" onClick={() => update(recordFinalHint(mstate, path))}>
+              {t(`Indice (encore ${hintsLeft})`, `Hint (${hintsLeft} left)`)}
+            </button>
+          )}
+          {!finalDone && mstate.final.tries >= TRIES_BEFORE_SOLUTION && (
+            <button className="anagram-game__btn anagram-game__btn--solution" onClick={handleRiddleShow}>
+              {t('Voir la solution', 'Show the answer')}
+            </button>
+          )}
+          {finalDone && (
+            <div className="anagram-game__result">
               <p className="anagram-game__answer">
                 {mstate.final.status === 'found' ? t('Tu as trouvé : ', 'You found: ') : t('La solution était : ', 'The answer was: ')}
                 <strong>{shownAnswer}</strong>

@@ -8,12 +8,12 @@
 //
 // Modèle d'un parcours (document de conception §5) :
 // {
-//   formatVersion, id, game: 'mysteryWord' | 'syllables' | 'secretSentence' | 'theme' | 'codedMessage', language, level, seed,
+//   formatVersion, id, game: 'mysteryWord' | 'syllables' | 'secretSentence' | 'theme' | 'codedMessage' | 'grandRiddle', language, level, seed,
 //   theme,              // jeu 4 : id du thème de la liste fixe ; jeux 1 et 5 : null
 //   difficulty,         // 1, 2 ou 3 (moyenne arrondie du champ difficulte des étapes)
 //   extraction: { rule, position? },  // une seule règle par parcours
 //   steps: [{ id, word, display, definition, answers, firstLetter, tiles, secret, secretIndex, slot, code? }],
-//   final: { kind: 'word' | 'choice' | 'code' | 'syllables' | 'sentence', prompt, solution, display, acceptedAnswers, hints,
+//   final: { kind: 'word' | 'choice' | 'code' | 'syllables' | 'sentence' | 'riddle', prompt, solution, display, acceptedAnswers, hints,
 //            options?, message?, labels?, given?, syllables? },
 //   status: 'generated'  // generated | draft | validated
 // }
@@ -21,6 +21,16 @@
 // (une ligne de la clé : secret ↔ code) ; final.message est la suite des
 // nombres du mot codé ; final.hints, les lettres du mot dans l'ordre où les
 // indices les révèlent.
+// Jeu 6 (lot 3, partie 2) : parcours PRÉCONÇU (src/data/grande-enigme.js, assemblé
+// par mysteryPresets.js), statut 'draft'. Chaque étape porte `element`
+// ({ type: 'letter' | 'syllable' | 'clue', value?, rank?, syllables?, text?, factRef? }) ;
+// `secret` est la lettre, la syllabe ou le texte de l'indice ; `secretIndex` la
+// position (en lettres) de la lettre ou de la syllabe dans le mot (null pour un
+// indice) ; `slot` le rang de la lettre ou de la syllabe dans la solution (null
+// pour un indice). final : { kind: 'riddle', type: 'word' | 'heritage' |
+// 'person' | 'proverb', prompt, proverbText?, solution (lettres de grille),
+// display, solutionId?, acceptedAnswers (word = clé de comparaison, voir
+// riddleKey), hints }. Résolution par une réponse tapée au clavier.
 // Jeux 2 et 3 (lot 3, partie 1) : parcours PRÉCONÇUS (src/data/parcours-mysteres.js,
 // assemblés par mysteryPresets.js), statut 'draft'. Chaque étape porte en plus
 // `wordId` (entrée du vocabulaire de même sens et de même niveau, ou null).
@@ -35,10 +45,11 @@
 // Décisions appliquées : étoiles selon les aides (M5) ; 10 points par
 // anagramme et 10 pour le mystère final, sans bonus (D10, M8) ; reprise d'une
 // partie interrompue (M4) ; jeu 4 par choix parmi 4 propositions (M6) ; jeu 5
-// selon les décisions C1 à C5 d'Isaac du 2026-11-04 (§12 du document).
+// selon les décisions C1 à C5 d'Isaac du 2026-11-04 (§12 du document) ; jeu 6
+// selon les décisions E1 à E10 d'Isaac du 2026-11-05 (§14 du document).
 
 import { normalizeWord } from './wordSearchGenerator.js'
-import { ANAGRAM_SETTINGS, POINTS_PER_WORD, TRIES_BEFORE_HINT, TRIES_BEFORE_SOLUTION, gridTokens } from './anagramGame.js'
+import { ANAGRAM_SETTINGS, POINTS_PER_WORD, TRIES_BEFORE_HINT, TRIES_BEFORE_SOLUTION, definitionRevealsWord, gridTokens } from './anagramGame.js'
 
 // Version du format d'un parcours et de son état (reprise) : une donnée
 // enregistrée avec une autre version n'est jamais reprise. Inchangée au lot 2 :
@@ -50,15 +61,15 @@ export const POINTS_PER_STEP = POINTS_PER_WORD // 10 points par anagramme (D10)
 export const POINTS_FINAL = POINTS_PER_WORD // 10 points pour le mystère final (M8 : pas de bonus)
 
 // Les six jeux de la famille B ; jeux 1 et 4 réalisés au lot 1, jeu 5 au
-// lot 2, jeux 2 et 3 au lot 3 (partie 1, parcours préconçus). Le jeu 6 attend
-// des contenus rédigés et vérifiés (lot 3, partie 2).
+// lot 2, jeux 2 et 3 au lot 3 (partie 1), jeu 6 au lot 3 (partie 2) : parcours
+// préconçus pour les jeux 2, 3 et 6.
 export const MYSTERY_GAMES = Object.freeze([
   Object.freeze({ id: 'mysteryWord', number: 1, fr: 'Mot mystère', en: 'Mystery word', available: true }),
   Object.freeze({ id: 'syllables', number: 2, fr: 'Casse-tête des syllabes', en: 'Syllable puzzle', available: true }),
   Object.freeze({ id: 'secretSentence', number: 3, fr: 'Phrase secrète', en: 'Secret sentence', available: true }),
   Object.freeze({ id: 'theme', number: 4, fr: 'Mystère des thèmes', en: 'Theme mystery', available: true }),
   Object.freeze({ id: 'codedMessage', number: 5, fr: 'Message codé', en: 'Coded message', available: true }),
-  Object.freeze({ id: 'grandRiddle', number: 6, fr: 'Grande énigme', en: 'Great riddle', available: false })
+  Object.freeze({ id: 'grandRiddle', number: 6, fr: 'Grande énigme', en: 'Great riddle', available: true })
 ])
 
 export const GENERATED_GAMES = Object.freeze(['mysteryWord', 'theme', 'codedMessage'])
@@ -66,8 +77,12 @@ export const GENERATED_GAMES = Object.freeze(['mysteryWord', 'theme', 'codedMess
 // Jeux dont chaque étape donne une lettre (règles d'extraction du jeu 1)
 export const LETTER_GAMES = Object.freeze(['mysteryWord', 'codedMessage'])
 
-// Jeux à parcours préconçus (lot 3, partie 1 ; §6.3 du document de conception)
-export const PRESET_GAMES = Object.freeze(['syllables', 'secretSentence'])
+// Jeux à parcours préconçus (lot 3 ; §6.3 du document de conception)
+export const PRESET_GAMES = Object.freeze(['syllables', 'secretSentence', 'grandRiddle'])
+
+// Jeu 6 : types d'énigme (G1, G2 du contenu) et types d'élément gagné
+export const RIDDLE_TYPES = Object.freeze(['word', 'heritage', 'person', 'proverb'])
+export const RIDDLE_ELEMENTS = Object.freeze(['letter', 'syllable', 'clue'])
 
 // Résolutions finales par étiquettes à toucher dans l'ordre (fiche L13) :
 // syllabes (jeu 2), mots d'une phrase (jeu 3)
@@ -178,6 +193,13 @@ export const sentenceLabel = (level, text) => (level === 'SIL-CP' ? text : text.
 // comme LECTURE) ; jeu 3, le mot lui-même. null si impossible.
 export function presetElement(answer, step, game) {
   if (game === 'secretSentence') return typeof answer?.word === 'string' ? answer.word : null
+  // Jeu 6 : un indice est le même pour toute réponse ; une lettre est celle de
+  // la réponse à la position secretIndex ; une syllabe, comme au jeu 2
+  if (game === 'grandRiddle' && step.element?.type === 'clue') return typeof step.secret === 'string' ? step.secret : null
+  if (game === 'grandRiddle' && step.element?.type === 'letter') {
+    const word = String(answer?.word ?? '')
+    return Number.isInteger(step.secretIndex) && step.secretIndex >= 0 && step.secretIndex < word.length ? word[step.secretIndex] : null
+  }
   const length = normalizeWord(step.secret).length
   if (!Number.isInteger(step.secretIndex) || step.secretIndex < 0 || length === 0) return null
   const part = String(answer?.word ?? '').slice(step.secretIndex, step.secretIndex + length)
@@ -243,6 +265,47 @@ export function correctLabelPositions(path, sequence) {
     return typed.filter((l, i) => l !== '' && l === words[i]).length
   }))
 }
+
+// --- Jeu 6 : grande énigme (lot 3, partie 2 ; décisions E1 à E10) ---
+
+// Clé de comparaison d'une réponse tapée à la finale (G4, E6) : casse,
+// accents, espaces, tirets, apostrophes et autres signes ignorés (« Roger
+// Milla » = ROGERMILLA ; « Lobé » = LOBE ; « Françoise » = FRANCOISE)
+export const riddleKey = (text) => gridTokens(String(text ?? '')).join('')
+
+// Réponse acceptée correspondant au texte tapé, ou null
+export function checkRiddleAnswer(path, typed) {
+  if (path.final.kind !== 'riddle') return null
+  const key = riddleKey(typed)
+  if (key === '') return null
+  return path.final.acceptedAnswers.find(a => a.word === key) ?? null
+}
+
+// Étapes qui donnent une lettre ou une syllabe, rangées dans l'ordre de la solution
+export const riddlePieces = (path) =>
+  path.steps.filter(s => s.element?.type === 'letter' || s.element?.type === 'syllable').sort((a, b) => a.slot - b.slot)
+
+// Lettres et syllabes collées dans l'ordre de la solution (règle J6 : elles
+// doivent redonner exactement la solution ou le mot manquant)
+export const assembleRiddle = (path) => riddlePieces(path).map(s => normalizeWord(String(s.secret ?? ''))).join('')
+
+// Vrai si un texte contient un mot d'étape du parcours (ou une forme qui
+// commence par lui), comme pour une définition qui donne la réponse
+export const textRevealsStepWord = (path, text) =>
+  path.steps.some(s => typeof s.word === 'string' && definitionRevealsWord(String(text ?? ''), s.word))
+
+// La consigne de la finale peut être montrée dès la mission seulement si
+// elle ne contient aucun mot d'étape (remarque F4 du reviewer : CHAMPION et
+// OLYMPIC dans la consigne de grande-enigme-en-cm1-cm2-01) ; sinon elle n'est
+// affichée qu'à la finale
+export const riddlePromptAtMission = (path) =>
+  path.final.kind === 'riddle' && !textRevealsStepWord(path, path.final.prompt)
+
+// Proverbe complété (écran de victoire) : le mot manquant à la place du trou
+export const filledProverb = (path, language = 'fr') =>
+  typeof path.final.proverbText === 'string'
+    ? path.final.proverbText.replace('___', String(path.final.display ?? '').toLocaleLowerCase(language === 'en' ? 'en' : 'fr-FR'))
+    : null
 
 // --- Jeu 5 : message codé (C1 à C5) ---
 // Chaque étape donne une ligne de la clé : sa lettre secrète et son nombre.
@@ -451,8 +514,9 @@ export const solutionsShown = (state) =>
   state.steps.filter(s => s.status === 'shown').length + (state.final.status === 'shown' ? 1 : 0)
 
 // Finales où le 2e essai faux vaut une aide pour les étoiles, sans indice
-// automatique : choix (jeu 4), code (jeu 5), étiquettes (jeux 2 et 3)
-const FINAL_TRY_AID_KINDS = ['choice', 'code', ...LABEL_KINDS]
+// automatique : choix (jeu 4), code (jeu 5), étiquettes (jeux 2 et 3), réponse
+// tapée de la grande énigme (jeu 6, décision E9 alignée sur les jeux 2 et 3)
+const FINAL_TRY_AID_KINDS = ['choice', 'code', ...LABEL_KINDS, 'riddle']
 
 // Étoiles (M5, sans chronomètre) : 3 sans aide ; 2 avec un indice ou la
 // première lettre ; 1 si une solution a été montrée. Pour la finale à choix,
@@ -496,8 +560,8 @@ export function isValidState(state, path) {
   const finalOk = isObject(f) && ['pending', 'found', 'shown'].includes(f.status) && Number.isInteger(f.tries) &&
     Number.isInteger(f.hints) && f.hints >= 0 && Array.isArray(f.eliminated)
   if (!finalOk) return false
-  // Jeux 2 et 3 : pas plus d'indices que prévu (décision I9 : 2)
-  if (LABEL_KINDS.includes(path.final.kind)) return Array.isArray(path.final.hints) && f.hints <= path.final.hints.length
+  // Jeux 2, 3 et 6 : pas plus d'indices que prévu (décisions I9 et E5 : 2)
+  if (LABEL_KINDS.includes(path.final.kind) || path.final.kind === 'riddle') return Array.isArray(path.final.hints) && f.hints <= path.final.hints.length
   if (path.final.kind !== 'code') return true
   // Jeu 5 : lettres révélées distinctes, prises dans le mot, une par indice
   const r = f.revealed

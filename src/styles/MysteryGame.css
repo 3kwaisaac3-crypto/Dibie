@@ -347,3 +347,76 @@
   font-weight: bold;
   color: #333;
 }
+
+/* Jeu 6 « Grande énigme » (lot 3, partie 2) : consigne, carnet d'indices,
+   réponse tapée. CHOIX PROVISOIRE, à valider par un enseignant. */
+.mystery-elements__item--clue {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.mystery-riddle__prompt {
+  background: #f3e5f5;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 12px;
+  color: #4a3a8a;
+  overflow-wrap: anywhere;
+}
+
+.mystery-notebook {
+  background: #e8f5e9;
+  border-radius: 6px;
+  padding: 8px;
+  margin: 12px 0;
+  color: #1b3a1f;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.mystery-notebook__title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  cursor: pointer;
+}
+
+.mystery-notebook--open .mystery-notebook__title {
+  cursor: default;
+}
+
+.mystery-notebook__list {
+  margin: 8px 0 0;
+  padding-left: 1.4em;
+}
+
+.mystery-notebook__clue + .mystery-notebook__clue {
+  margin-top: 6px;
+}
+
+.mystery-riddle__form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mystery-riddle__label {
+  font-weight: bold;
+  color: #4a3a8a;
+}
+
+.mystery-riddle__input {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 10px;
+  font-size: 1.2rem;
+  border: 2px solid #b39ddb;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.mystery-riddle__input:read-only {
+  background: #f5f5f5;
+}

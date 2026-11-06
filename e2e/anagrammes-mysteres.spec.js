@@ -1,8 +1,8 @@
 // Anagrammes mystères (lots 1, 2 et 3, docs/anagrammes-mysteres.md) : accueil des
 // deux familles, jeu classique toujours accessible, mot mystère complet en
 // français et en anglais, mystère des thèmes complet, message codé complet
-// (lot 2), casse-tête des syllabes et phrase secrète (lot 3, parcours
-// préconçus), mauvaise réponse finale, indices, étoiles, reprise après
+// (lot 2), casse-tête des syllabes, phrase secrète et grande énigme (lot 3,
+// parcours préconçus), mauvaise réponse finale, indices, étoiles, reprise après
 // rechargement, score et progrès enregistrés, retour au tableau de bord,
 // affichage à 320 px.
 // Le parcours attendu est calculé par les générateurs purs avec le vocabulaire
@@ -120,7 +120,7 @@ async function controlerVictoire(page, parcours, { score, etoiles, aides, langue
   expect(reprise).toEqual([])
 }
 
-test('Accueil du module : deux familles, jeu classique inchangé, six jeux mystères dont 5 disponibles, niveau du profil par défaut', async ({ page }) => {
+test('Accueil du module : deux familles, jeu classique inchangé, six jeux mystères tous disponibles, niveau du profil par défaut', async ({ page }) => {
   const erreurs = suivreErreurs(page)
   await connecterEleve(page, { pseudo: 'Accueil', niveau: 'CM1-CM2' })
   await page.getByRole('button', { name: /Anagrammes/ }).click()
@@ -142,12 +142,8 @@ test('Accueil du module : deux familles, jeu classique inchangé, six jeux myst�
   await page.getByRole('button', { name: /Anagrammes mystères/ }).click()
   const jeux = page.locator('.mystery-games__btn')
   await expect(jeux).toHaveCount(6)
-  await expect(page.locator('.mystery-games__btn:not(:disabled)')).toHaveCount(5)
-  for (const n of [6]) {
-    const bouton = page.locator('.mystery-games__btn', { hasText: new RegExp(`^${n}\\.`) })
-    await expect(bouton).toBeDisabled()
-    await expect(bouton).toContainText('Bientôt')
-  }
+  await expect(page.locator('.mystery-games__btn:not(:disabled)')).toHaveCount(6)
+  await expect(page.locator('.mystery-games__soon')).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'CM1-CM2', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('.mystery-demo')).toContainText('Démonstration')
   // Jeu 4 : séries de thèmes de la liste fixe, sans dévoiler le thème
@@ -766,5 +762,232 @@ test('Jeux 2 et 3 : pas de débordement horizontal à 320 px (phrase de 10 mots,
   await poserEtiquettes(page, p2, p2.final.syllables)
   await valider(page, 'en')
   await expect(page.locator('.anagram-game__answer strong')).toHaveText('SUBTRACTION')
+  expect(await deborde(page)).toBe(false)
+})
+
+// --- Jeu 6 : Grande énigme (lot 3, partie 2) ---
+
+// Résout les étapes du jeu 6 : définition, tuiles, élément gagné (lettre,
+// syllabe ou indice rangé au carnet) ; renvoie les indices gagnés, dans l'ordre
+async function jouerEtapesEnigme(page, parcours, { langue = 'fr' } = {}) {
+  const fr = langue === 'fr'
+  const indices = []
+  for (let i = 0; i < parcours.steps.length; i++) {
+    const etape = parcours.steps[i]
+    const type = etape.element.type
+    await expect(page.locator('.anagram-game__clue')).toHaveText(etape.definition)
+    expect(await page.locator('.anagram-tile').allTextContents()).toEqual(etape.tiles)
+    // Une lettre est marquée ★ ; syllabe et indice n'ont aucune case marquée
+    await expect(page.locator('.anagram-slot--marked')).toHaveCount(type === 'letter' ? 1 : 0)
+    await ecrire(page, etape.word, etape.firstLetter !== null)
+    await valider(page, langue)
+    await expect(page.locator('.mystery-won strong')).toHaveText(etape.secret)
+    if (type === 'syllable') await expect(page.locator('.mystery-syllables__won')).toHaveText(etape.secret)
+    else await expect(page.locator('.mystery-syllables')).toHaveCount(0)
+    await expect(page.locator('.mystery-elements__item').nth(i)).toHaveText(type === 'clue' ? (fr ? 'Indice' : 'Clue') : etape.secret)
+    if (type === 'clue') indices.push(etape.secret)
+    // Carnet : tous les indices gagnés, dans l'ordre où ils ont été gagnés
+    expect(await page.locator('.mystery-notebook__clue').allTextContents()).toEqual(
+      parcours.steps.slice(0, i + 1).filter(e => e.element.type === 'clue').map(e => e.secret))
+    const derniere = i === parcours.steps.length - 1
+    await page.getByRole('button', { name: derniere ? (fr ? 'Vers le mystère' : 'To the mystery') : (fr ? 'Anagramme suivante' : 'Next anagram') }).click()
+  }
+  return indices
+}
+
+const reponseEnigme = (page) => page.locator('#mystery-riddle-answer')
+
+// Choisit le jeu 6 avec le numéro qui donne ce parcours, passe la mission
+async function lancerEnigme(page, parcours, langue = 'fr') {
+  const numero = numeroDuParcours('grandRiddle', parcours.level, parcours.language, parcours.id)
+  expect(numero).not.toBeNull()
+  await lancer(page, { jeu: 6, numero, langue })
+}
+
+// Parcours du jeu 6 choisi par le numéro qui le désigne
+const enigme = (niveau, langue, id) => {
+  const numero = numeroDuParcours('grandRiddle', niveau, langue, id)
+  return { numero, parcours: preconcu('grandRiddle', niveau, numero, langue) }
+}
+
+test('Grande énigme complète en français (CE1-CE2, personnalité) : étapes en ordre mélangé, indice rangé au carnet, réponse tapée avec variante, 3 étoiles, score, brouillon affiché', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Enigme FR', niveau: 'CE1-CE2' })
+  const { numero, parcours } = enigme('CE1-CE2', 'fr', 'grande-enigme-fr-ce1-ce2-01')
+  expect(numero).not.toBeNull()
+  // Ordre mélangé : jamais celui de la solution
+  expect(parcours.steps.map(s => s.word)).not.toEqual(['MAILLOT', 'ARBITRE', 'BALLON', 'FILET', 'MATCH', 'SPORTIF'])
+  await ouvrirMysteres(page)
+  await page.locator('.mystery-games__btn', { hasText: /^6\./ }).click()
+  await expect(page.locator('.mystery-demo')).toContainText('brouillon')
+  await page.getByLabel('Numéro de partie (facultatif)').fill(String(numero))
+  await page.locator('.anagram-select__start').click()
+  await expect(page.locator('.mystery-mission')).toContainText(`Résous ${parcours.steps.length} anagrammes.`)
+  // La consigne ne contient aucun mot d'étape : montrée dès la mission
+  await expect(page.locator('.mystery-riddle__prompt')).toContainText('Qui est ce footballeur camerounais ?')
+  await expect(page.locator('.anagram-game__seed')).toHaveText(`Partie n° ${numero} · français · Démonstration (brouillon)`)
+  await page.getByRole('button', { name: 'C\'est parti !' }).click()
+  await jouerEtapesEnigme(page, parcours)
+  await expect(page.getByRole('heading', { name: 'La grande énigme' })).toBeVisible()
+  await expect(page.locator('.anagram-game__clue')).toHaveText(parcours.final.prompt)
+  await expect(page.locator('.mystery-notebook--open .mystery-notebook__clue')).toHaveText('À la Coupe du monde 1990, en Italie, il a marqué 4 buts, à 38 ans.')
+  await expect(page.getByRole('button', { name: 'Valider', exact: true })).toBeDisabled()
+  // Variante acceptée ; casse, espaces et tirets ignorés
+  await reponseEnigme(page).fill('  roger-MILLA ')
+  await valider(page)
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText('ROGER MILLA')
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  const score = (parcours.steps.length + 1) * 10
+  await controlerVictoire(page, parcours, { score, etoiles: 3, aides: 0, solution: 'ROGER MILLA' })
+  await expect(page.locator('.mystery-victory__solution')).toContainText('La solution de l\'énigme')
+  await page.getByRole('button', { name: 'Retour' }).click()
+  await totalAffiche(page, score)
+  expect(erreurs).toEqual([])
+})
+
+test('Grande énigme : réponse fausse (« relis tes indices », sans indice automatique), accents ignorés, 2 indices de finale, 2e essai faux = 2 étoiles', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Enigme accents', niveau: 'SIL-CP' })
+  const { parcours } = enigme('SIL-CP', 'fr', 'grande-enigme-fr-sil-cp-01')
+  await ouvrirMysteres(page)
+  await lancerEnigme(page, parcours)
+  await jouerEtapesEnigme(page, parcours)
+  await expect(page.locator('.mystery-notebook')).toHaveCount(0)
+  for (const faux of ['Mont Cameroun', 'Lobelia']) {
+    await reponseEnigme(page).fill(faux)
+    await valider(page)
+    await expect(page.locator('.anagram-game__feedback')).toContainText('Ce n\'est pas encore ça : relis tes indices.')
+    await expect(page.locator('.mystery-final__hint')).toHaveCount(0)
+  }
+  await expect(page.getByRole('button', { name: 'Voir la solution' })).toHaveCount(0)
+  await page.getByRole('button', { name: /^Indice/ }).click()
+  await expect(page.locator('.mystery-final__hint')).toHaveText(`Indice : ${parcours.final.hints[0]}`)
+  await page.getByRole('button', { name: /^Indice/ }).click()
+  await expect(page.locator('.mystery-final__hint').nth(1)).toHaveText('Indice : Le nom commence par L.')
+  await expect(page.getByRole('button', { name: /^Indice/ })).toHaveCount(0)
+  // Sans accent ni majuscule, avec le nom complet
+  await reponseEnigme(page).fill('chutes de la lobe')
+  await valider(page)
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText('CHUTES DE LA LOBÉ')
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  await controlerVictoire(page, parcours, { score: 50, etoiles: 2, aides: 2, solution: 'CHUTES DE LA LOBÉ' })
+  expect(erreurs).toEqual([])
+})
+
+test('Grande énigme en anglais (CM1-CM2, 7 étapes) : consigne seulement à la finale (mots d\'étape), lettres, indice au carnet, « Françoise » acceptée', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Riddle EN', niveau: 'CM1-CM2' })
+  await page.getByRole('button', { name: 'English' }).click()
+  const { numero, parcours } = enigme('CM1-CM2', 'en', 'grande-enigme-en-cm1-cm2-01')
+  expect(parcours.steps).toHaveLength(7)
+  await ouvrirMysteres(page, 'en')
+  await page.locator('.mystery-games__btn', { hasText: /^6\./ }).click()
+  await page.getByLabel('Game number (optional)').fill(String(numero))
+  await page.locator('.anagram-select__start').click()
+  // Remarque F4 : la consigne contient CHAMPION et OLYMPIC, elle n'est montrée qu'à la finale
+  await expect(page.locator('.mystery-riddle__prompt')).toHaveText('You will get the riddle at the end.')
+  await expect(page.locator('.mystery-mission')).not.toContainText('champion')
+  await expect(page.locator('.mystery-mission')).not.toContainText('Olympic')
+  await page.getByRole('button', { name: 'Let\'s go!' }).click()
+  await jouerEtapesEnigme(page, parcours, { langue: 'en' })
+  await expect(page.getByRole('heading', { name: 'The great riddle' })).toBeVisible()
+  await expect(page.locator('.anagram-game__clue')).toHaveText(parcours.final.prompt)
+  await expect(page.locator('.mystery-notebook__clue')).toHaveText('She was born in Yaoundé on 14 April 1976.')
+  await reponseEnigme(page).fill('Françoise Mbango')
+  await valider(page, 'en')
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText('FRANCOISE MBANGO')
+  await page.getByRole('button', { name: 'See my result' }).click()
+  await controlerVictoire(page, parcours, { score: 80, etoiles: 3, aides: 0, langue: 'en', solution: 'FRANCOISE MBANGO' })
+  expect(erreurs).toEqual([])
+})
+
+test('Grande énigme, proverbe (CM1-CM2) : mot manquant seul, syllabes et lettres gagnées, proverbe complété à la fin', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Proverbe', niveau: 'CM1-CM2' })
+  const { parcours } = enigme('CM1-CM2', 'fr', 'grande-enigme-fr-cm1-cm2-03')
+  await ouvrirMysteres(page)
+  await lancerEnigme(page, parcours)
+  const indices = await jouerEtapesEnigme(page, parcours)
+  expect(indices).toHaveLength(2)
+  await expect(page.locator('.anagram-game__clue')).toHaveText('Complète ce proverbe africain : « Avec beaucoup de patience on peut cuire même une ___. »')
+  await expect(page.getByLabel('Le mot manquant')).toBeVisible()
+  expect(await page.locator('.mystery-notebook__clue').allTextContents()).toEqual(indices)
+  // Un autre mot aux mêmes lettres, ou plusieurs mots, est refusé
+  for (const faux of ['prière', 'une pierre']) {
+    await reponseEnigme(page).fill(faux)
+    await valider(page)
+    await expect(page.locator('.anagram-game__feedback')).toContainText('relis tes indices')
+  }
+  await reponseEnigme(page).fill('Pierre')
+  await valider(page)
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  await controlerVictoire(page, parcours, { score: 60, etoiles: 2, aides: 0, solution: 'Avec beaucoup de patience on peut cuire même une pierre.' })
+  await expect(page.locator('.mystery-victory__solution')).toContainText('Le proverbe')
+  expect(erreurs).toEqual([])
+})
+
+test('Grande énigme : solution montrée après 3 essais faux = 1 étoile, sans les 10 points du mystère', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Enigme solution', niveau: 'CE1-CE2' })
+  const { parcours } = enigme('CE1-CE2', 'fr', 'grande-enigme-fr-ce1-ce2-03')
+  await ouvrirMysteres(page)
+  await lancerEnigme(page, parcours)
+  await jouerEtapesEnigme(page, parcours)
+  for (let essai = 1; essai <= 3; essai++) {
+    await reponseEnigme(page).fill('xylophone')
+    await valider(page)
+    await expect(page.locator('.anagram-game__feedback')).toContainText('relis tes indices')
+  }
+  await page.getByRole('button', { name: 'Voir la solution' }).click()
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText('BALAFON')
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  await controlerVictoire(page, parcours, { score: 40, etoiles: 1, aides: 0 })
+  await expect(page.locator('.anagram-finished h1')).toHaveText('Parcours terminé')
+  expect(erreurs).toEqual([])
+})
+
+test('Grande énigme : reprise après rechargement pendant la finale (indice et essais conservés, carnet intact)', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Enigme reprise', niveau: 'CM1-CM2' })
+  const { parcours } = enigme('CM1-CM2', 'fr', 'grande-enigme-fr-cm1-cm2-02')
+  await ouvrirMysteres(page)
+  await lancerEnigme(page, parcours)
+  const indices = await jouerEtapesEnigme(page, parcours)
+  await reponseEnigme(page).fill('tissu')
+  await valider(page)
+  await page.getByRole('button', { name: /^Indice/ }).click()
+  const enregistre = await page.evaluate(() => JSON.parse(localStorage.getItem('dibieMysteryInProgress')))
+  expect(enregistre[0]).toMatchObject({ path: { id: parcours.id, game: 'grandRiddle', status: 'draft' }, state: { phase: 'final', final: { hints: 1, tries: 1 } } })
+  await page.reload()
+  await expect(page.getByText('Tu as un mystère en cours')).toBeVisible()
+  await page.getByRole('button', { name: 'Reprendre' }).click()
+  await expect(page.locator('.mystery-final__hint')).toHaveText(`Indice : ${parcours.final.hints[0]}`)
+  expect(await page.locator('.mystery-notebook__clue').allTextContents()).toEqual(indices)
+  await reponseEnigme(page).fill('Atoghu')
+  await valider(page)
+  await expect(page.locator('.anagram-game__answer strong')).toHaveText('ATOGHU')
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  await controlerVictoire(page, parcours, { score: 70, etoiles: 2, aides: 1, solution: 'ATOGHU' })
+  expect(erreurs).toEqual([])
+})
+
+test('Grande énigme : pas de débordement horizontal à 320 px (carnet, saisie longue, victoire)', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 })
+  await connecterEleve(page, { pseudo: 'Small riddle', niveau: 'CM1-CM2' })
+  const { parcours } = enigme('CM1-CM2', 'fr', 'grande-enigme-fr-cm1-cm2-02')
+  await ouvrirMysteres(page)
+  await page.locator('.mystery-games__btn', { hasText: /^6\./ }).click()
+  expect(await deborde(page)).toBe(false)
+  await lancerEnigme(page, parcours)
+  expect(await deborde(page)).toBe(false)
+  await jouerEtapesEnigme(page, parcours)
+  expect(await deborde(page)).toBe(false)
+  await reponseEnigme(page).fill('Une réponse très longue qui ne rentre pas dans la case de saisie du téléphone')
+  expect(await deborde(page)).toBe(false)
+  await reponseEnigme(page).fill('toghu')
+  await valider(page)
+  expect(await deborde(page)).toBe(false)
+  await page.getByRole('button', { name: 'Voir mon résultat' }).click()
+  await expect(page.locator('.anagram-finished')).toBeVisible()
   expect(await deborde(page)).toBe(false)
 })

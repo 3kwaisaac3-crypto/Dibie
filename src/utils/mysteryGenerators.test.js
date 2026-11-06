@@ -97,10 +97,11 @@ test('G2 — Mystère des thèmes : chaque thème disponible, longue série de g
       }
     }
   }
-  // Thème inconnu ou jeu non disponible (jeu 6) : aucun parcours. Les jeux 2 et
-  // 3 (lot 3) passent par le même point d'entrée (parcours préconçus)
+  // Thème inconnu ou jeu inconnu : aucun parcours. Les jeux 2, 3 et 6 (lot 3)
+  // passent par le même point d'entrée (parcours préconçus)
   assert.equal(generateThemePath(vocabulary, 'CE1-CE2', 1, 'fr', 'inconnu'), null)
-  assert.equal(generateMysteryPath('grandRiddle', vocabulary, 'CE1-CE2', 1, 'fr'), null)
+  assert.equal(generateMysteryPath('inconnu', vocabulary, 'CE1-CE2', 1, 'fr'), null)
+  assert.equal(generateMysteryPath('grandRiddle', vocabulary, 'CE1-CE2', 1, 'fr')?.game, 'grandRiddle')
   assert.equal(generateMysteryPath('syllables', vocabulary, 'CE1-CE2', 1, 'fr')?.game, 'syllables')
   assert.equal(generateMysteryPath('secretSentence', vocabulary, 'CE1-CE2', 1, 'fr')?.game, 'secretSentence')
 })
