@@ -1,0 +1,190 @@
+/* Mémoire (cartes face cachée) : L6 « Mémoire FR ↔ EN » et M7 « Mémoire des
+   tables ». Conteneurs, boutons, sujets et couleurs des paires : AnagramGame.css
+   et PairsGame.css. Ici : plateau de cartes, étiquette de langue, paires trouvées. */
+
+.memory-board {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Téléphone : 8 cartes sur 2 colonnes, 12 cartes sur 3 colonnes */
+@media (max-width: 480px) {
+  .memory-board--8 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .memory-board--12 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.memory-card {
+  position: relative;
+  width: 100%;
+  min-height: 72px;
+  padding: 18px 4px 8px;
+  border: 2px solid #667eea;
+  border-radius: 10px;
+  background: white;
+  color: #333;
+  font-size: clamp(0.78rem, 3.6vw, 1.05rem);
+  font-weight: bold;
+  line-height: 1.15;
+  cursor: pointer;
+  touch-action: manipulation;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+/* Texte long (mots composés) : un peu plus petit */
+.memory-card--long { font-size: clamp(0.68rem, 3vw, 0.92rem); }
+
+.memory-card:focus-visible {
+  outline: 3px solid #764ba2;
+  outline-offset: 2px;
+}
+
+/* Face cachée : dos uni, point d'interrogation */
+.memory-card--down,
+.memory-card--down:hover {
+  padding: 8px 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #5a4fcf;
+  color: white;
+}
+
+.memory-card__back {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+/* Face visible : retournement rapide (désactivé si l'élève réduit les animations) */
+.memory-card--up,
+.memory-card--up:hover {
+  background: #f3f4ff;
+  animation: memory-flip 0.25s ease-out;
+}
+
+@keyframes memory-flip {
+  from { transform: scaleX(0.1); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memory-card--up,
+  .memory-card--up:hover { animation: none; }
+}
+
+/* Carte dans la langue de l'interface (P5) : fond jaune pâle, étiquette pleine */
+.memory-card--up.memory-card--primary { background: #fff8df; border-color: #c0a000; }
+
+.memory-card__tag {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  padding: 0 4px;
+  border: 1px solid #667eea;
+  border-radius: 4px;
+  background: white;
+  color: #4a3fb0;
+  font-size: 0.65rem;
+  line-height: 14px;
+}
+
+.memory-card--primary .memory-card__tag {
+  border-color: #c0a000;
+  background: #c0a000;
+  color: white;
+}
+
+.memory-card__badge {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  font-size: 0.65rem;
+  line-height: 16px;
+  text-align: center;
+}
+
+.memory-card__text { display: block; }
+
+/* Deux cartes qui ne vont pas ensemble : bordure rouge jusqu'à ce qu'elles se referment */
+.memory-card--wrong,
+.memory-card--wrong:hover { border-color: #e57373; background: #ffebee; }
+
+/* Paire trouvée : couleur de la paire (PairsGame.css), carte inactive */
+.memory-card--found { cursor: default; }
+.memory-card[aria-disabled="true"] { opacity: 1; cursor: default; }
+
+/* Paires trouvées : les deux textes côte à côte (fiche L6) */
+.memory-found__box { margin: 0 0 12px; }
+
+.memory-found__title {
+  font-size: 0.95rem;
+  color: #764ba2;
+  margin: 0 0 6px;
+}
+
+.memory-found {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.memory-found__item {
+  position: relative;
+  padding: 6px 10px 6px 30px;
+  border: 2px solid;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.memory-found__badge {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  font-size: 0.7rem;
+  line-height: 18px;
+  text-align: center;
+}
+
+.memory-finished__moves { color: #555; margin-bottom: 12px; }
+
+/* Choix des tables (M7) */
+.memory-select__tables .anagram-select__btn { min-width: 64px; }
+
+.memory-select__notice {
+  padding: 12px;
+  border-radius: 6px;
+  background: #fff8df;
+  color: #5f4a00;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.memory-select__class {
+  color: #555;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 400px) {
+  .memory-play .anagram-game__card { padding: 12px 8px; }
+  .memory-board { gap: 6px; }
+}
