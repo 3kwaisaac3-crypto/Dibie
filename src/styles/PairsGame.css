@@ -1,0 +1,210 @@
+/* Associations FR ↔ EN (moteur C « Paires »). Conteneurs, boutons et écran de
+   fin : AnagramGame.css (même palette). Ici : sujets, colonnes, couleurs des paires. */
+
+/* Écran de choix : matières sur plusieurs lignes, sujets en grille */
+.pairs-select__matieres .anagram-select__btn {
+  min-width: 120px;
+}
+
+.pairs-select__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.pairs-select__subject {
+  min-height: 48px;
+  padding: 8px;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #333;
+  overflow-wrap: anywhere;
+}
+
+.pairs-select__subject.active {
+  border-color: #667eea;
+  background-color: #667eea;
+  color: white;
+}
+
+/* Sujet sans partie complète possible : grisé (modèle des mots croisés) */
+.pairs-select__subject:disabled {
+  background: #f3f3f3;
+  color: #999;
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.pairs-select__soon {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.pairs-select__empty {
+  padding: 12px;
+  border-radius: 6px;
+  background: #fff8df;
+  color: #5f4a00;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* Partie */
+.pairs-game__instruction {
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.pairs-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.pairs-column__title {
+  font-size: 0.95rem;
+  color: #764ba2;
+  margin-bottom: 8px;
+}
+
+.pairs-column__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pairs-item {
+  position: relative;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 6px;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  background: #f3f4ff;
+  color: #333;
+  font-size: clamp(0.8rem, 3.6vw, 1rem);
+  font-weight: bold;
+  line-height: 1.2;
+  cursor: pointer;
+  touch-action: manipulation;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+/* Le survol global (index.css, button:hover) ne doit pas effacer le texte */
+.pairs-item:hover { background: #e6e8ff; }
+
+.pairs-item:focus-visible {
+  outline: 3px solid #764ba2;
+  outline-offset: 2px;
+}
+
+.pairs-item--selected,
+.pairs-item--selected:hover {
+  background: #667eea;
+  color: white;
+  box-shadow: 0 0 0 3px #c5cbff;
+}
+
+/* Mauvaise paire : léger tremblement, les mots restent libres */
+.pairs-item--wrong {
+  border-color: #e57373;
+  animation: pairs-shake 0.4s ease;
+}
+
+@keyframes pairs-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pairs-item--wrong { animation: none; }
+}
+
+/* Paire résolue : même couleur et même numéro pour ses deux mots */
+.pairs-item--resolved {
+  cursor: default;
+  padding-left: 26px;
+}
+
+.pairs-item:disabled { opacity: 1; }
+
+.pairs-item__badge {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  font-size: 0.7rem;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* Réponse montrée : bordure en tirets */
+.pairs-item--shown { border-style: dashed; }
+
+.pairs-color-0, .pairs-color-0:hover { background: #c8f2d0; border-color: #43a047; color: #1b5e20; }
+.pairs-color-1, .pairs-color-1:hover { background: #ffe0b2; border-color: #fb8c00; color: #6d3a00; }
+.pairs-color-2, .pairs-color-2:hover { background: #bbdefb; border-color: #1e88e5; color: #0d3c70; }
+.pairs-color-3, .pairs-color-3:hover { background: #f8bbd0; border-color: #d81b60; color: #6a0a2e; }
+.pairs-color-4, .pairs-color-4:hover { background: #fff59d; border-color: #c0a000; color: #4d4000; }
+.pairs-color-5, .pairs-color-5:hover { background: #d1c4e9; border-color: #5e35b1; color: #2e1a5e; }
+.pairs-color-6, .pairs-color-6:hover { background: #b2ebf2; border-color: #00838f; color: #003d42; }
+.pairs-color-7, .pairs-color-7:hover { background: #d7ccc8; border-color: #6d4c41; color: #3e2723; }
+
+.pairs-game__feedback { overflow-wrap: anywhere; }
+
+.pairs-game__hint {
+  margin: 0 0 12px;
+  padding: 10px;
+  border-radius: 6px;
+  background: #fff8df;
+  color: #5f4a00;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+/* Écran de fin : récapitulatif des paires */
+.pairs-recap {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pairs-recap li {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.pairs-recap__item--found {
+  background: #c8f2d0;
+  color: #1b5e20;
+}
+
+.pairs-recap__item--shown {
+  background: #f0f0f0;
+  color: #555;
+  border: 1px dashed #999;
+}
+
+@media (max-width: 400px) {
+  .pairs-game .anagram-game__card { padding: 12px 10px; }
+  .pairs-select .anagram-select__container { padding: 20px 14px; }
+}
