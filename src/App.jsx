@@ -15,10 +15,11 @@ import WordSearchGame from './pages/WordSearchGame'
 import AnagramGame from './pages/AnagramGame'
 import MysteryGame from './pages/MysteryGame'
 import PyramidGame from './pages/PyramidGame'
+import PairsGame from './pages/PairsGame'
 
 import './App.css'
 
-const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'mysteryGame', 'pyramidGame']
+const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'mysteryGame', 'pyramidGame', 'pairsGame']
 const ADULT_PAGES = ['roleSelect', 'teacherDashboard', 'parentDashboard', 'adminDashboard']
 
 export default function App() {
@@ -61,7 +62,7 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [page])
 
-  if (!vocabLoaded && (page === 'crosswordGame' || page === 'wordSearchGame' || page === 'anagramGame' || page === 'mysteryGame')) {
+  if (!vocabLoaded && (page === 'crosswordGame' || page === 'wordSearchGame' || page === 'anagramGame' || page === 'mysteryGame' || page === 'pairsGame')) {
     return <div style={{padding: '20px', textAlign: 'center'}}>⏳ Chargement jeu...</div>
   }
 
@@ -83,6 +84,7 @@ export default function App() {
       {page === 'wordSearchGame' && vocabLoaded && <WordSearchGame />}
       {page === 'anagramGame' && vocabLoaded && <AnagramGame />}
       {page === 'mysteryGame' && vocabLoaded && <MysteryGame />}
+      {page === 'pairsGame' && vocabLoaded && <PairsGame />}
       {/* Pyramides : nombres générés, sans vocabulaire à attendre */}
       {page === 'pyramidGame' && <PyramidGame />}
 
