@@ -21,7 +21,8 @@
 - [x] Anagrammes mystères, lot 3 partie 1 (2026-11-05, branche `feature/anagrammes-mysteres-lot3`, non commitée) : jeu 2 « Casse-tête des syllabes » et jeu 3 « Phrase secrète » en 44 parcours préconçus (validés par Isaac le 2026-11-05, décisions I1 à I14 ; à valider par un enseignant)
 - [x] Anagrammes mystères, lot 3 partie 2 (2026-11-06, branche `feature/anagrammes-mysteres-lot3-jeu6`, non commitée) : jeu 6 « Grande énigme » en 18 parcours préconçus (validés par Isaac le 2026-11-05, décisions E1 à E10 ; à valider par un enseignant)
 - [x] Jeu Pyramides additives et multiplicatives et pavé numérique réutilisable (phase 3, 2026-11-03 ; réglés par classe et sous-système du profil ; bornes reprises des programmes, provisoires, à valider par un enseignant de chaque sous-système)
-- [x] Jeux de paires, lot A (2026-11-06, branche `feature/paires-lot-a`, non commitée) : moteur C « Paires » et jeu L3 « Associations FR ↔ EN » (décisions P1 à P12 d'Isaac ; 3 / 5 / 6 paires ; à valider par un enseignant ; vrai téléphone non essayé ; voir `docs/paires.md`)
+- [x] Jeux de paires, lot A (2026-11-06, fusionné, pull request n° 21) : moteur C « Paires » et jeu L3 « Associations FR ↔ EN » (décisions P1 à P12 d'Isaac ; 3 / 5 / 6 paires ; à valider par un enseignant ; vrai téléphone non essayé ; voir `docs/paires.md`)
+- [x] Jeux de paires, lot B (2026-11-06, branche `feature/paires-lot-b`, non commitée) : L6 « Mémoire FR ↔ EN » et M7 « Mémoire des tables » (opération ↔ résultat, réglée par la classe du profil ; Class 1-2 : pas encore de table), cartes face cachée, 4 / 6 / 6 paires, `gameType` `pairsMemory` et `pairsMultiplication` ; choix provisoires à valider par Isaac ; à valider par un enseignant ; vrai téléphone non essayé ; voir `docs/paires.md`
 - [x] Dashboard Élève (scores, badges, streaks)
 - [x] Dashboard Enseignant (score total et nombre de parties par profil)
 - [ ] Dashboard Parent (texte d'attente seulement, aucune donnée)

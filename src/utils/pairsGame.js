@@ -8,8 +8,11 @@
 //   { id, left: { text, lang }, right: { text, lang }, keys, restricted, ... }
 // et sait les tirer, les mélanger, vérifier une association et suivre l'état
 // d'une partie (paires trouvées ou montrées, erreurs par élément). Chaque jeu
-// fournit sa préparation des candidats : ici L3 (mot ↔ traduction, lot A) ;
-// plus tard L6 (mémoire), M7 (opération ↔ résultat) et L4 (mot ↔ définition).
+// fournit sa préparation des candidats : L3 (mot ↔ traduction, lot A), L6
+// (mémoire FR ↔ EN, lot B, mêmes candidats que L3), M7 (mémoire opération ↔
+// résultat, lot B) ; plus tard L4 (mot ↔ définition). Deux présentations :
+// colonnes (L3 : createPairsGame, tryMatch) et cartes face cachée (L6, M7 :
+// createMemoryBoard, flipCard) ; le tirage et le score sont communs.
 //
 // Règles de tirage (cadrage §5, décision P12 a, stricte) :
 // - deux candidats d'une même partie ne partagent aucune clé (keys) : clés de
@@ -24,19 +27,25 @@
 import { createRandom } from './wordSearchGenerator.js'
 import { newSeed, isValidSeed } from './wordSearchGame.js'
 import { shuffled } from './anagramGame.js'
+import { mathClassSettings } from '../data/reglages-maths.js'
 
 export { newSeed, isValidSeed }
 
 // D10 et P7 a : 10 points par paire trouvée, sans pénalité ; pas d'étoiles
+// (L3, L6 et M7)
 export const POINTS_PER_PAIR = 10
 // P6 a : indice après 2 erreurs sur un même élément, « Voir la réponse » après 3
 export const ERRORS_BEFORE_HINT = 2
 export const ERRORS_BEFORE_ANSWER = 3
 
-// gameType enregistré (saveUserProgress, saveScore). Un nom par jeu de paires
-// (P7 a) ; seul L3 existe dans le lot A. Noms prévus, non utilisés à ce jour :
-// pairsDefinition (L4), pairsMemory (L6), pairsMultiplication (M7).
+// gameType enregistré (saveUserProgress, saveScore). P7 a prévoyait 3 noms
+// (traduction, définition, mémoire, variante dans details) ; M7 est ici séparé
+// de L6 (4 noms), pour ne pas mêler langue et mathématiques dans les scores :
+// CHOIX PROVISOIRE, à trancher par Isaac (docs/paires.md §11). Nom prévu, non
+// utilisé à ce jour : pairsDefinition (L4).
 export const GAME_TYPE_TRANSLATION = 'pairsTranslation'
+export const GAME_TYPE_MEMORY = 'pairsMemory'
+export const GAME_TYPE_MULTIPLICATION = 'pairsMultiplication'
 
 // P3 c : nombre de paires de L3 par niveau (révision possible à 8 en CM1-CM2
 // après essai sur un vrai téléphone). [HYPOTHÈSE — À VÉRIFIER] par un enseignant.
@@ -163,14 +172,22 @@ export function rightOrder(ids, random) {
   return order
 }
 
+// Contrôle des paramètres et tirage commun à toutes les parties (colonnes de
+// L3, cartes de L6 et M7) : { random, pairs }, pairs = null si impossible.
+// Le générateur est renvoyé pour que la suite de la préparation (ordre des
+// colonnes, place des cartes) dépende de la même graine.
+function drawPairs(caller, candidates, count, seed, maxRestricted) {
+  if (!isValidSeed(seed)) throw new RangeError(`${caller} : graine invalide`)
+  if (!Number.isInteger(count) || count < 1) throw new RangeError(`${caller} : nombre de paires invalide`)
+  const random = createRandom(seed)
+  return { random, pairs: selectPairs(candidates, count, random, { maxRestricted }) }
+}
+
 // Prépare une partie : { seed, pairs, leftOrder, rightOrder } ou null.
 // pairs : les candidats choisis (avec left, right et les données du jeu) ;
 // leftOrder / rightOrder : ids des paires dans l'ordre d'affichage.
 export function createPairsGame(candidates, count, seed, { maxRestricted = Infinity } = {}) {
-  if (!isValidSeed(seed)) throw new RangeError('createPairsGame : graine invalide')
-  if (!Number.isInteger(count) || count < 1) throw new RangeError('createPairsGame : nombre de paires invalide')
-  const random = createRandom(seed)
-  const pairs = selectPairs(candidates, count, random, { maxRestricted })
+  const { random, pairs } = drawPairs('createPairsGame', candidates, count, seed, maxRestricted)
   if (!pairs) return null
   const leftIds = pairs.map(p => p.id)
   return { seed, pairs, leftOrder: leftIds, rightOrder: rightOrder(leftIds, random) }
@@ -288,7 +305,12 @@ export function translationPairCount(level) {
 // paires garanti après les règles de tirage ; playable = usable suffit pour
 // le nombre de paires du niveau (modèle crosswordSubjects).
 export function translationSubjects(levelEntries, level) {
-  const count = translationPairCount(level)
+  return vocabularySubjects(levelEntries, translationPairCount(level))
+}
+
+// Sujets d'un niveau pour un nombre de paires donné (L3 et L6 : mêmes
+// candidats, mêmes règles de tirage ; seul le nombre de paires change)
+export function vocabularySubjects(levelEntries, count) {
   const active = levelEntries.filter(v => v && v.actif !== false)
   const subjects = Array.from(new Set(active.map(v => v.sujet))).sort()
   return subjects.map(subject => {
@@ -317,3 +339,241 @@ export function createTranslationGame(entries, level, seed, language = 'fr') {
 
 // Paire d'une partie par son id
 export const pairById = (game, pairId) => game.pairs.find(p => p.id === pairId) ?? null
+
+// --- Mémoire (cartes face cachée) : L6 et M7 ------------------------------
+//
+// Lot B (cadrage §4.1 à §4.4, fiches L6 et M7 du catalogue v0.2). Chaque paire
+// donne deux cartes, une par « côté » (L6 : 'fr' et 'en' ; M7 : 'op' et
+// 'res'), placées selon la graine. L'élève retourne deux cartes : si elles
+// forment une paire, elles restent ouvertes ; sinon elles se referment (par
+// l'interface, après un court délai, ou au toucher suivant). Pas d'aide
+// (P6 vise L3 et L4 seulement), pas de pénalité ; le nombre de coups (paires
+// de cartes retournées) est affiché pour information, sans étoiles (P7 a,
+// cadrage §4.3).
+
+// P3 b / c : nombre de paires de L6 et de M7 par niveau (8 en CM1-CM2 seulement
+// après essai sur un vrai téléphone). [HYPOTHÈSE — À VÉRIFIER] par un enseignant.
+export const MEMORY_SETTINGS = Object.freeze({
+  'SIL-CP': Object.freeze({ pairCount: 4 }),
+  'CE1-CE2': Object.freeze({ pairCount: 6 }),
+  'CM1-CM2': Object.freeze({ pairCount: 6 })
+})
+export const MEMORY_LEVELS = Object.freeze(Object.keys(MEMORY_SETTINGS))
+
+// Délai avant que deux cartes qui ne vont pas ensemble se referment (utilisé
+// par l'interface ; toucher une carte les referme plus tôt). CHOIX PROVISOIRE.
+export const MISMATCH_DELAY_MS = 1200
+
+// Nombre de paires de L6 et de M7 d'un niveau (RangeError si niveau inconnu)
+export function memoryPairCount(level) {
+  const settings = MEMORY_SETTINGS[level]
+  if (!settings) throw new RangeError(`Mémoire : niveau inconnu (${level})`)
+  return settings.pairCount
+}
+
+// Cartes d'une partie, mélangées selon la graine : [{ key, pairId, side }].
+// key = elementKey(side, pairId), unique dans la partie.
+export function memoryCards(pairIds, sides, random) {
+  const cards = pairIds.flatMap(pairId => sides.map(side => ({ key: elementKey(side, pairId), pairId, side })))
+  return shuffled(cards, random)
+}
+
+// Prépare un plateau de mémoire : { seed, pairs, cards } ou null.
+// pairs : les candidats choisis ; sides : les deux côtés de chaque paire.
+export function createMemoryBoard(candidates, count, seed, sides, { maxRestricted = Infinity } = {}) {
+  if (!Array.isArray(sides) || sides.length !== 2 || sides[0] === sides[1]) {
+    throw new RangeError('createMemoryBoard : il faut deux côtés différents')
+  }
+  const { random, pairs } = drawPairs('createMemoryBoard', candidates, count, seed, maxRestricted)
+  if (!pairs) return null
+  return { seed, pairs, cards: memoryCards(pairs.map(p => p.id), sides, random) }
+}
+
+// État initial d'une mémoire : celui des colonnes (resolved, errors, pour
+// réutiliser isResolved, isFinished, pairsScore, colorIndex), plus les cartes
+// ouvertes non résolues (0, 1 ou 2) et le nombre de coups.
+export function createMemoryState() {
+  return { ...createPairsState(), open: [], moves: 0 }
+}
+
+// Vrai si la carte est visible (paire trouvée ou carte ouverte)
+export const isFaceUp = (state, card) => isResolved(state, card.pairId) || state.open.some(o => o.key === card.key)
+
+// Deux cartes ouvertes qui ne vont pas ensemble : on les referme
+export const closeMismatch = (state) => (state.open.length === 2 ? { ...state, open: [] } : state)
+
+// L'élève touche une carte. Renvoie { state, result } :
+// - 'ignored' : carte déjà trouvée, ou déjà ouverte seule ;
+// - 'closed'  : deux cartes ouvertes qui ne vont pas ensemble, et l'élève a
+//               touché l'une d'elles : elles se referment ;
+// - 'first'   : première carte d'un coup (deux cartes ouvertes qui ne vont pas
+//               ensemble sont d'abord refermées) ;
+// - 'match'   : deuxième carte, de la même paire : paire trouvée (10 points) ;
+// - 'mismatch': deuxième carte, d'une autre paire : les deux restent ouvertes
+//               jusqu'au délai ou au toucher suivant, sans pénalité.
+// Un coup = une deuxième carte retournée (match ou mismatch).
+export function flipCard(state, card) {
+  if (!card || isResolved(state, card.pairId)) return { state, result: 'ignored' }
+  let current = state
+  if (current.open.length === 2) {
+    const wasOpen = current.open.some(o => o.key === card.key)
+    current = closeMismatch(current)
+    if (wasOpen) return { state: current, result: 'closed' }
+  }
+  if (current.open.some(o => o.key === card.key)) return { state: current, result: 'ignored' }
+  const opened = { key: card.key, pairId: card.pairId }
+  if (current.open.length === 0) return { state: { ...current, open: [opened] }, result: 'first' }
+  const moves = current.moves + 1
+  const [first] = current.open
+  if (first.pairId === card.pairId) {
+    return {
+      state: { ...current, open: [], moves, resolved: [...current.resolved, { id: card.pairId, status: 'found' }] },
+      result: 'match'
+    }
+  }
+  return { state: { ...current, open: [first, opened], moves }, result: 'mismatch' }
+}
+
+// --- L6 : mémoire FR ↔ EN -------------------------------------------------
+
+// Côtés des cartes de L6 : une carte en français, une en anglais. Les côtés ne
+// dépendent pas de la langue de l'interface : un même numéro donne les mêmes
+// cartes aux mêmes places en français et en anglais (comme L3, P5 a) ; seule
+// la carte dans la langue de l'interface est mise en avant à l'écran.
+export const MEMORY_SIDES = Object.freeze(['fr', 'en'])
+
+// Sujets de L6 pour un niveau (mêmes règles que L3, avec 4 / 6 / 6 paires)
+export const memorySubjects = (levelEntries, level) => vocabularySubjects(levelEntries, memoryPairCount(level))
+
+// Partie L6 : entrées d'un sujet et d'un niveau, graine, langue de l'interface
+// au lancement. Mêmes candidats et mêmes règles de tirage que L3 (P11 b,
+// P12 a : pas deux cartes de même texte, au plus une paire FR = EN).
+// Renvoie null si le sujet est injouable.
+// { seed, level, language, primarySide, sideOrder, pairs, cards } ; chaque
+// paire : { id, restricted, sides: { fr: { text, lang }, en: { text, lang } } }.
+export function createVocabularyMemoryGame(entries, level, seed, language = 'fr') {
+  const count = memoryPairCount(level)
+  const board = createMemoryBoard(translationCandidates(entries), count, seed, MEMORY_SIDES, { maxRestricted: MAX_SAME_WORD_PAIRS })
+  if (!board) return null
+  const primary = language === 'en' ? 'en' : 'fr'
+  return {
+    ...board,
+    level,
+    language: primary,
+    primarySide: primary,
+    sideOrder: [primary, primary === 'fr' ? 'en' : 'fr'],
+    pairs: board.pairs.map(c => ({
+      id: c.id,
+      restricted: c.restricted,
+      sides: { fr: { text: c.fr, lang: 'fr' }, en: { text: c.en, lang: 'en' } }
+    }))
+  }
+}
+
+// --- M7 : mémoire des tables de multiplication (opération ↔ résultat) -----
+
+// Facteurs de 1 à 10 (cadrage §4.4). [HYPOTHÈSE — À VÉRIFIER]
+export const MULTIPLICATION_FACTORS = Object.freeze([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+// Opérations « triviales » : un facteur vaut 1 (le résultat recopie l'autre
+// facteur). CHOIX PROVISOIRE du developer : au plus 1 par partie, par le même
+// mécanisme que les mots identiques de L3 (candidats restreints).
+export const MAX_TRIVIAL_OPERATIONS = 1
+
+// Côtés des cartes de M7 : l'opération et son résultat
+export const MULTIPLICATION_SIDES = Object.freeze(['op', 'res'])
+
+// Candidat M7 « table × facteur » (ex. 3 × 4 ↔ 12). id = le fait (« 3×4 »),
+// enregistré comme itemId pour reproposer plus tard les faits ratés (cadrage
+// §4.2). Clé « p: » le produit (P12 a strict, cadrage §5 règle 3 : jamais deux
+// opérations de même résultat dans une partie, donc ni 2 × 6 avec 3 × 4, ni
+// 3 × 4 avec 4 × 3 ; pas deux cartes « résultat » identiques ; une opération
+// et un résultat n'ont jamais le même texte).
+export function multiplicationCandidate(table, factor) {
+  return {
+    id: `${table}×${factor}`,
+    table,
+    factor,
+    product: table * factor,
+    operation: `${table} × ${factor}`,
+    result: String(table * factor),
+    keys: [`p:${table * factor}`],
+    restricted: table === 1 || factor === 1
+  }
+}
+
+// Candidats M7 pour une liste de tables (facteurs 1 à 10)
+export function multiplicationCandidates(tables) {
+  return [...new Set(tables)].sort((a, b) => a - b)
+    .flatMap(t => MULTIPLICATION_FACTORS.map(f => multiplicationCandidate(t, f)))
+}
+
+// Tables proposées dans l'option « une seule table » : celles de la classe
+// sauf la table de 1 (CHOIX PROVISOIRE : toutes ses opérations sont triviales,
+// elle ne donnerait qu'une paire avec la règle ci-dessus). Chaque autre table
+// donne 10 produits distincts, dont une seule opération triviale : 10 paires
+// garanties, plus que les 6 demandées.
+export const singleTableOptions = (tables) => [...new Set(tables)].filter(t => t >= 2).sort((a, b) => a - b)
+
+// Préparation d'une partie M7 pour une classe et un sous-système
+// (reglages-maths.js, champ tables, provisoire D4) : toutes les tables de la
+// classe mêlées (table = null, P10 a) ou une seule table de la classe.
+// Renvoie :
+// - { status: 'no-table', ... } : classe sans table (Class 1-2, P10 a) ;
+// - { status: 'ok', className, subsystem, level, tables, table, count, candidates }.
+// RangeError si la classe est inconnue ou la table non proposée.
+export function multiplicationSetup({ className, subsystem, table = null }) {
+  const cls = mathClassSettings(className, subsystem)
+  if (!cls) throw new RangeError(`Mémoire des tables : classe inconnue (${className}, ${subsystem})`)
+  if (cls.tables.length === 0) return { status: 'no-table', className, subsystem, level: cls.level, tables: [] }
+  if (table !== null && !singleTableOptions(cls.tables).includes(table)) {
+    throw new RangeError(`Mémoire des tables : table ${table} non proposée en ${className}`)
+  }
+  const tables = table === null ? [...cls.tables] : [table]
+  return {
+    status: 'ok',
+    className,
+    subsystem,
+    level: cls.level,
+    tables,
+    table,
+    count: memoryPairCount(cls.level),
+    candidates: multiplicationCandidates(tables)
+  }
+}
+
+// Nombre de paires garanti pour un réglage (contrôle : toujours au moins count)
+export const multiplicationGuaranteed = (setup) =>
+  guaranteedPairCount(setup.candidates, { maxRestricted: MAX_TRIVIAL_OPERATIONS })
+
+// Partie M7, ou null si la classe n'a pas de table (ou si le tirage échoue,
+// ce que les règles ci-dessus excluent). Chaque paire :
+// { id, table, factor, product, restricted, sides: { op: { text }, res: { text } } }.
+export function createMultiplicationMemoryGame({ className, subsystem, table = null, seed }) {
+  const setup = multiplicationSetup({ className, subsystem, table })
+  if (setup.status !== 'ok') return null
+  const board = createMemoryBoard(setup.candidates, setup.count, seed, MULTIPLICATION_SIDES, { maxRestricted: MAX_TRIVIAL_OPERATIONS })
+  if (!board) return null
+  return {
+    ...board,
+    className,
+    subsystem,
+    level: setup.level,
+    tables: setup.tables,
+    table,
+    primarySide: 'op',
+    sideOrder: ['op', 'res'],
+    pairs: board.pairs.map(c => ({
+      id: c.id,
+      table: c.table,
+      factor: c.factor,
+      product: c.product,
+      restricted: c.restricted,
+      sides: { op: { text: c.operation, lang: null }, res: { text: c.result, lang: null } }
+    }))
+  }
+}
+
+// Texte d'une paire de mémoire, côté mis en avant d'abord (« 3 × 4 = 12 »,
+// « TOTAL = TOTAL »)
+export const memoryPairText = (game, pair) => `${pair.sides[game.sideOrder[0]].text} = ${pair.sides[game.sideOrder[1]].text}`
