@@ -10,8 +10,8 @@
 // d'une partie (paires trouvées ou montrées, erreurs par élément). Chaque jeu
 // fournit sa préparation des candidats : L3 (mot ↔ traduction, lot A), L6
 // (mémoire FR ↔ EN, lot B, mêmes candidats que L3), M7 (mémoire opération ↔
-// résultat, lot B) ; plus tard L4 (mot ↔ définition). Deux présentations :
-// colonnes (L3 : createPairsGame, tryMatch) et cartes face cachée (L6, M7 :
+// résultat, lot B), L4 (mot ↔ définition, lot C). Deux présentations :
+// colonnes (L3 et L4 : createPairsGame, tryMatch) et cartes face cachée (L6, M7 :
 // createMemoryBoard, flipCard) ; le tirage et le score sont communs.
 //
 // Règles de tirage (cadrage §5, décision P12 a, stricte) :
@@ -26,7 +26,7 @@
 
 import { createRandom } from './wordSearchGenerator.js'
 import { newSeed, isValidSeed } from './wordSearchGame.js'
-import { shuffled } from './anagramGame.js'
+import { shuffled, gridTokens, definitionRevealsWord } from './anagramGame.js'
 import { mathClassSettings } from '../data/reglages-maths.js'
 
 export { newSeed, isValidSeed }
@@ -41,9 +41,10 @@ export const ERRORS_BEFORE_ANSWER = 3
 // gameType enregistré (saveUserProgress, saveScore). P7 a prévoyait 3 noms
 // (traduction, définition, mémoire, variante dans details) ; M7 est ici séparé
 // de L6 (4 noms), pour ne pas mêler langue et mathématiques dans les scores :
-// CHOIX PROVISOIRE, à trancher par Isaac (docs/paires.md §11). Nom prévu, non
-// utilisé à ce jour : pairsDefinition (L4).
+// CHOIX PROVISOIRE, à trancher par Isaac (docs/paires.md §11). L4 (lot C) :
+// pairsDefinition.
 export const GAME_TYPE_TRANSLATION = 'pairsTranslation'
+export const GAME_TYPE_DEFINITION = 'pairsDefinition'
 export const GAME_TYPE_MEMORY = 'pairsMemory'
 export const GAME_TYPE_MULTIPLICATION = 'pairsMultiplication'
 
@@ -228,7 +229,7 @@ export function tryMatch(state, leftId, rightId) {
   return { state: { ...state, errors }, correct: false }
 }
 
-// Indice (L3 : définition) proposé pour cet élément
+// Indice (L3 : définition ; L4 : traduction du mot) proposé pour cet élément
 export const canHint = (state, side, pairId) =>
   !isResolved(state, pairId) && errorCount(state, side, pairId) >= ERRORS_BEFORE_HINT
 
@@ -339,6 +340,181 @@ export function createTranslationGame(entries, level, seed, language = 'fr') {
 
 // Paire d'une partie par son id
 export const pairById = (game, pairId) => game.pairs.find(p => p.id === pairId) ?? null
+
+// --- L4 : mot ↔ définition ------------------------------------------------
+//
+// Lot C (cadrage §4.1, §4.2, §5, §6 ; fiche L4 du catalogue v0.2 ; définitions
+// du lot 0 validées par Isaac le 2026-11-06, règle L0-T). Présentation en
+// colonnes comme L3 : les mots d'un côté (left), les définitions de l'autre
+// (right). Mots et définitions dans la langue de l'interface au lancement
+// (mot_fr et def_fr en français, mot_en et def_en en anglais). Contrairement à
+// L3, les candidats dépendent donc de la langue : un même numéro ne donne pas
+// forcément les mêmes paires en français et en anglais.
+
+// P3 b : pas de L4 en SIL-CP ; 4 paires en CE1-CE2, 5 en CM1-CM2.
+// [HYPOTHÈSE — À VÉRIFIER] par un enseignant.
+export const DEFINITION_SETTINGS = Object.freeze({
+  'CE1-CE2': Object.freeze({ pairCount: 4 }),
+  'CM1-CM2': Object.freeze({ pairCount: 5 })
+})
+export const DEFINITION_LEVELS = Object.freeze(Object.keys(DEFINITION_SETTINGS))
+
+// Nombre de paires de L4 d'un niveau (RangeError si niveau absent, SIL-CP compris)
+export function definitionPairCount(level) {
+  const settings = DEFINITION_SETTINGS[level]
+  if (!settings) throw new RangeError(`Mot ↔ définition : niveau non proposé (${level})`)
+  return settings.pairCount
+}
+
+// Critère de la règle automatique du cadrage §6.2 (CHOIX PROVISOIRE du
+// developer, mesuré sur le vocabulaire : docs/paires.md §15) : une définition
+// « contient » un mot quand on y trouve ce mot ENTIER, après normalisation
+// (gridTokens : majuscules, sans accents, ligatures développées, découpage sur
+// tout ce qui n'est pas une lettre), ou au pluriel simple (S, X : « faces »
+// pour FACE). Pas de féminin (E, ES) : « demi-droites » aurait été pris pour
+// DROIT (angle droit). Un mot composé (« hôtel de ville ») doit s'y trouver en
+// entier, dans l'ordre. Mots de moins de 3 lettres ignorés (DO, RÉ...). Ainsi
+// ARE n'est trouvé ni dans « aire » ni dans « hectare » (mots entiers).
+export const MENTION_MIN_LETTERS = 3
+const MENTION_ENDINGS = ['', 'S', 'X']
+
+// Vrai si la suite de mots words se trouve dans tokens à partir de start ;
+// lastMatches dit si le dernier mot de la définition convient au dernier mot
+function sequenceAt(tokens, start, words, lastMatches) {
+  for (let j = 0; j < words.length; j++) {
+    const token = tokens[start + j]
+    const ok = j === words.length - 1 ? lastMatches(token, words[j]) : token === words[j]
+    if (!ok) return false
+  }
+  return true
+}
+
+function containsSequence(text, form, lastMatches) {
+  const tokens = gridTokens(text)
+  const words = gridTokens(form)
+  if (words.length === 0) return false
+  for (let i = 0; i + words.length <= tokens.length; i++) {
+    if (sequenceAt(tokens, i, words, lastMatches)) return true
+  }
+  return false
+}
+
+// Règle §6.2 : la définition contient-elle le mot form (critère ci-dessus) ?
+export function definitionMentions(definition, form) {
+  if (typeof definition !== 'string' || typeof form !== 'string') return false
+  if (gridTokens(form).join('').length < MENTION_MIN_LETTERS) return false
+  return containsSequence(definition, form, (token, word) => MENTION_ENDINGS.some(e => token === word + e))
+}
+
+// Règle existante (décision du 2026-11-02, definitionRevealsWord) : la
+// définition donne-t-elle son propre mot (le mot ou un mot qui commence par
+// lui : « familles » pour FAMILLE) ? Étendue aux mots composés (tous les mots,
+// le dernier pouvant être le début d'un mot de la définition) et appliquée à
+// TOUTES les formes « A / B » (ÉCART : « Gap / Difference »).
+export function definitionRevealsForm(definition, form) {
+  if (typeof definition !== 'string' || typeof form !== 'string') return false
+  const words = gridTokens(form)
+  if (words.length === 1) return definitionRevealsWord(definition, words[0])
+  return containsSequence(definition, form, (token, word) => token.startsWith(word))
+}
+
+const wordOf = (entry, lang) => (lang === 'en' ? entry.mot_en : entry.mot_fr)
+const definitionOf = (entry, lang) => {
+  const text = lang === 'en' ? entry.def_en : entry.def_fr
+  return typeof text === 'string' ? text.trim() : ''
+}
+
+// Candidat L4 d'une entrée dans une langue (sans les liens §6.2, ajoutés par
+// definitionCandidates), ou null si l'entrée n'est pas utilisable : inactive,
+// mot ou définition vide, ou définition qui donne son propre mot.
+// Clés (P12 a strict, règle L0-T confirmée par Isaac le 2026-11-06) :
+// - « w: » toutes les formes FR et EN, comme L3 : deux entrées qui partagent
+//   une forme (synonymes : ADDITIONNER / AJOUTER → Add) ne sont jamais tirées
+//   ensemble, même si seuls les mots d'une langue sont affichés ;
+// - « d: » la définition affichée : jamais deux définitions identiques.
+// P11 (mots identiques FR = EN) ne s'applique pas : restricted toujours faux.
+export function definitionCandidate(entry, language = 'fr') {
+  if (!entry || entry.actif === false) return null
+  const lang = language === 'en' ? 'en' : 'fr'
+  const other = lang === 'fr' ? 'en' : 'fr'
+  const word = displayText(wordOf(entry, lang))
+  const definition = definitionOf(entry, lang)
+  if (!word || !pairKey(word) || !pairKey(definition)) return null
+  if (textForms(wordOf(entry, lang)).some(form => definitionRevealsForm(definition, form))) return null
+  const wordKeys = [...textForms(entry.mot_fr), ...textForms(entry.mot_en)].map(pairKey).filter(Boolean)
+  return {
+    id: entry.id,
+    lang,
+    word,
+    // Forme affichée, utilisée par la règle §6.2
+    form: textForms(wordOf(entry, lang))[0],
+    definition,
+    // Indice (P6 a) : la traduction du mot dans l'autre langue (première forme)
+    translation: displayText(wordOf(entry, other)),
+    translationLang: other,
+    keys: [...[...new Set(wordKeys)].map(k => `w:${k}`), `d:${pairKey(definition)}`],
+    restricted: false
+  }
+}
+
+// Clé commune à deux candidats liés par la règle §6.2
+const mentionKey = (a, b) => `m:${[String(a), String(b)].sort().join('↔')}`
+
+// Candidats L4 d'une liste d'entrées (un sujet d'un niveau) dans une langue,
+// avec la règle automatique du cadrage §6.2 : quand la définition de A contient
+// le mot affiché de B (definitionMentions), A et B reçoivent une clé commune et
+// ne sont jamais tirés ensemble (les deux entrées restent dans le vocabulaire).
+// Chaque candidat garde la liste des mots qui l'ont lié (mentions), pour les
+// contrôles et la documentation.
+export function definitionCandidates(entries, language = 'fr') {
+  const candidates = entries.map(e => definitionCandidate(e, language)).filter(Boolean)
+    .map(c => ({ ...c, keys: [...c.keys], mentions: [] }))
+  for (const a of candidates) {
+    for (const b of candidates) {
+      if (a === b || !definitionMentions(a.definition, b.form)) continue
+      a.mentions.push(b.id)
+      const key = mentionKey(a.id, b.id)
+      if (!a.keys.includes(key)) a.keys.push(key)
+      if (!b.keys.includes(key)) b.keys.push(key)
+    }
+  }
+  return candidates
+}
+
+// Sujets de l'écran de choix pour un niveau et une langue, triés comme L3 :
+// [{ subject, usable, playable }] (usable : nombre de paires garanti pour toute
+// graine, après toutes les règles de tirage).
+export function definitionSubjects(levelEntries, level, language = 'fr') {
+  const count = definitionPairCount(level)
+  const active = levelEntries.filter(v => v && v.actif !== false)
+  const subjects = Array.from(new Set(active.map(v => v.sujet))).sort()
+  return subjects.map(subject => {
+    const usable = guaranteedPairCount(definitionCandidates(active.filter(v => v.sujet === subject), language))
+    return { subject, usable, playable: usable >= count }
+  })
+}
+
+// Partie L4 : entrées d'un sujet et d'un niveau, graine, langue de l'interface
+// au lancement. Renvoie null si le sujet est injouable. RangeError en SIL-CP.
+// Chaque paire : { id, left: { text, lang, kind: 'word', translation,
+// translationLang }, right: { text, lang, kind: 'definition' } } ; left.text en
+// majuscules (P8), right.text en casse normale.
+export function createDefinitionGame(entries, level, seed, language = 'fr') {
+  const count = definitionPairCount(level)
+  const lang = language === 'en' ? 'en' : 'fr'
+  const game = createPairsGame(definitionCandidates(entries, lang), count, seed)
+  if (!game) return null
+  return {
+    ...game,
+    level,
+    language: lang,
+    pairs: game.pairs.map(c => ({
+      id: c.id,
+      left: { text: c.word, lang, kind: 'word', translation: c.translation, translationLang: c.translationLang },
+      right: { text: c.definition, lang, kind: 'definition' }
+    }))
+  }
+}
 
 // --- Mémoire (cartes face cachée) : L6 et M7 ------------------------------
 //

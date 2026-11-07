@@ -30,6 +30,9 @@ export default function StudentDashboard() {
     { id: 'anagram', name: language === 'fr' ? 'Anagrammes' : 'Anagrams', icon: '🔤', available: true, page: 'anagramGame' },
     { id: 'pyramid', name: language === 'fr' ? 'Pyramides' : 'Pyramids', icon: '🔺', available: true, page: 'pyramidGame' },
     { id: 'pairs', name: language === 'fr' ? 'Associations FR ↔ EN' : 'Matching FR ↔ EN', icon: '🔗', available: true, page: 'pairsGame' },
+    // Lot C de la phase 4 : carte visible à tous les niveaux ; en SIL-CP, la page
+    // s'ouvre en CE1-CE2 avec un message (pas de L4 en SIL-CP, P3 b), CHOIX PROVISOIRE
+    { id: 'pairsDefinition', name: language === 'fr' ? 'Mot ↔ définition' : 'Word ↔ definition', icon: '📖', available: true, page: 'definitionGame' },
     // Lot B de la phase 4 : deux cartes séparées (langue / maths), CHOIX PROVISOIRE (docs/paires.md)
     { id: 'memory', name: language === 'fr' ? 'Mémoire FR ↔ EN' : 'Memory FR ↔ EN', icon: '🃏', available: true, page: 'memoryGame' },
     { id: 'tablesMemory', name: language === 'fr' ? 'Mémoire des tables' : 'Times tables memory', icon: '✖️', available: true, page: 'tablesMemoryGame' },

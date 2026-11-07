@@ -1,4 +1,4 @@
-# Jeux de paires (moteur C) : note de conception des lots A et B
+# Jeux de paires (moteur C) : note de conception des lots A, B et C
 
 - **Date** : 2026-11-06
 - **Statut** : lot A fusionné dans `main` (pull request n° 21, commit de fusion `59e9e22`). Non validé par un enseignant (démonstration seulement).
@@ -63,7 +63,7 @@ Enregistrement : `saveUserProgress(userId, id, isCorrect, null, { gameType: 'pai
 # Lot B : mémoire FR ↔ EN (L6) et mémoire des tables (M7)
 
 - **Date** : 2026-11-06
-- **Statut** : réalisé sur la branche `feature/paires-lot-b` (depuis `main` = `59e9e22`, lot A fusionné), non commité à la rédaction. Non validé par un enseignant (démonstration seulement).
+- **Statut** : réalisé sur la branche `feature/paires-lot-b` (depuis `main` = `59e9e22`, lot A fusionné) ; fusionné dans `main` (pull request n° 22, commit de fusion `1dcb203`). Non validé par un enseignant (démonstration seulement).
 - **Source des règles** : cadrage phase 4 §4.1 à §4.4, §5, décisions P1 à P12 ; fiches L6 et M7 du catalogue v0.2 ; règles précisées par Isaac pour le lot B (2026-11-06).
 
 ## 6. Fichiers du lot B
@@ -141,3 +141,102 @@ Contrôlé par les tests unitaires : toutes les classes des deux sous-systèmes,
 - Nombre de paires, lisibilité de 12 cartes, délai de fermeture : à valider par un enseignant (Q7, enseignant non désigné).
 - Tables par classe toujours provisoires (Class 1-2, Class 3-4 « bonds », CM2 11 et 12, Class 6) ; facteurs 1 à 10 non confirmés.
 - Score uniforme (10 points par paire, cadrage §4.3) : il ne mesure pas la mémoire ; le nombre de coups est seulement affiché et enregistré.
+
+---
+
+# Lot C : définitions du lot 0 et jeu L4 « Mot ↔ définition »
+
+- **Date** : 2026-11-06
+- **Statut** : réalisé sur la branche `feature/paires-lot-c` (depuis `main` = `1dcb203`, lots A et B fusionnés), non commité à la rédaction. Non validé par un enseignant (démonstration seulement).
+- **Source des règles** : cadrage phase 4 §4.1, §4.2, §5, §6 et décisions P1 à P12 ; fiche L4 du catalogue v0.2 ; `DIBIE/contenus/definitions-ambigues-lot0-v0.1.md` (dépôt JARVIS), validé par Isaac le 2026-11-06 (14 définitions, règle L0-T, RANGER inchangé).
+
+## 13. Fichiers du lot C
+
+| Fichier | Rôle |
+|---|---|
+| `src/data/vocabulaire.json` | 14 entrées, 27 champs `def_fr` / `def_en` remplacés (§14) ; rien d'autre |
+| `src/utils/pairsGame.js` | Préparation L4 : `definitionCandidate(s)`, `definitionSubjects`, `createDefinitionGame`, critères `definitionMentions` (§6.2) et `definitionRevealsForm` ; réglages `DEFINITION_SETTINGS` ; `GAME_TYPE_DEFINITION` |
+| `src/utils/pairsDefinition.test.js` | Tests unitaires du lot C (11) |
+| `src/pages/DefinitionGame.jsx` | L4 : choix niveau + matière + sujet (comme L3), partie en colonnes, aides, fin |
+| `src/styles/PairsGame.css` | Disposition « mots au-dessus, définitions pleine largeur » (§17) |
+| `src/App.jsx`, `src/pages/StudentDashboard.jsx` | Page `definitionGame`, carte « Mot ↔ définition » |
+| `e2e/paires-definitions.spec.js` | Tests navigateur (6 tests × 3 projets) |
+| `src/utils/anagramGame.reference.test.js`, `src/utils/mysteryGenerators.reference.test.js` | Valeurs de référence recalculées (§16) |
+
+## 14. Définitions du lot 0 appliquées
+
+Remplacement exact des textes du bloc JSON « decision: valide » (id et `mot_fr` vérifiés avant chaque remplacement ; format du fichier conservé). Contrôle par script : 27 champs changés, tous dans la liste ; aucun autre champ, aucune autre entrée. Le bloc JSON et les tableaux du document donnent les mêmes textes (seule différence : la mention « *Facultatif* » et une remarque entre parenthèses dans la colonne de PARALLÉLÉPIPÈDE, qui ne font pas partie de la définition).
+
+| id | Mot | Champs |
+|---|---|---|
+| vocab_0177 | PAVÉ | def_fr, def_en |
+| vocab_0146 | PARALLÉLÉPIPÈDE | def_en seulement |
+| vocab_0012 | ADDITIONNER | def_fr, def_en |
+| vocab_0019 | AJOUTER | def_fr, def_en |
+| vocab_0113 | AXIALE | def_fr, def_en |
+| vocab_0123 | CENTRALE | def_fr, def_en |
+| vocab_0045 | ENTIER | def_fr, def_en |
+| vocab_0016 | CARDINAL | def_fr, def_en |
+| vocab_0025 | ÉCART | def_fr, def_en |
+| vocab_0469 | MAGASIN (CE1-CE2) | def_fr, def_en |
+| vocab_0632 | DOUCHE (CE1-CE2) | def_fr, def_en |
+| vocab_0739 | DOUCHE (SIL-CP) | def_fr, def_en |
+| vocab_0704 | GROUPE | def_fr, def_en |
+| vocab_0476 | TROTTOIR | def_fr, def_en |
+
+RANGER (vocab_0079) : inchangé (option a). Remarque de forme, non tranchée : 7 des nouvelles définitions utilisent l'apostrophe droite (« d'allumettes », « l'eau »…), alors que le fichier utilise presque partout l'apostrophe typographique (621 champs de définition à apostrophe typographique, contre 5 à apostrophe droite avant le lot C) ; textes appliqués tels que validés.
+
+## 15. Règles de L4 et tirage
+
+| Règle | Mise en œuvre |
+|---|---|
+| P3 b | pas de SIL-CP ; 4 paires en CE1-CE2, 5 en CM1-CM2 (`DEFINITION_SETTINGS`) |
+| P4 | niveau + matière + sujet ; sujets grisés (« pas assez de mots ») **selon la langue de l'interface** (les définitions et les règles dépendent de la langue) |
+| Langue | mots et définitions dans la langue de l'interface au lancement (`mot_fr` / `def_fr` ou `mot_en` / `def_en`) ; un même numéro peut donc donner des paires différentes en français et en anglais |
+| P6 a | sans pénalité ; 2 erreurs sur un élément : indice = traduction du mot dans l'autre langue (première forme, majuscules) ; 3 erreurs : « Voir la réponse », 0 point, `isCorrect: false` |
+| P7 a | 10 points par paire, pas d'étoiles, pas de badge ; `gameType` = `pairsDefinition` ; `saveScore` une seule fois dès la dernière paire (comme L3), détails `{ seed, language, subject, pairCount }` |
+| P8 | mots en majuscules (`displayText`), définitions en casse normale (texte stocké) |
+| P11 | sans objet en L4 (mots identiques FR = EN gardés sans limite) |
+| P12 a, L0-T | clés « w: » de toutes les formes FR et EN, comme L3 : deux entrées qui partagent une forme ne sont jamais tirées ensemble (ADDITIONNER / AJOUTER, PAVÉ / PARALLÉLÉPIPÈDE, RANGER / ORDONNER, MAGASIN / BOUTIQUE…) |
+| §5 règle 2 | clé « d: » de la définition affichée : jamais deux définitions identiques |
+| Fiche L4 (déf. qui donne son mot) | entrée écartée si sa définition contient son propre mot ou un mot qui commence par lui (`definitionRevealsWord`, décision du 2026-11-02), pour **toutes** les formes « A / B » du mot de la langue ; étendu aux mots composés (`definitionRevealsForm`) |
+| §6.2 (automatique) | si la définition de A contient le mot affiché de B, A et B reçoivent une clé commune « m: » et ne sont jamais tirés ensemble |
+
+**Critère exact de la règle §6.2 (CHOIX PROVISOIRE)** : mot entier après normalisation (`gridTokens` : majuscules, sans accents, ligatures développées, découpage sur tout ce qui n'est pas une lettre), ou ce mot suivi de S ou X (pluriel simple) ; mot composé cherché en entier et dans l'ordre ; mots de moins de 3 lettres ignorés ; seule la forme affichée (première forme) de B est cherchée. Pas de « commence par » ni de féminin : mesurés, ils ajoutaient surtout des faux positifs (« demi-droites » pris pour DROIT, « cordes » pour COR, « played » pour PLAY ; et, avec toutes les formes, « plants » pour SOW par sa 2e forme « Plant ») sans changer le nombre de sujets jouables. ARE n'est trouvé ni dans « aire » ni dans « hectare ».
+
+**Mesure sur le vocabulaire (2026-11-06, après le lot 0)** :
+
+| Langue, niveau | Jouables | Sans la règle §6.2 | Entrées écartées (déf. donne le mot) | Liens §6.2 (A cite B) |
+|---|---|---|---|---|
+| FR, CE1-CE2 (4 paires) | 31/33 | 32 | 3 | 96 |
+| FR, CM1-CM2 (5 paires) | 32/51 | 40 | 22 | 202 |
+| EN, CE1-CE2 | 31/33 | 32 | 19 | 105 |
+| EN, CM1-CM2 | 32/51 | 39 | 41 | 211 |
+
+- Sujets perdus à cause de §6.2 : CE1-CE2 Sciences (FR et EN) ; CM1-CM2 FR Angles, Matière / États, Multiplication, Numération, Opérations, Polygones, Proportionnalité, Solides ; CM1-CM2 EN Angles, Droites, Matière / États, Opérations, Polygones, Proportionnalité, Solides. Cause principale : les mots génériques cités par beaucoup de définitions (FACE, ANGLE, LINE, SOLIDE, POLYGONE, MASSE, CÔTÉ…), surtout en géométrie.
+- Faux positifs relevés en lisant les liens : peu nombreux (ex. COMMON dans la définition d'INTERSECTION, OTHERS dans SOLIDARITY, CHECK dans VALIDATE) ; la plupart des liens sont de vraies citations d'un mot de la partie. La règle est **restrictive en CM1-CM2** (8 sujets de moins en français, 7 en anglais) plutôt que bruitée.
+- Le grisage utilise la borne sûre du moteur (partie complète pour **toute** graine). Sur 300 graines, 3 sujets grisés donneraient pourtant toujours une partie complète (FR CM1-CM2 Polygones, Proportionnalité ; EN CM1-CM2 Solides) : coût de la borne, accepté pour garder la garantie.
+- Sujets des définitions corrigées : Commerce, Hygiène, Musique, Ville (CE1-CE2), Symétrie et Nombres (CM1-CM2) jouables en français et en anglais ; Addition (4 paires au plus, ADDITIONNER / AJOUTER partageant « Add »), Comparaison et Solides restent grisés en CM1-CM2.
+
+## 16. Effets du lot C sur les autres jeux
+
+- **L3 et L6** : comparaison de 21 400 parties (tous niveaux, tous sujets, graines 0 à 49, FR et EN) entre le vocabulaire de `main` et celui du lot C : seules changent les parties du sujet **Symétrie (CM1-CM2)** (68 parties), parce qu'AXIALE et CENTRALE n'ont plus la même `def_fr` (clé « dfr: ») : ce sujet passe de 8 à 9 paires garanties (jouable avant comme après). Les indices de L3 (définitions) changent pour les 14 entrées. M7 n'utilise pas le vocabulaire.
+- **Anagrammes et anagrammes mystères** : les définitions servent à écarter les mots dont la définition donne la réponse et sont incluses dans les parties. Cinq tests de référence (R1, R2, R3, GR1, GR2) échouaient avec le nouveau vocabulaire et passaient avec celui de `main` (code identique, vérifié). Valeurs recalculées : anagrammes CM1-CM2 en anglais (3 parties de R1), empreintes R2, R3 et GR1, parcours GR2 « CM1-CM2 en n° 0 » (MUSEUM devient VOLUME). **Conséquence** : des numéros déjà donnés ne redonnent plus la même partie (mesure du reviewer sur les numéros 0 à 149 : en CM1-CM2 anglais, presque toutes les parties des anagrammes et des mystères changent de mots, car la nouvelle définition anglaise de CENTRALE ne cite plus CENTRAL, qui entre dans les tirages ; ailleurs seul le texte des définitions change, dans 2 à 8 % des parties ; SIL-CP inchangé). **Accepté par Isaac le 2026-11-07** (« a) Accepter ») : application en démonstration, pas d'exception dans le code.
+
+## 17. Choix provisoires du developer (lot C, à valider par Isaac)
+
+1. **Disposition** : sur téléphone (moins de 700 px), mots en grille de deux colonnes au-dessus, définitions en liste pleine largeur en dessous (texte normal, aligné à gauche) ; sur écran large, mots à gauche (1/3), définitions à droite (2/3). Vérifié à 375 et 320 px (Playwright) avec la partie aux définitions les plus longues : pas de débordement, cibles d'au moins 44 px ; l'élève doit faire défiler entre un mot et une définition éloignée.
+2. **SIL-CP** : la carte est visible pour tous ; pour un élève de SIL-CP, la page s'ouvre en CE1-CE2 avec le message « Ce jeu commence au CE1-CE2 : il faut lire des phrases. Tu peux essayer avec un adulte. » ; le niveau SIL-CP n'est pas proposé.
+3. **Indice depuis une définition** (2 erreurs sur une définition) : « le mot de cette définition se dit « X » en anglais » (traduction du mot à trouver) ; depuis un mot : « Indice pour « PAVÉ » : en anglais, « CUBOID » ». Pour un mot identique dans les deux langues (TOTAL / Total), l'indice n'aide pas.
+4. **Critère §6.2** : mot entier ou pluriel simple, forme affichée seulement (§15).
+5. **Formes « A / B » pour la définition qui donne son mot** : toutes les formes (plus strict que la forme affichée).
+6. **Message de bonne réponse** court (« Bravo ! PAVÉ ») ; récapitulatif « MOT : définition ».
+7. **Références des anagrammes recalculées** (§16) plutôt que laissées en échec.
+8. Page séparée (`DefinitionGame.jsx`), copiée de L3 comme L6 l'avait fait : duplication assumée de l'écran de choix (mise en commun possible plus tard).
+
+## 18. Limites du lot C
+
+- Aucun essai sur un vrai téléphone ; lisibilité des définitions longues et nombre de paires à valider par un enseignant (Q7, non désigné).
+- La règle §6.2 ne détecte pas une définition qui **convient** à un autre mot sans le citer (cas du §5 du document du lot 0 : SOMME / TOTAL, ÉTAL / ÉTALAGE, AVENUE / BOULEVARD, instruments de Musique…) : ces doubles bonnes réponses restent possibles en L4 (passe complémentaire ou liste manuelle à décider).
+- Définitions anglaises non relues par un enseignant pour L4 ; inclusions mathématiques (CUBE / PARALLÉLÉPIPÈDE, ENTIER / CARDINAL) non traitées.
+- Le critère §6.2 ignore les mots de moins de 3 lettres et les dérivés autres que le pluriel en S ou X.

@@ -1,6 +1,6 @@
 # 📊 DIBIÈ - Statut du Projet
 
-**Date** : 2026-11-04
+**Date** : 2026-11-06
 **Version** : Prototype de démonstration 0.1
 **Status** : ⚠️ Prototype local non sécurisé, destiné aux démonstrations
 
@@ -23,6 +23,7 @@
 - [x] Jeu Pyramides additives et multiplicatives et pavé numérique réutilisable (phase 3, 2026-11-03 ; réglés par classe et sous-système du profil ; bornes reprises des programmes, provisoires, à valider par un enseignant de chaque sous-système)
 - [x] Jeux de paires, lot A (2026-11-06, fusionné, pull request n° 21) : moteur C « Paires » et jeu L3 « Associations FR ↔ EN » (décisions P1 à P12 d'Isaac ; 3 / 5 / 6 paires ; à valider par un enseignant ; vrai téléphone non essayé ; voir `docs/paires.md`)
 - [x] Jeux de paires, lot B (2026-11-06, branche `feature/paires-lot-b`, non commitée) : L6 « Mémoire FR ↔ EN » et M7 « Mémoire des tables » (opération ↔ résultat, réglée par la classe du profil ; Class 1-2 : pas encore de table), cartes face cachée, 4 / 6 / 6 paires, `gameType` `pairsMemory` et `pairsMultiplication` ; choix provisoires à valider par Isaac ; à valider par un enseignant ; vrai téléphone non essayé ; voir `docs/paires.md`
+- [x] Jeux de paires, lot C (2026-11-06, branche `feature/paires-lot-c`, non commitée) : 14 définitions du lot 0 appliquées à `vocabulaire.json` (validées par Isaac le 2026-11-06 ; à valider par un enseignant) et jeu L4 « Mot ↔ définition » (pas de SIL-CP, 4 / 5 paires, mots et définitions dans la langue de l'interface, indice = traduction du mot, `gameType` `pairsDefinition`, règles L0-T et §6.2 automatiques) ; sujets jouables : CE1-CE2 31/33, CM1-CM2 32/51 (en français comme en anglais) ; choix provisoires à valider par Isaac ; vrai téléphone non essayé ; parties de référence des anagrammes (CM1-CM2 en anglais) et des anagrammes mystères recalculées après le changement de définitions ; voir `docs/paires.md` §13 à §18
 - [x] Dashboard Élève (scores, badges, streaks)
 - [x] Dashboard Enseignant (score total et nombre de parties par profil)
 - [ ] Dashboard Parent (texte d'attente seulement, aucune donnée)

@@ -3,6 +3,11 @@
 // code avec le jeu 5 (lot 2, docs/anagrammes-mysteres.md §12) : un même numéro
 // doit toujours donner le même parcours. Si l'un de ces tests échoue, les
 // numéros de partie déjà donnés ne redonnent plus le même mystère.
+// Mise à jour du 2026-11-06 (lot C de la phase 4) : les 14 définitions du lot 0
+// validées par Isaac changent les mots retenus et les définitions affichées :
+// empreintes GR1 et parcours GR2 « CM1-CM2 en n° 0 » recalculés. Code inchangé :
+// avec le vocabulaire de main (1dcb203), les anciennes valeurs passaient encore
+// (docs/paires.md §16).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -31,8 +36,8 @@ function fingerprint() {
 
 test('GR1 — jeux 1 et 4 inchangés par le lot 2 (empreintes figées avant la mise en commun du code)', () => {
   assert.deepEqual(fingerprint(), {
-    word: '1d430224bf2d3b36befe846758007fe4a44f61fc004817b8384866339d0e638a',
-    theme: '3c0eed3711fc4560ffde71589413e4bcb88358110d54b97e1b6fe194ecde84f2'
+    word: '450d2b7c2e1147d41802812772294865b08342720ef6fdc76beecb334bbca5fe',
+    theme: '9f3eeb0fc1afbddc67f2141c0fd5432df676dcfcd9d15144ad3a4bc1ce4ccc8a'
   })
 })
 
@@ -46,8 +51,8 @@ const CODED_REFERENCE = [
     [['vocab_0636', 'FENETRE', 'REFTENE', 'E', 6, 11], ['vocab_1485', 'LOURD', 'URDLO', 'D', 4, 1], ['vocab_0538', 'SAVON', 'NVAOS', 'N', 4, 16], ['vocab_0552', 'MARACAS', 'AASMCAR', 'S', 6, 17], ['vocab_0554', 'KORA', 'OAKR', 'A', 3, 8]]],
   ['CM1-CM2', 'fr', 2026, 'RETENUE', 'RETENUE', [20, 3, 12, 3, 24, 26, 3], { rule: 'position', position: 3 }, ['U', 'R', 'E', 'N', 'T'],
     [['vocab_0141', 'HAUTEUR', 'AHRUETU', 'U', 2, 26], ['vocab_0173', 'PERIMETRE', 'TRMEIEERP', 'R', 2, 20], ['vocab_0045', 'ENTIER', 'IENERT', 'T', 2, 12], ['vocab_0180', 'PENTAGONE', 'TNENAOPGE', 'N', 2, 24], ['vocab_0288', 'AMELIORER', 'EORERALIM', 'E', 2, 3]]],
-  ['CM1-CM2', 'en', 0, 'MUSEUM', 'MUSEUM', [1, 13, 19, 9, 13, 1], { rule: 'marked' }, ['M', 'S', 'U', 'E'],
-    [['vocab_0026', 'DECREASE', 'ERSCEEAD', 'S', 6, 19], ['vocab_1521', 'HONOUR', 'HOONRU', 'U', 4, 13], ['vocab_0122', 'CENTRE', 'ENCRTE', 'E', 5, 9], ['vocab_0390', 'SHOEMAKER', 'EMAOHERKS', 'M', 4, 1]]]
+  ['CM1-CM2', 'en', 0, 'VOLUME', 'VOLUME', [10, 13, 8, 21, 20, 17], { rule: 'marked' }, ['M', 'E', 'V', 'L', 'O', 'U'],
+    [['vocab_0194', 'VERTEX', 'EREXTV', 'V', 0, 10], ['vocab_1314', 'FREEZING', 'GNFRZEEI', 'E', 3, 17], ['vocab_1492', 'LOCKSMITH', 'CSIHLKMOT', 'L', 0, 8], ['vocab_0287', 'MANIPULATE', 'LAAIUEPNMT', 'U', 5, 21], ['vocab_1240', 'RESOURCE', 'EECOSRUR', 'O', 3, 13], ['vocab_0277', 'SIMULATE', 'AIMLUSTE', 'M', 2, 20]]]
 ]
 
 test('GR2 — Message codé : parcours de référence figés (3 niveaux, 2 langues)', () => {
