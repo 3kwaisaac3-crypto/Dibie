@@ -1,7 +1,8 @@
-# Nombres croisés (fiche M1, moteur F) : note de conception du lot A
+# Nombres croisés (fiche M1, moteur F) : note de conception des lots A et B
 
 - **Date** : 2026-11-08
-- **Statut** : lot A en cours sur la branche `feature/nombres-croises-lot-a` (non commité). Relu par le reviewer (PRÊT) ; corrections de réglages décidées par Isaac le 2026-11-08 après lecture de l'échantillon par l'educator (§4 bis), appliquées ensuite. Générateur et vérificateur **sans interface**. Non validé par un enseignant (démonstration seulement, D14 ; Q7 ouvert).
+- **Statut** : lot A fusionné (pull request n° 24, fusion 5c4e303). Relu par le reviewer (PRÊT) ; corrections de réglages décidées par Isaac le 2026-11-08 après lecture de l'échantillon par l'educator (§4 bis). Non validé par un enseignant (démonstration seulement, D14 ; Q7 ouvert).
+- **Lot B** (interface, niveaux 1 et 2) : branche `feature/nombres-croises-lot-b` (non commitée), voir §8. Relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserves 1 et 3 corrigées, sans nouvelle relecture) ; non essayé par Isaac ; pas d'essai sur vrai téléphone.
 - **Source des règles** : `DIBIE/pedagogie/cadrage-phase5-nombres-croises-v0.1.md` (dépôt JARVIS), décisions P1 à P12 validées par Isaac le 2026-11-08 (option a partout).
 
 ## 1. Fichiers
@@ -138,3 +139,72 @@ node scripts/nombres-croises-echantillon.js --mesure 200   # temps de générati
 - Aucune interface (lot B) ; temps de génération mesuré seulement sur la machine de développement, pas sur un téléphone.
 - Temps de génération après les corrections du 2026-11-08 (500 graines par classe, machine de développement Intel i5-2430M, **pas un téléphone**) : moyenne de 0,2 ms (Class 2) à 3,5 ms (CM2) ; maximum 46,3 ms (CM2) ; au plus 4 essais sur 20.
 - Réglages, types et libellés au statut brouillon ; aucun enseignant désigné (Q7).
+
+## 8. Lot B : interface des niveaux 1 et 2 (2026-11-08)
+
+Décisions appliquées : P2, P7 à P12 (option a), consignes d'Isaac du lot B. Classes jouables à l'écran : **CP, CE1, CE2, Class 2, Class 3, Class 4**.
+
+### 8.1 Fichiers
+
+| Fichier | Rôle |
+|---|---|
+| `src/utils/crossNumberPlay.js` | État d'une partie, module pur : sélection, saisie, ⌫, vérification, chiffre révélé, « Voir la réponse », points, zone affichée, disponibilité par classe (`crossNumberAvailability`) |
+| `src/utils/crossNumberPlay.test.js` | 19 tests unitaires (NP1 à NP19), dont une partie complète sur 30 graines par classe du lot B |
+| `src/pages/CrossNumberGame.jsx` | Écran : choix (numéro de partie), partie, fin ; FR et EN |
+| `src/styles/CrossNumberGame.css` | Grille, liste des définitions, bas d'écran fixé ; reprend les classes d'écran des pyramides (`PyramidGame.css`) |
+| `src/App.jsx`, `src/pages/StudentDashboard.jsx` | Page `crossNumberGame` et carte « Nombres croisés » du tableau de bord |
+| `e2e/nombres-croises.spec.js` | 11 tests navigateur (× 3 projets : ordinateur, tablette, téléphone), dont 320 et 375 px |
+
+### 8.2 Règles mises en œuvre
+
+- **Classe** : celle du profil (`resolveMathClass`), comme les pyramides et M7. SIL et Class 1 : message « Pas encore de nombres croisés pour ta classe… Ce jeu s'ouvrira à partir de la classe CP / Class 2 » (P2 a, sur le modèle de M7). CM1, CM2, Class 5, Class 6 : message « Bientôt… » (lot C). Aucun bouton « Commencer » dans ces deux cas ; carte visible pour tous.
+- **Grille de boutons** (aucun `<input>` ni `<textarea>` dans la partie, contrôlé par le test e2e) ; saisie au pavé `NumberPad` ou au clavier physique (chiffres, Retour arrière, Entrée sur une case du nombre choisi) (P10 a).
+- **Sélection** : toucher une case choisit le nombre horizontal qui y passe, sinon le vertical ; un second toucher sur la même case (case active, ou case touchée juste avant si elle est fixée) passe à l'autre nombre (puis revient) ; toucher une définition de la liste choisit son nombre. Les nombres résolus ne se choisissent plus.
+- **Saisie** : avance automatique ; les cases fixées sont sautées ; ⌫ : case remplie effacée, case vide : recul et effacement (règle des mots croisés).
+- **Vérification** (P7 a) : ✓ actif quand toutes les cases du nombre sont remplies ; juste : nombre verrouillé (vert), ses chiffres restent pour les nombres croisés, le nombre suivant est choisi ; faux : message avec la définition, chiffres laissés à corriger, cases bordées de rouge.
+- **Aides** (P8 a) : à la 2e erreur sur un nombre, un chiffre est révélé (orange, fixé) ; à la 3e, « Voir la réponse » montre le nombre (gris, 0 point, `isCorrect: false`). Un nombre dont toutes les cases sont fixées par des nombres montrés et des chiffres révélés, sans case fixée par un nombre trouvé, est montré d'office (choix n° 8 ci-dessous). L'origine de chaque case fixée est suivie (`fixedBy` : `found`, `shown` ou `revealed`, la plus forte gardée).
+- **Points et enregistrement** (P9 a) : 10 points par nombre trouvé, même après erreur ou chiffre révélé ; `gameType` **`crossNumber`** ; aucun badge nouveau. `saveUserProgress` à chaque ✓ et à « Voir la réponse » (`itemId` = `sous-système:classe:numéro:nombre`, ex. `fr:CE1:2024:3A`). `saveScore` **une seule fois, dès le dernier nombre résolu** (« Retour » ou « Nouvelle partie » ne le font pas perdre ; « Terminer » n'enregistre pas une seconde fois), avec dans `details` : `seed`, `className`, `subsystem`, `templateId`, `numberCount`, `found`, `shown`, `revealed` (nombres avec un chiffre révélé), `errors`.
+- **Disposition** (P11 a) : en-tête, grille, bouton « Toutes les définitions (n) » (liste repliée au départ), boutons « Nouvelle partie » / « Retour » ; en bas, **fixé** : définition courante (« 3 horizontal : 22 − 3 »), message, « Voir la réponse » si proposé, pavé. La page réserve en bas la hauteur de ce bloc (mesurée par `ResizeObserver`).
+- **Graine et langue** (P12 a) : même numéro + même classe = même grille ; changer de langue pendant la partie ne change que le texte des définitions (contrôlé en e2e) ; si `createCrossNumberGame` lève une erreur, message « Aucune grille n'a pu être préparée avec ce numéro… », aucune grille.
+- **Carré 3 × 3** : les rangées et colonnes entièrement noires du bord ne sont pas affichées (`visibleArea`) ; le carré s'affiche donc en 2 × 2 sans cadre (choix noté au §4 bis, point 8).
+- **Fin** : score, erreurs, nombres avec chiffre révélé, réponses montrées ; grille complète (trouvé en vert, montré en gris) ; liste des définitions avec leurs réponses.
+
+### 8.3 Choix provisoires du developer (à présenter à Isaac)
+
+1. **Pas de choix de classe à l'écran** : la classe vient du profil, comme les pyramides et M7 (le cadrage §4.4 dit « modifiable comme dans les pyramides » ; les pyramides ne la rendent modifiable que par le profil).
+2. **CM1-CM2 et Class 5-6** : carte visible, message « Bientôt » sur la page (plutôt qu'une carte grisée, pour ne pas cacher le jeu aux autres classes sur un même appareil).
+3. **Textes des messages SIL / Class 1** (« les nombres étudiés sont encore petits ; ce jeu s'ouvrira à partir de la classe CP / Class 2 ») : justification tirée du cadrage §4.1 (SIL) ; pour Class 1, l'exclusion reste une déduction de JARVIS (cadrage §9, point 1).
+4. **Nom anglais « Number crossword »**, icône 🔢, `gameType` `crossNumber`.
+5. **Chiffre révélé automatiquement** à la 2e erreur (pas de bouton), comme l'indice de la phase 4 qui apparaît seul ; chiffre choisi : la première case modifiable dont le chiffre écrit est faux. Le chiffre révélé est fixé et sert aussi au nombre qui croise. Il n'est compté que pour le nombre faux dans `details.revealed`, même s'il aide aussi le nombre croisé.
+6. **Toucher une nouvelle case : horizontal d'abord**, même si le nombre déjà choisi (vertical) passe par cette case. Les mots croisés gardent, eux, le sens courant dans ce cas.
+7. **Chiffres de trop ignorés** après la dernière case modifiable (comme la longueur limitée des pyramides) : un élève qui tape « 80 » alors que le 0 est déjà fixé n'écrase pas son 8. Toucher une case ou ⌫ permet de récrire. Ce blocage vaut aussi si des cases antérieures du nombre sont restées vides (l'élève doit alors toucher la case vide).
+8. **Nombre entièrement fixé par les croisements** — *décidé par Isaac le 2026-11-08 (« Non, 0 point »)* : si toutes ses cases ont été fixées par des nombres montrés (« Voir la réponse ») et/ou des chiffres révélés, sans aucune case fixée par un nombre trouvé par l'élève, il passe aussitôt à l'état « montré », sans ✓ : 0 point, `isCorrect: false` dans `dibieProgress`, compté dans `details.shown`, message « Rempli sans toi (sans points) : … » (`resolveFilledByAids`, tests NP17 à NP19 et test e2e « choix n° 8 »). S'il a au moins une case fixée par un nombre trouvé, l'élève doit toucher ✓ et il rapporte 10 points.
+9. **Après un nombre juste ou montré**, le nombre suivant non résolu dans l'ordre de la liste (horizontaux puis verticaux) est choisi.
+10. **Définition affichée sans « = ? »** (« 22 − 3 », « le double de 34 », « 6 dizaines »).
+11. **Bas d'écran fixé** (`position: fixed`, 480 px de large au plus pour ne pas passer sous le sélecteur de langue sur ordinateur) plutôt que collant : sur ordinateur, `.app` (`overflow-x: hidden`) empêchait un bloc collant de rester en bas. Touches du pavé : 46 px de haut (52 px dans les pyramides), 6 px d'écart.
+12. **Taille de la grille** : largeur disponible, au plus 360 px (180 px pour 2 colonnes, 240 px pour 3), et au plus la hauteur de l'écran moins 420 px (au moins 200 px), pour que la grille 5 × 5 reste entière au-dessus du pavé à 320 × 640. Quand un message s'affiche, le bas d'écran grandit et peut couvrir la dernière rangée à 320 × 640 ; la page peut alors défiler.
+13. **Message** gardé dans la langue du moment où il est apparu (comme les pyramides) ; les définitions, elles, suivent la langue.
+14. **Aides notées dans les `details` de `saveScore`** seulement ; `saveUserProgress` n'enregistre que `gameType` et `itemId` (fonction inchangée).
+
+### 8.4 Écarts au cadrage
+
+- Cadrage §4.4 « Choix … modifiable comme dans les pyramides » : classe du profil seulement (choix 1).
+- Cadrage §7 : « mesure [du temps de génération] sur téléphone au lot B » : **non faite** (aucun téléphone dans l'environnement du developer).
+- Cadrage §3 : « essai d'Isaac sur ordinateur et sur vrai téléphone » : à faire par Isaac.
+
+### 8.5 Vérifier et refaire
+
+```
+npm test                                             # tests unitaires (dont NP1 à NP19)
+node --test src/utils/crossNumberPlay.test.js
+npx playwright test e2e/nombres-croises.spec.js      # tests navigateur du jeu seulement
+npm run lint
+npm run build
+```
+
+### 8.6 Limites du lot B
+
+- **Pas d'essai sur vrai téléphone** ; les tests à 320 et 375 px sont faits dans Edge (Playwright) avec une fenêtre de cette taille.
+- Message d'échec de génération : chemin du code présent, **non déclenché en test navigateur** (aucune graine connue ne fait échouer la génération ; le cas d'échec est testé au lot A dans le module pur).
+- Pas de flèches du clavier pour se déplacer dans la grille ; lecteur d'écran non essayé (étiquettes `aria-label` posées).
+- Suite Playwright complète non relancée.
