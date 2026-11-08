@@ -36,6 +36,10 @@ export default function StudentDashboard() {
     // Lot B de la phase 4 : deux cartes séparées (langue / maths), CHOIX PROVISOIRE (docs/paires.md)
     { id: 'memory', name: language === 'fr' ? 'Mémoire FR ↔ EN' : 'Memory FR ↔ EN', icon: '🃏', available: true, page: 'memoryGame' },
     { id: 'tablesMemory', name: language === 'fr' ? 'Mémoire des tables' : 'Times tables memory', icon: '✖️', available: true, page: 'tablesMemoryGame' },
+    // Phase 5, lot B : carte visible à tous les niveaux ; la page dit si la classe
+    // du profil joue (CP-CE2, Class 2-4), attend le lot C (CM, Class 5-6) ou n'a
+    // pas ce jeu (SIL, Class 1, P2 a). Nom anglais : CHOIX PROVISOIRE
+    { id: 'crossNumber', name: language === 'fr' ? 'Nombres croisés' : 'Number crossword', icon: '🔢', available: true, page: 'crossNumberGame' },
   ]
 
   return (
