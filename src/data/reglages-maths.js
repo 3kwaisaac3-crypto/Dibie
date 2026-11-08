@@ -37,9 +37,12 @@
 //   (DIBIE/pedagogie/cadrage-phase5-nombres-croises-v0.1.md, dépôt JARVIS,
 //   décision P5 a d'Isaac du 2026-11-08), PROVISOIRE (D4). Identifiants
 //   définis dans src/utils/crossNumberDefinitions.js. null : M1 non proposé
-//   dans cette classe (SIL et Class 1, décision P2 a). Les types prévus pour
-//   le lot C (nombre qui suit / qui précède, décomposition par rang, × / ÷ par
-//   10, 100, 1 000, expressions à deux opérations) ne sont pas encore listés.
+//   dans cette classe (SIL et Class 1, décision P2 a). Types ajoutés au lot C
+//   (cadrage §3 et §4.3) : CM1 et CM2 : nombre qui suit / qui précède,
+//   décomposition par rang, × / ÷ par 10, 100, 1 000 ; Class 5 et Class 6 :
+//   nombre qui suit / qui précède, décomposition par rang (pas de × / ÷ par
+//   10, 100, 1 000 : le §4.3 ne les cite pas pour Class 5-6) ; Class 4 :
+//   expressions à deux opérations avec priorité (BODMAS : a + b × c, a − b × c).
 //   CM1 et CM2 : addition et soustraction ajoutées comme « acquis des classes
 //   précédentes » (comme Class 5-6), correction décidée par Isaac le 2026-11-08
 //   après lecture de l'échantillon du lot A (le §4.3 du cadrage sera mis à jour).
@@ -52,6 +55,10 @@ const en = (className, level, maxNumber, tables, maxOperand, source, operations)
 
 // Types de définitions des nombres croisés (cadrage phase 5, §4.3), voir l'en-tête
 const CE1_OPS = ['add', 'sub', 'mulTable', 'mul', 'div', 'double', 'half', 'triple', 'third']
+// Types du niveau 3 (lot C) : nombre qui suit / qui précède, décomposition par rang
+const LEVEL3_OPS = ['next', 'prev', 'decomposition']
+// CM1 (et CM2) : « ×/÷ par 10, 100, 1 000 »
+const POW10_OPS = ['timesPow10', 'divPow10']
 
 const range = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => from + i)
 
@@ -72,11 +79,11 @@ export const MATH_CLASSES = Object.freeze({
     // §2.1 CM1 : « grands nombres de 9 chiffres », avec la mention « nombres jusqu'au
     // million » dans le même texte : le million est retenu (plus prudent), À CONFIRMER
     // (§6, point 4) ; « tables de 1 à 10 »
-    fr('CM1', 'CM1-CM2', 1000000, range(1, 10), null, 'programmes v0.2 §2.1 et §5, CM1 : nombres jusqu\'au million (ou 9 chiffres, à confirmer) ; tables de 1 à 10', ['add', 'sub', 'mulTable', 'times5', 'div']),
+    fr('CM1', 'CM1-CM2', 1000000, range(1, 10), null, 'programmes v0.2 §2.1 et §5, CM1 : nombres jusqu\'au million (ou 9 chiffres, à confirmer) ; tables de 1 à 10', ['add', 'sub', 'mulTable', 'times5', 'div', ...LEVEL3_OPS, ...POW10_OPS]),
     // §2.1 CM2 : « jusqu'à 12 chiffres (jusqu'au milliard) » : le milliard est retenu,
     // À CONFIRMER (§6, point 4) ; « tables de 1 à 10 + quelques multiplications par
     // 11 et 12 » : 11 et 12 ne sont pas retenus (« quelques »)
-    fr('CM2', 'CM1-CM2', 1000000000, range(1, 10), null, 'programmes v0.2 §2.1 et §5, CM2 : nombres jusqu\'au milliard (à confirmer) ; tables de 1 à 10', ['add', 'sub', 'mulTable', 'times5', 'div', 'times11_12', 'times25'])
+    fr('CM2', 'CM1-CM2', 1000000000, range(1, 10), null, 'programmes v0.2 §2.1 et §5, CM2 : nombres jusqu\'au milliard (à confirmer) ; tables de 1 à 10', ['add', 'sub', 'mulTable', 'times5', 'div', 'times11_12', 'times25', ...LEVEL3_OPS, ...POW10_OPS])
   ]),
   en: Object.freeze([
     // §2.2 Class 1 : « 0 à 100 » ; « les quatre opérations » ; tables non détaillées
@@ -89,11 +96,11 @@ export const MATH_CLASSES = Object.freeze({
     en('Class 3', 'CE1-CE2', 500, range(1, 7), 9, 'programmes v0.2 §2.2 et §5, Class 3 : nombres jusqu\'à 500 (ou 1 000, à confirmer) ; « bonds of 5s, 6s, 7s » lu comme tables jusqu\'à 7 (interprétation)', ['add', 'sub', 'mulTable']),
     // §2.2 Class 4 : « 0 à 5 000 » ; « bonds of 8 and 9 » lu comme tables jusqu'à 9
     // (INTERPRÉTATION FRAGILE, voir l'en-tête ; à confirmer par un enseignant anglophone) ; diviseur non précisé : un chiffre (le plus prudent)
-    en('Class 4', 'CE1-CE2', 5000, range(1, 9), 9, 'programmes v0.2 §2.2 et §5, Class 4 : nombres jusqu\'à 5 000 ; « bonds of 8 and 9 » lu comme tables jusqu\'à 9 (interprétation)', ['add', 'sub', 'mulTable']),
+    en('Class 4', 'CE1-CE2', 5000, range(1, 9), 9, 'programmes v0.2 §2.2 et §5, Class 4 : nombres jusqu\'à 5 000 ; « bonds of 8 and 9 » lu comme tables jusqu\'à 9 (interprétation)', ['add', 'sub', 'mulTable', 'addProduct', 'subProduct']),
     // §2.2 Class 5 : « 0 à 100 000 » ; « tables » ; §5 : tables 1 à 10
-    en('Class 5', 'CM1-CM2', 100000, range(1, 10), null, 'programmes v0.2 §2.2 et §5, Class 5 : nombres jusqu\'à 100 000 ; tables de 1 à 10', ['add', 'sub', 'mul', 'div', 'mulTable']),
+    en('Class 5', 'CM1-CM2', 100000, range(1, 10), null, 'programmes v0.2 §2.2 et §5, Class 5 : nombres jusqu\'à 100 000 ; tables de 1 à 10', ['add', 'sub', 'mul', 'div', 'mulTable', ...LEVEL3_OPS]),
     // §2.2 Class 6 : « 0 à 1 000 000 » ; §5 : tables 1 à 10
-    en('Class 6', 'CM1-CM2', 1000000, range(1, 10), null, 'programmes v0.2 §2.2 et §5, Class 6 : nombres jusqu\'à 1 000 000 ; tables de 1 à 10', ['add', 'sub', 'mul', 'div', 'mulTable'])
+    en('Class 6', 'CM1-CM2', 1000000, range(1, 10), null, 'programmes v0.2 §2.2 et §5, Class 6 : nombres jusqu\'à 1 000 000 ; tables de 1 à 10', ['add', 'sub', 'mul', 'div', 'mulTable', ...LEVEL3_OPS])
   ])
 })
 

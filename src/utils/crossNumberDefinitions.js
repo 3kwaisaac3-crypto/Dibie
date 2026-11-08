@@ -23,6 +23,20 @@
 //   times11_12 a × 11, a × 12, a de 2 à 12 (CM2 : « quelques multiplications
 //              par 11 et 12 »)
 //   times25    a × 25 (CM2)
+// Types ajoutés au lot C (niveau 3 et Class 4, cadrage §3 et §4.3) :
+//   next       le nombre qui suit a (a + 1) ; prev : le nombre qui précède a
+//              (a − 1). CHOIX PROVISOIRE : seulement pour une réponse d'au
+//              moins 4 chiffres, avec une retenue (4 599 → 4 600 ; 4 600 → 4 599)
+//   decomposition  décomposition par rang (« 4 centaines de mille et 3
+//              unités ») ; opérandes = chiffres du nombre, du plus grand rang
+//              au plus petit. CHOIX PROVISOIRE : nombre de 4 à 9 chiffres, au
+//              plus 3 rangs non nuls (donc au moins un zéro à placer)
+//   timesPow10 a × 10, a × 100, a × 1 000 (CM1, CM2)
+//   divPow10   a ÷ 10, a ÷ 100, a ÷ 1 000, division exacte (CM1, CM2)
+//   addProduct a + b × c et subProduct a − b × c (Class 4, BODMAS : la
+//              multiplication d'abord) ; b × c est un produit des tables de la
+//              classe et vaut au moins minTerm (10 en Class 4, décision
+//              d'Isaac du 2026-11-08) ; pas de parenthèses, aucun résultat négatif
 //
 // Règles de qualité (cadrage §5 et corrections d'Isaac du 2026-11-08 après
 // lecture de l'échantillon) contrôlées par checkDefinition :
@@ -31,8 +45,10 @@
 // - pas de définition triviale (+ 0, − 0, × 0, × 1, ÷ 1) ;
 // - pas de définition qui contient sa réponse en chiffres : aucun opérande ne
 //   contient l'écriture de la réponse (ex. « 145 − 100 » pour 45 est refusé).
-//   Exception : placeValue, dont les opérandes sont les chiffres eux-mêmes
-//   (type prévu par le cadrage au CP et en Class 2) ;
+//   Exceptions : placeValue et decomposition, dont les opérandes sont les
+//   chiffres eux-mêmes (types prévus par le cadrage), et divPow10, dont le
+//   dividende contient toujours le quotient suivi de zéros (« 45 000 ÷ 100 ») :
+//   c'est la règle même de la division par 10, 100, 1 000 (programme du CM1) ;
 // - réglages du contexte (corrections d'Isaac du 2026-11-08) : minTerm (chaque
 //   terme d'une addition et chaque nombre retiré ≥ 10 à partir du CE1 et de
 //   Class 3 ; code 'too-small') ; maxQuotientDigits (quotient d'au plus 4 ou 5
@@ -48,8 +64,19 @@ const TIMES_FACTORS = Object.freeze({
   times10: Object.freeze([10, 100]),
   times5: Object.freeze([5, 50, 500]),
   times11_12: Object.freeze([11, 12]),
-  times25: Object.freeze([25])
+  times25: Object.freeze([25]),
+  timesPow10: Object.freeze([10, 100, 1000])
 })
+// Diviseurs de divPow10 (CM1 : « ×/÷ par 10, 100, 1 000 »)
+const POW10_DIVISORS = Object.freeze([10, 100, 1000])
+// Types sans contrôle « contient sa réponse » (voir l'en-tête)
+const NO_REVEAL_CHECK = Object.freeze(['placeValue', 'decomposition', 'divPow10'])
+// next, prev : réponse d'au moins NEXT_MIN_DIGITS chiffres (CHOIX PROVISOIRE)
+export const NEXT_MIN_DIGITS = 4
+// decomposition : de 4 à 9 chiffres, au plus 3 rangs non nuls (CHOIX PROVISOIRE)
+export const DECOMPOSITION_MIN_DIGITS = 4
+export const DECOMPOSITION_MAX_DIGITS = 9
+export const DECOMPOSITION_MAX_PARTS = 3
 // times11_12 : multiplicande limité à 12 (prolongement des tables, CHOIX PROVISOIRE)
 const TIMES_MAX_MULTIPLICAND = Object.freeze({ times11_12: 12 })
 
@@ -65,7 +92,8 @@ const UNARY = Object.freeze({
 export const DEFINITION_TYPES = Object.freeze([
   'add', 'sub', 'mulTable', 'mul', 'div',
   'double', 'half', 'triple', 'third', 'quadruple', 'quarter',
-  'placeValue', 'times10', 'times5', 'times11_12', 'times25'
+  'placeValue', 'times10', 'times5', 'times11_12', 'times25',
+  'next', 'prev', 'decomposition', 'timesPow10', 'divPow10', 'addProduct', 'subProduct'
 ])
 
 // Contexte de calcul d'une classe à partir de ses réglages (reglages-maths.js)
@@ -97,9 +125,16 @@ export function evaluateDefinition(def) {
     case 'times10':
     case 'times5':
     case 'times11_12':
-    case 'times25': return a * b
-    case 'div': return b !== 0 && a % b === 0 ? a / b : NaN
+    case 'times25':
+    case 'timesPow10': return a * b
+    case 'div':
+    case 'divPow10': return b !== 0 && a % b === 0 ? a / b : NaN
     case 'placeValue': return a * 100 + b * 10 + c
+    case 'next': return a + 1
+    case 'prev': return a - 1
+    case 'decomposition': return def.operands.reduce((v, d) => v * 10 + d, 0)
+    case 'addProduct': return a + b * c
+    case 'subProduct': return a - b * c
     default: {
       const u = UNARY[def.type]
       if (!u) return NaN
@@ -109,18 +144,24 @@ export function evaluateDefinition(def) {
   }
 }
 
-const arity = (type) => (type === 'placeValue' ? 3 : UNARY[type] ? 1 : 2)
+const arity = (type) => (type === 'placeValue' || type === 'addProduct' || type === 'subProduct' ? 3
+  : UNARY[type] || type === 'next' || type === 'prev' ? 1 : 2)
+// Nombre d'opérandes permis (decomposition : un chiffre par rang)
+const arityOk = (type, ops) => (type === 'decomposition'
+  ? ops.length >= DECOMPOSITION_MIN_DIGITS && ops.length <= DECOMPOSITION_MAX_DIGITS
+  : ops.length === arity(type))
 
 // Erreurs d'une définition pour la réponse `answer` dans le contexte `ctx`
 // (tableau vide = définition valide). Codes : 'type-not-allowed',
 // 'bad-structure', 'wrong-value', 'out-of-range', 'trivial', 'not-in-programme',
-// 'reveals-answer', 'too-small'.
+// 'reveals-answer', 'too-small', 'too-long' (décomposition de plus de 3 rangs
+// non nuls).
 export function checkDefinition(def, answer, ctx) {
   const errors = []
   if (!def || !DEFINITION_TYPES.includes(def.type)) return ['bad-structure']
   if (!ctx.operations.includes(def.type)) errors.push('type-not-allowed')
   const ops = def.operands
-  if (!Array.isArray(ops) || ops.length !== arity(def.type) || !ops.every(n => Number.isInteger(n) && n >= 0)) {
+  if (!Array.isArray(ops) || !arityOk(def.type, ops) || !ops.every(n => Number.isInteger(n) && n >= 0)) {
     return [...errors, 'bad-structure']
   }
   const value = evaluateDefinition(def)
@@ -155,25 +196,56 @@ export function checkDefinition(def, answer, ctx) {
     case 'times10':
     case 'times5':
     case 'times11_12':
-    case 'times25': {
+    case 'times25':
+    case 'timesPow10': {
       if (a <= 1) errors.push('trivial')
       if (!TIMES_FACTORS[def.type].includes(b)) errors.push('not-in-programme')
       const maxA = TIMES_MAX_MULTIPLICAND[def.type]
       if (maxA !== undefined && a > maxA) errors.push('not-in-programme')
       break
     }
+    case 'divPow10':
+      if (!POW10_DIVISORS.includes(b)) errors.push('not-in-programme')
+      if (!(value > 1)) errors.push('trivial')
+      break
+    case 'next':
+    case 'prev': {
+      // Réponse d'au moins 4 chiffres, avec une retenue (sinon trop facile)
+      const n = def.type === 'next' ? a + 1 : a - 1
+      if (String(n).length < NEXT_MIN_DIGITS || (def.type === 'next' ? n % 10 !== 0 : n % 10 !== 9)) errors.push('trivial')
+      break
+    }
+    case 'decomposition':
+      if (!ops.every(d => d <= 9) || ops[0] === 0) errors.push('bad-structure')
+      else if (ops.filter(d => d !== 0).length > DECOMPOSITION_MAX_PARTS) errors.push('too-long')
+      break
+    case 'addProduct':
+    case 'subProduct':
+      // b × c : produit des tables de la classe (BODMAS, Class 4)
+      if (b <= 1 || c <= 1) errors.push('trivial')
+      if (!inTable(b, c) && !inTable(c, b)) errors.push('not-in-programme')
+      // Décision d'Isaac du 2026-11-08 (réserve R1 du reviewer, lot C) : le
+      // produit b × c, ajouté ou retiré, vaut lui aussi au moins minTerm (10
+      // dès le CE1 / Class 3), comme les termes et le nombre retiré
+      if (b > 1 && c > 1 && b * c < ctx.minTerm) errors.push('too-small')
+      if (def.type === 'addProduct') {
+        if (a === 0) errors.push('trivial')
+        else if (a < ctx.minTerm) errors.push('too-small')
+      } else if (a < b * c) errors.push('out-of-range')
+      break
     default:
       if (a <= 1) errors.push('trivial')
   }
-  if (def.type !== 'placeValue' && revealsAnswer(ops, answer)) errors.push('reveals-answer')
+  if (!NO_REVEAL_CHECK.includes(def.type) && revealsAnswer(ops, answer)) errors.push('reveals-answer')
   return [...new Set(errors)]
 }
 
 // Produit des tables « vu par l'élève » (correction du reviewer, 2026-11-08) :
-// toute multiplication (mulTable, mul, times10, times5, times11_12, times25)
-// dont les deux facteurs sont entre 2 et 10, quel que soit son type
+// toute multiplication (mulTable, mul, times10, times5, times11_12, times25,
+// timesPow10) dont les deux facteurs sont entre 2 et 10, quel que soit son type
 // (« 9 × 5 » en times5, « 3 × 8 » en mul comptent comme « 3 × 8 » en mulTable).
-const MULTIPLICATION_TYPES = Object.freeze(['mulTable', 'mul', 'times10', 'times5', 'times11_12', 'times25'])
+// Le produit placé dans une expression (addProduct, subProduct) n'est pas compté.
+const MULTIPLICATION_TYPES = Object.freeze(['mulTable', 'mul', 'times10', 'times5', 'times11_12', 'times25', 'timesPow10'])
 export const isTableProduct = (def) =>
   Boolean(def) && MULTIPLICATION_TYPES.includes(def.type) && Array.isArray(def.operands) &&
   def.operands.length === 2 && def.operands.every(x => Number.isInteger(x) && x >= 2 && x <= 10)
@@ -249,7 +321,32 @@ export function definitionOptions(type, n, ctx, random = null, exclude = null) {
     case 'times5':
     case 'times11_12':
     case 'times25':
+    case 'timesPow10':
       for (const f of TIMES_FACTORS[type]) if (n % f === 0) push([n / f, f])
+      return out
+    case 'divPow10':
+      for (const f of POW10_DIVISORS) if (n * f <= ctx.maxNumber) push([n * f, f])
+      return out
+    case 'next':
+      push([n - 1])
+      return out
+    case 'prev':
+      push([n + 1])
+      return out
+    case 'decomposition':
+      push(String(n).split('').map(Number))
+      return out
+    case 'addProduct':
+    case 'subProduct':
+      // Tous les produits des tables b × c (b dans les tables de la classe,
+      // c de 2 à 10, dans les deux ordres), puis a = n − b × c ou n + b × c
+      for (const t of ctx.tables) {
+        for (let k = 2; k <= 10; k++) {
+          const a = type === 'addProduct' ? n - t * k : n + t * k
+          push([a, t, k])
+          if (k !== t) push([a, k, t])
+        }
+      }
       return out
     default: {
       const u = UNARY[type]
@@ -277,7 +374,24 @@ export function formatNumber(n, language) {
   return s.replace(/\B(?=(\d{3})+(?!\d))/g, sep)
 }
 
-const SYMBOL = { add: '+', sub: '−', div: '÷' }
+const SYMBOL = { add: '+', sub: '−', div: '÷', divPow10: '÷' }
+
+// Rangs de la décomposition, du plus petit au plus grand (unités = rang 0).
+// CHOIX PROVISOIRE : libellés à confirmer par un enseignant (cadrage §9, point 5)
+const RANK_WORDS = {
+  fr: [['unité', 'unités'], ['dizaine', 'dizaines'], ['centaine', 'centaines'],
+    ['unité de mille', 'unités de mille'], ['dizaine de mille', 'dizaines de mille'], ['centaine de mille', 'centaines de mille'],
+    ['million', 'millions'], ['dizaine de millions', 'dizaines de millions'], ['centaine de millions', 'centaines de millions']],
+  en: [['unit', 'units'], ['ten', 'tens'], ['hundred', 'hundreds'],
+    ['thousand', 'thousands'], ['ten thousand', 'ten thousands'], ['hundred thousand', 'hundred thousands'],
+    ['million', 'millions'], ['ten million', 'ten millions'], ['hundred million', 'hundred millions']]
+}
+
+// CHOIX PROVISOIRE (cadrage §9, point 5 : « the number after » à confirmer)
+const NEXT_TEXT = {
+  fr: { next: 'le nombre qui suit', prev: 'le nombre qui précède' },
+  en: { next: 'the number after', prev: 'the number before' }
+}
 
 const UNARY_TEXT = {
   fr: { double: 'le double de', half: 'la moitié de', triple: 'le triple de', third: 'le tiers de', quadruple: 'le quadruple de', quarter: 'le quart de' },
@@ -302,6 +416,17 @@ export function definitionText(def, language) {
   const f = (n) => formatNumber(n, lang)
   const [a, b] = def.operands
   if (UNARY[def.type]) return `${UNARY_TEXT[lang][def.type]} ${f(a)}`
+  if (def.type === 'next' || def.type === 'prev') return `${NEXT_TEXT[lang][def.type]} ${f(a)}`
+  if (def.type === 'decomposition') {
+    const top = def.operands.length - 1
+    const parts = def.operands
+      .map((count, i) => (count === 0 ? null : `${count} ${RANK_WORDS[lang][top - i][count === 1 ? 0 : 1]}`))
+      .filter(Boolean)
+    return joinParts(parts, lang)
+  }
+  if (def.type === 'addProduct' || def.type === 'subProduct') {
+    return `${f(a)} ${def.type === 'addProduct' ? '+' : '−'} ${f(b)} × ${f(def.operands[2])}`
+  }
   if (def.type === 'placeValue') {
     const parts = def.operands
       .map((count, i) => (count === 0 ? null : `${count} ${PLACE_WORDS[lang][i][count === 1 ? 0 : 1]}`))

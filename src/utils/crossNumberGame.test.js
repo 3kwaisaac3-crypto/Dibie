@@ -1,5 +1,5 @@
 // Tests des nombres croisés (fiche M1, phase 5, lot A : générateur et
-// vérificateur sans interface) — lancer avec : npm test
+// vérificateur sans interface ; lot C : niveau 3 et BODMAS, N18 à N21) — lancer avec : npm test
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
@@ -20,6 +20,7 @@ import {
   MAX_DIVISION_SHARE,
   MAX_TWO_DIGIT_DIVISIONS,
   MAX_TWO_DIGIT_MULTIPLICAND,
+  MAX_POW10_PER_GRID,
   pickWeighted,
   planRequirements
 } from './crossNumberGame.js'
@@ -40,7 +41,9 @@ import {
   canDefine,
   DEFINITION_TYPES,
   DEFAULT_OPERAND_CAP,
-  isTableProduct
+  isTableProduct,
+  NEXT_MIN_DIGITS,
+  DECOMPOSITION_MAX_PARTS
 } from './crossNumberDefinitions.js'
 import { createRandom } from './wordSearchGenerator.js'
 import { MATH_CLASSES, MATH_SUBSYSTEMS, mathClassSettings } from '../data/reglages-maths.js'
@@ -93,19 +96,23 @@ test('N2 — réglages : tailles et chiffres du §4.1 (P4 a), opérations du §4
   // Un changement des opérations permises doit être voulu (provisoires, D4)
   const ops = Object.fromEntries(MATH_SUBSYSTEMS.flatMap(s => MATH_CLASSES[s].map(c => [c.className, c.operations])))
   const ce1 = ['add', 'sub', 'mulTable', 'mul', 'div', 'double', 'half', 'triple', 'third']
+  // Lot C : niveau 3 (nombre qui suit / qui précède, décomposition par rang),
+  // × / ÷ par 10, 100, 1 000 au CM, BODMAS en Class 4
+  const level3 = ['next', 'prev', 'decomposition']
+  const pow10 = ['timesPow10', 'divPow10']
   assert.deepEqual(ops, {
     SIL: null,
     CP: ['add', 'sub', 'mulTable', 'placeValue'],
     CE1: ce1,
     CE2: [...ce1, 'quadruple', 'quarter', 'times10'],
-    CM1: ['add', 'sub', 'mulTable', 'times5', 'div'],
-    CM2: ['add', 'sub', 'mulTable', 'times5', 'div', 'times11_12', 'times25'],
+    CM1: ['add', 'sub', 'mulTable', 'times5', 'div', ...level3, ...pow10],
+    CM2: ['add', 'sub', 'mulTable', 'times5', 'div', 'times11_12', 'times25', ...level3, ...pow10],
     'Class 1': null,
     'Class 2': ['add', 'sub', 'placeValue'],
     'Class 3': ['add', 'sub', 'mulTable'],
-    'Class 4': ['add', 'sub', 'mulTable'],
-    'Class 5': ['add', 'sub', 'mul', 'div', 'mulTable'],
-    'Class 6': ['add', 'sub', 'mul', 'div', 'mulTable']
+    'Class 4': ['add', 'sub', 'mulTable', 'addProduct', 'subProduct'],
+    'Class 5': ['add', 'sub', 'mul', 'div', 'mulTable', ...level3],
+    'Class 6': ['add', 'sub', 'mul', 'div', 'mulTable', ...level3]
   })
   for (const list of Object.values(ops)) {
     if (list !== null) assert.ok(list.every(t => DEFINITION_TYPES.includes(t)), String(list))
@@ -526,7 +533,8 @@ test('N14 — × 50 / × 500 au CM : sur la plupart des grilles ; produits des t
   // Gabarit sans assez de nombres de 2 chiffres : essai impossible
   assert.equal(planRequirements(['...#', '...#', '...#', '####'], c3, createRandom(1)), null)
   const cm1 = crossNumberSettings('CM1', 'fr')
-  const reqCm = [...planRequirements(cm1.templates[0].rows, cm1, createRandom(1)).values()]
+  // Depuis le lot C, un second nombre peut être préparé pour le niveau 3
+  const reqCm = [...planRequirements(cm1.templates[0].rows, cm1, createRandom(1)).values()].filter(r => r.type === 'times5')
   assert.equal(reqCm.length, 1)
   assert.ok(reqCm[0].tail.join('') === '00' || reqCm[0].tail.join('') === '50')
 })
@@ -665,4 +673,268 @@ test('N17 — produits des tables comptés quel que soit le type (mulTable, mul,
     setDef(game, game.entries.indexOf(e), { type: 'mul', operands: [e.answer / b, b] })
   }
   assert.ok(codes(verifyCrossNumberGame(game)).includes('tables-count'))
+})
+
+// --- Lot C : niveau 3 (CM1, CM2, Class 5, Class 6) et BODMAS (Class 4) -------
+
+const LOT_C = [['CM1', 'fr'], ['CM2', 'fr'], ['Class 5', 'en'], ['Class 6', 'en']]
+const LEVEL3_TYPES = ['next', 'prev', 'decomposition']
+const POW10 = ['timesPow10', 'divPow10']
+
+test('N18 — lot C : nouveaux types (qui suit, qui précède, décomposition par rang, × / ÷ par 10, 100, 1 000) : calcul, règles, textes FR et EN', () => {
+  const cm1 = definitionContext(crossNumberSettings('CM1', 'fr'))
+  const cm2 = definitionContext(crossNumberSettings('CM2', 'fr'))
+  const c5 = definitionContext(crossNumberSettings('Class 5', 'en'))
+  for (const t of [...LEVEL3_TYPES, ...POW10, 'addProduct', 'subProduct']) assert.ok(DEFINITION_TYPES.includes(t), t)
+  // Nombre qui suit / qui précède : réponse ≥ 4 chiffres, avec une retenue
+  assert.equal(evaluateDefinition({ type: 'next', operands: [4599] }), 4600)
+  assert.equal(evaluateDefinition({ type: 'prev', operands: [4600] }), 4599)
+  assert.deepEqual(checkDefinition({ type: 'next', operands: [4599] }, 4600, cm1), [])
+  assert.deepEqual(checkDefinition({ type: 'prev', operands: [70980] }, 70979, c5), [])
+  assert.ok(checkDefinition({ type: 'next', operands: [4566] }, 4567, cm1).includes('trivial'), 'sans retenue')
+  assert.ok(checkDefinition({ type: 'prev', operands: [4567] }, 4566, cm1).includes('trivial'), 'sans retenue')
+  assert.ok(checkDefinition({ type: 'next', operands: [399] }, 400, cm1).includes('trivial'), 'moins de 4 chiffres')
+  assert.ok(checkDefinition({ type: 'next', operands: [4599] }, 4601, cm1).includes('wrong-value'))
+  assert.ok(checkDefinition({ type: 'next', operands: [4599, 1] }, 4600, cm1).includes('bad-structure'))
+  assert.ok(checkDefinition({ type: 'prev', operands: [1000000] }, 999999, c5).includes('out-of-range'), 'opérande > maxNumber')
+  assert.equal(NEXT_MIN_DIGITS, 4)
+  assert.deepEqual(definitionOptions('next', 4600, cm1), [{ type: 'next', operands: [4599] }])
+  assert.deepEqual(definitionOptions('next', 4601, cm1), [])
+  assert.deepEqual(definitionOptions('prev', 4599, cm1), [{ type: 'prev', operands: [4600] }])
+  assert.equal(definitionText({ type: 'next', operands: [4599] }, 'fr'), 'le nombre qui suit 4 599')
+  assert.equal(definitionText({ type: 'next', operands: [4599] }, 'en'), 'the number after 4,599')
+  assert.equal(definitionText({ type: 'prev', operands: [70980] }, 'fr'), 'le nombre qui précède 70 980')
+  assert.equal(definitionText({ type: 'prev', operands: [70980] }, 'en'), 'the number before 70,980')
+  // Décomposition par rang : 4 à 9 chiffres, au plus 3 rangs non nuls
+  assert.equal(evaluateDefinition({ type: 'decomposition', operands: [4, 0, 0, 0, 0, 3] }), 400003)
+  assert.deepEqual(checkDefinition({ type: 'decomposition', operands: [4, 5, 0, 0, 0, 3] }, 450003, cm1), [])
+  assert.deepEqual(checkDefinition({ type: 'decomposition', operands: [2, 0, 0, 7] }, 2007, c5), [], 'pas de refus « contient la réponse »')
+  assert.ok(checkDefinition({ type: 'decomposition', operands: [4, 5, 1, 2] }, 4512, cm1).includes('too-long'))
+  assert.ok(checkDefinition({ type: 'decomposition', operands: [0, 5, 0, 2] }, 502, cm1).includes('bad-structure'), '0 en tête')
+  assert.ok(checkDefinition({ type: 'decomposition', operands: [5, 12, 0, 2] }, 6202, cm1).includes('bad-structure'), 'chiffre > 9')
+  assert.ok(checkDefinition({ type: 'decomposition', operands: [5, 0, 2] }, 502, cm1).includes('bad-structure'), 'moins de 4 chiffres')
+  assert.ok(checkDefinition({ type: 'decomposition', operands: [5, 0, 0, 2] }, 5003, cm1).includes('wrong-value'))
+  assert.equal(DECOMPOSITION_MAX_PARTS, 3)
+  assert.deepEqual(definitionOptions('decomposition', 4500, cm1), [{ type: 'decomposition', operands: [4, 5, 0, 0] }])
+  assert.deepEqual(definitionOptions('decomposition', 4512, cm1), [])
+  assert.equal(definitionText({ type: 'decomposition', operands: [4, 5, 0, 0, 0, 3] }, 'fr'), '4 centaines de mille, 5 dizaines de mille et 3 unités')
+  assert.equal(definitionText({ type: 'decomposition', operands: [4, 5, 0, 0, 0, 3] }, 'en'), '4 hundred thousands, 5 ten thousands and 3 units')
+  assert.equal(definitionText({ type: 'decomposition', operands: [1, 0, 1, 0] }, 'fr'), '1 unité de mille et 1 dizaine')
+  assert.equal(definitionText({ type: 'decomposition', operands: [1, 0, 1, 0] }, 'en'), '1 thousand and 1 ten')
+  assert.equal(definitionText({ type: 'decomposition', operands: [2, 0, 0, 0, 0, 0, 5] }, 'fr'), '2 millions et 5 unités')
+  // × et ÷ par 10, 100, 1 000 (CM seulement)
+  assert.deepEqual(checkDefinition({ type: 'timesPow10', operands: [45, 1000] }, 45000, cm1), [])
+  assert.ok(checkDefinition({ type: 'timesPow10', operands: [45, 20] }, 900, cm1).includes('not-in-programme'))
+  assert.ok(checkDefinition({ type: 'timesPow10', operands: [1, 100] }, 100, cm1).includes('trivial'))
+  assert.deepEqual(checkDefinition({ type: 'divPow10', operands: [45000, 100] }, 450, cm1), [], 'le dividende contient le quotient : permis')
+  assert.ok(checkDefinition({ type: 'divPow10', operands: [45010, 100] }, 450, cm1).includes('wrong-value'), 'non exacte')
+  assert.ok(checkDefinition({ type: 'divPow10', operands: [4500, 50] }, 90, cm1).includes('not-in-programme'))
+  assert.ok(checkDefinition({ type: 'divPow10', operands: [45000000, 1000] }, 45000, cm1).includes('out-of-range'), 'dividende > maxNumber')
+  assert.deepEqual(checkDefinition({ type: 'divPow10', operands: [45000000, 1000] }, 45000, cm2), [])
+  assert.ok(checkDefinition({ type: 'divPow10', operands: [45000, 100] }, 450, c5).includes('type-not-allowed'), 'pas en Class 5')
+  assert.deepEqual(definitionOptions('divPow10', 4500, cm1).map(d => d.operands), [[45000, 10], [450000, 100]])
+  assert.deepEqual(definitionOptions('timesPow10', 4500, cm1).map(d => d.operands), [[450, 10], [45, 100]])
+  assert.equal(definitionText({ type: 'divPow10', operands: [45000, 100] }, 'fr'), '45 000 ÷ 100')
+  assert.equal(definitionText({ type: 'timesPow10', operands: [45, 1000] }, 'en'), '45 × 1,000')
+  // × 10 par un facteur des tables : compté comme produit des tables
+  assert.equal(isTableProduct({ type: 'timesPow10', operands: [7, 10] }), true)
+  assert.equal(isTableProduct({ type: 'timesPow10', operands: [7, 100] }), false)
+  // Options : toujours valides, textes tirés de la même structure
+  for (const [className, subsystem] of LOT_C) {
+    const ctx = definitionContext(crossNumberSettings(className, subsystem))
+    for (const n of [1010, 4599, 4600, 20070, 99990, 450000]) {
+      for (const type of ctx.operations) {
+        for (const def of definitionOptions(type, n, ctx, createRandom(n))) {
+          assert.deepEqual(checkDefinition(def, n, ctx), [], `${className} ${type} ${n}`)
+          assert.ok(definitionText(def, 'fr').length > 0 && definitionText(def, 'en').length > 0)
+        }
+      }
+    }
+  }
+})
+
+test('N19 — Class 4, BODMAS : a + b × c et a − b × c, multiplication d\'abord, produit des tables, jamais négatif, pas de parenthèses', () => {
+  const c4 = definitionContext(crossNumberSettings('Class 4', 'en'))
+  // La multiplication d'abord : 13 + 4 × 5 = 33 (et non 85)
+  assert.equal(evaluateDefinition({ type: 'addProduct', operands: [13, 4, 5] }), 33)
+  assert.equal(evaluateDefinition({ type: 'subProduct', operands: [45, 3, 9] }), 18)
+  assert.deepEqual(checkDefinition({ type: 'addProduct', operands: [13, 4, 5] }, 33, c4), [])
+  assert.ok(checkDefinition({ type: 'addProduct', operands: [13, 4, 5] }, 85, c4).includes('wrong-value'), '(13 + 4) × 5 refusé')
+  assert.ok(checkDefinition({ type: 'subProduct', operands: [45, 3, 9] }, 378, c4).includes('wrong-value'), '(45 − 3) × 9 refusé')
+  assert.deepEqual(checkDefinition({ type: 'subProduct', operands: [45, 3, 9] }, 18, c4), [])
+  // Aucun résultat négatif
+  assert.ok(checkDefinition({ type: 'subProduct', operands: [20, 4, 7] }, -8, c4).includes('out-of-range'))
+  // Produit des tables de la classe (2 à 9 en Class 4), facteurs ≥ 2
+  assert.ok(checkDefinition({ type: 'addProduct', operands: [13, 11, 12] }, 145, c4).includes('not-in-programme'))
+  assert.ok(checkDefinition({ type: 'addProduct', operands: [33, 1, 5] }, 38, c4).includes('trivial'))
+  // Premier terme ≥ 10 (minTerm, comme l'addition)
+  assert.ok(checkDefinition({ type: 'addProduct', operands: [3, 4, 5] }, 23, c4).includes('too-small'))
+  assert.ok(checkDefinition({ type: 'addProduct', operands: [0, 4, 5] }, 20, c4).includes('trivial'))
+  // Produit b × c ≥ 10 lui aussi (décision d'Isaac du 2026-11-08, réserve R1)
+  assert.ok(checkDefinition({ type: 'addProduct', operands: [10, 3, 2] }, 16, c4).includes('too-small'))
+  assert.ok(checkDefinition({ type: 'subProduct', operands: [45, 2, 4] }, 37, c4).includes('too-small'))
+  assert.deepEqual(checkDefinition({ type: 'addProduct', operands: [10, 2, 5] }, 20, c4), [])
+  for (const type of ['addProduct', 'subProduct']) {
+    for (const n of [16, 19, 47, 855, 3170]) {
+      for (const d of definitionOptions(type, n, c4)) assert.ok(d.operands[1] * d.operands[2] >= 10, `${type} ${n}`)
+    }
+  }
+  // Grille Class 4 contenant « 10 + 3 × 2 » : refusée par le vérificateur
+  {
+    let s16 = 0
+    let g16
+    do g16 = clone(createCrossNumberGame({ className: 'Class 4', subsystem: 'en', seed: s16++ }))
+    while (!g16.entries.some(x => x.answer === 16) && s16 < 3000)
+    const k16 = g16.entries.findIndex(x => x.answer === 16)
+    assert.ok(k16 >= 0, 'une grille Class 4 avec le nombre 16')
+    const bad = { type: 'addProduct', operands: [10, 3, 2] }
+    g16.entries[k16].definition = bad
+    g16.entries[k16].text = { fr: definitionText(bad, 'fr'), en: definitionText(bad, 'en') }
+    assert.equal(g16.entries[k16].text.fr, '10 + 3 × 2')
+    const r16 = verifyCrossNumberGame(g16)
+    assert.equal(r16.ok, false)
+    assert.ok(r16.errors.some(x => x.code === 'definition' && x.entry === g16.entries[k16].id && x.detail.includes('too-small')))
+  }
+  // Dans le programme de Class 4 seulement
+  assert.ok(checkDefinition({ type: 'addProduct', operands: [13, 4, 5] }, 33, definitionContext(crossNumberSettings('Class 3', 'en'))).includes('type-not-allowed'))
+  assert.ok(checkDefinition({ type: 'addProduct', operands: [13, 4, 5] }, 33, definitionContext(crossNumberSettings('CE2', 'fr'))).includes('type-not-allowed'))
+  // Textes (pas de parenthèses ; les deux langues tirées de la même structure)
+  assert.equal(definitionText({ type: 'addProduct', operands: [13, 4, 5] }, 'fr'), '13 + 4 × 5')
+  assert.equal(definitionText({ type: 'subProduct', operands: [1245, 3, 9] }, 'en'), '1,245 − 3 × 9')
+  assert.equal(definitionText({ type: 'subProduct', operands: [1245, 3, 9] }, 'fr'), '1 245 − 3 × 9')
+  // Options : toutes valides
+  const opts = definitionOptions('addProduct', 33, c4)
+  assert.ok(opts.length > 0)
+  for (const d of opts) assert.deepEqual(checkDefinition(d, 33, c4), [])
+  assert.ok(definitionOptions('subProduct', 4990, c4).every(d => d.operands[0] <= 5000))
+  // Le produit d'une expression n'est pas compté comme produit des tables
+  assert.equal(isTableProduct({ type: 'addProduct', operands: [13, 4, 5] }), false)
+  // Sur 100 graines : expressions présentes, jamais de parenthèses, grilles vérifiées
+  let expressions = 0
+  for (let seed = 0; seed < 100; seed++) {
+    const game = createCrossNumberGame({ className: 'Class 4', subsystem: 'en', seed })
+    assert.ok(verifyCrossNumberGame(game).ok, `Class 4 ${seed}`)
+    for (const e of game.entries) {
+      if (e.definition.type !== 'addProduct' && e.definition.type !== 'subProduct') continue
+      expressions++
+      const [a, b, c] = e.definition.operands
+      assert.equal(e.answer, e.definition.type === 'addProduct' ? a + b * c : a - b * c)
+      assert.ok(e.answer >= 0 && a <= 5000)
+      assert.ok(!/[()]/.test(e.text.fr) && !/[()]/.test(e.text.en))
+    }
+  }
+  assert.ok(expressions >= 100, `${expressions} expressions sur 100 grilles`)
+})
+
+test('N20 — vérificateur, lot C : définitions altérées refusées, limite « × / ÷ par 10, 100, 1 000 », types hors classe', () => {
+  const setDef = (g, i, definition) => {
+    g.entries[i].definition = definition
+    g.entries[i].text = { fr: definitionText(definition, 'fr'), en: definitionText(definition, 'en') }
+  }
+  // Une grille CM2 avec un nombre « qui suit », « qui précède » ou une décomposition
+  let seed = 0
+  let base
+  do base = createCrossNumberGame({ className: 'CM2', subsystem: 'fr', seed: seed++ })
+  while (!base.entries.some(e => LEVEL3_TYPES.includes(e.definition.type)) && seed < 200)
+  assert.ok(verifyCrossNumberGame(base).ok)
+  const i = base.entries.findIndex(e => LEVEL3_TYPES.includes(e.definition.type))
+  assert.ok(i >= 0)
+  const e = base.entries[i]
+  // Valeur changée sans changer le texte : refusée (définition et texte)
+  let g = clone(base)
+  const ops = e.definition.operands
+  g.entries[i].definition = { type: e.definition.type, operands: e.definition.type === 'decomposition' ? [...ops.slice(0, -1), (ops.at(-1) + 1) % 10] : [ops[0] + 1] }
+  assert.ok(codes(verifyCrossNumberGame(g)).includes('definition'))
+  assert.ok(codes(verifyCrossNumberGame(g)).includes('text'))
+  // Texte d'une autre langue : refusé
+  g = clone(base)
+  g.entries[i].text = { fr: g.entries[i].text.en, en: g.entries[i].text.en }
+  assert.deepEqual(codes(verifyCrossNumberGame(g)), ['text'])
+  // Nombre qui suit sans retenue : refusé (trivial)
+  const k0 = base.entries.findIndex(x => x.answer >= 1000 && x.answer % 10 !== 0)
+  assert.ok(k0 >= 0)
+  g = clone(base)
+  setDef(g, k0, { type: 'next', operands: [base.entries[k0].answer - 1] })
+  assert.ok(verifyCrossNumberGame(g).errors.some(x => x.code === 'definition' && x.detail.includes('trivial')))
+  // Plus de 2 « × / ÷ par 10, 100, 1 000 » : refusé
+  g = clone(base)
+  const answers = g.entries.map(x => x.answer)
+  const ctx = definitionContext(crossNumberSettings('CM2', 'fr'))
+  let placed = 0
+  g.entries.forEach((x, k) => {
+    if (placed > MAX_POW10_PER_GRID) return
+    const exclude = new Set(answers.filter(a => a !== x.answer))
+    const opt = definitionOptions('divPow10', x.answer, ctx, null, exclude)[0]
+    if (opt) { setDef(g, k, opt); placed++ }
+  })
+  assert.equal(placed, MAX_POW10_PER_GRID + 1)
+  assert.ok(codes(verifyCrossNumberGame(g)).includes('pow10-count'))
+  assert.equal(MAX_POW10_PER_GRID, 2)
+  // Type permis au CM mais pas en Class 5 : refusé
+  const c5 = clone(createCrossNumberGame({ className: 'Class 5', subsystem: 'en', seed: 3 }))
+  const k = c5.entries.findIndex(x => x.answer * 10 <= 100000)
+  setDef(c5, k, { type: 'divPow10', operands: [c5.entries[k].answer * 10, 10] })
+  assert.ok(verifyCrossNumberGame(c5).errors.some(x => x.code === 'definition' && x.detail.includes('type-not-allowed')))
+  // BODMAS calculé de gauche à droite : refusé
+  let s4 = 0
+  let c4
+  do c4 = clone(createCrossNumberGame({ className: 'Class 4', subsystem: 'en', seed: s4++ }))
+  while (!c4.entries.some(x => x.definition.type === 'addProduct' || x.definition.type === 'subProduct') && s4 < 50)
+  const j = c4.entries.findIndex(x => x.definition.type === 'addProduct' || x.definition.type === 'subProduct')
+  assert.ok(j >= 0)
+  const [a, b, c] = c4.entries[j].definition.operands
+  c4.entries[j].answer = c4.entries[j].definition.type === 'addProduct' ? (a + b) * c : (a - b) * c
+  assert.ok(!verifyCrossNumberGame(c4).ok)
+})
+
+test('N21 — lot C : 50 graines par classe (CM1, CM2, Class 5, Class 6) : bornes des lots A et B, niveau 3 présent, même graine = même grille', () => {
+  for (const [className, subsystem] of LOT_C) {
+    const settings = crossNumberSettings(className, subsystem)
+    const isCm = subsystem === 'fr'
+    const small = ['CM1', 'Class 5'].includes(className)
+    let level3Grids = 0
+    let pow10Seen = 0
+    for (let seed = 0; seed < 50; seed++) {
+      const game = createCrossNumberGame({ className, subsystem, seed })
+      assert.ok(verifyCrossNumberGame(game).ok, `${className} ${seed}`)
+      assert.equal(game.size, small ? 6 : 7)
+      // Même graine + même classe = même grille (P12 a)
+      assert.deepEqual(createCrossNumberGame({ className, subsystem, seed }), game)
+      const defs = game.entries.map(e => e.definition)
+      const count = (pred) => defs.filter(pred).length
+      // Divisions : au plus 40 % (type div seulement), diviseur ≤ 99, au plus 3 par un nombre de 2 chiffres
+      assert.ok(count(d => d.type === 'div') <= Math.floor(0.4 * defs.length))
+      assert.ok(count(d => d.type === 'div' && d.operands[1] >= 10) <= 3)
+      for (const e of game.entries) {
+        const d = e.definition
+        if (d.type === 'div') {
+          assert.ok(d.operands[1] <= 99, `${className} ${seed} ${e.text.fr}`)
+          assert.ok(String(e.answer).length <= (small ? 4 : 5), `${className} ${seed} quotient ${e.text.fr}`)
+        }
+        if (d.type === 'mul' && d.operands[1] >= 10) assert.ok(d.operands[0] <= 9999)
+        if (LEVEL3_TYPES.includes(d.type)) assert.ok(e.answer >= 1000)
+        if (!isCm) assert.ok(!POW10.includes(d.type), 'pas de × / ÷ par 10, 100, 1 000 en Class 5-6')
+        // Aucun opérande égal à la réponse d'un autre nombre
+        for (const x of d.operands) assert.ok(!game.entries.some(o => o !== e && o.answer === x))
+      }
+      // Produits des tables (tous types) : au plus 2
+      assert.ok(count(isTableProduct) <= 2)
+      assert.ok(count(d => POW10.includes(d.type)) <= MAX_POW10_PER_GRID)
+      pow10Seen += count(d => POW10.includes(d.type))
+      if (defs.some(d => LEVEL3_TYPES.includes(d.type))) level3Grids++
+      // Aucune définition ouverte (multiples, divisibilité), aucun nombre négatif
+      assert.ok(defs.every(d => DEFINITION_TYPES.includes(d.type)))
+      assert.ok(game.entries.every(e => e.answer > 0 && e.definition.operands.every(x => x >= 0)))
+    }
+    // Un nombre préparé pour le niveau 3 sur la plupart des grilles
+    assert.ok(level3Grids >= 40, `${className} : niveau 3 sur ${level3Grids} grilles sur 50`)
+    if (isCm) assert.ok(pow10Seen > 0, `${className} : × / ÷ par 10, 100, 1 000 absents`)
+    assert.equal(settings.featureLevel3, true)
+  }
+  // Classes des lots A et B : aucun type du lot C (sauf BODMAS en Class 4)
+  for (const [className, subsystem] of [['CP', 'fr'], ['CE1', 'fr'], ['CE2', 'fr'], ['Class 2', 'en'], ['Class 3', 'en']]) {
+    const ops = crossNumberSettings(className, subsystem).operations
+    assert.ok(![...LEVEL3_TYPES, ...POW10, 'addProduct', 'subProduct'].some(t => ops.includes(t)), className)
+    assert.equal(crossNumberSettings(className, subsystem).featureLevel3, false)
+  }
 })
