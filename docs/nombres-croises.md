@@ -2,7 +2,7 @@
 
 - **Date** : 2026-11-08
 - **Statut** : lot A fusionné (pull request n° 24, fusion 5c4e303). Relu par le reviewer (PRÊT) ; corrections de réglages décidées par Isaac le 2026-11-08 après lecture de l'échantillon par l'educator (§4 bis). Non validé par un enseignant (démonstration seulement, D14 ; Q7 ouvert).
-- **Lot B** (interface, niveaux 1 et 2) : branche `feature/nombres-croises-lot-b` (non commitée), voir §8. Relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserves 1 et 3 corrigées, sans nouvelle relecture) ; non essayé par Isaac ; pas d'essai sur vrai téléphone.
+- **Lot B** (interface, niveaux 1 et 2) : fusionné (pull request n° 25, fusion 2e8cffa), voir §8. Relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserves 1 et 3 corrigées, sans nouvelle relecture) ; essai d'Isaac sur vrai téléphone positif le 2026-11-08 ; 13 choix provisoires du §8.3 confirmés par Isaac le 2026-11-08.
 - **Source des règles** : `DIBIE/pedagogie/cadrage-phase5-nombres-croises-v0.1.md` (dépôt JARVIS), décisions P1 à P12 validées par Isaac le 2026-11-08 (option a partout).
 
 ## 1. Fichiers
@@ -169,7 +169,7 @@ Décisions appliquées : P2, P7 à P12 (option a), consignes d'Isaac du lot B. C
 - **Carré 3 × 3** : les rangées et colonnes entièrement noires du bord ne sont pas affichées (`visibleArea`) ; le carré s'affiche donc en 2 × 2 sans cadre (choix noté au §4 bis, point 8).
 - **Fin** : score, erreurs, nombres avec chiffre révélé, réponses montrées ; grille complète (trouvé en vert, montré en gris) ; liste des définitions avec leurs réponses.
 
-### 8.3 Choix provisoires du developer (à présenter à Isaac)
+### 8.3 Choix du developer (confirmés par Isaac le 2026-11-08 : « confirmer les 13 choix provisoirement » ; n° 8 décidé à part)
 
 1. **Pas de choix de classe à l'écran** : la classe vient du profil, comme les pyramides et M7 (le cadrage §4.4 dit « modifiable comme dans les pyramides » ; les pyramides ne la rendent modifiable que par le profil).
 2. **CM1-CM2 et Class 5-6** : carte visible, message « Bientôt » sur la page (plutôt qu'une carte grisée, pour ne pas cacher le jeu aux autres classes sur un même appareil).
@@ -190,7 +190,7 @@ Décisions appliquées : P2, P7 à P12 (option a), consignes d'Isaac du lot B. C
 
 - Cadrage §4.4 « Choix … modifiable comme dans les pyramides » : classe du profil seulement (choix 1).
 - Cadrage §7 : « mesure [du temps de génération] sur téléphone au lot B » : **non faite** (aucun téléphone dans l'environnement du developer).
-- Cadrage §3 : « essai d'Isaac sur ordinateur et sur vrai téléphone » : à faire par Isaac.
+- Cadrage §3 : « essai d'Isaac sur ordinateur et sur vrai téléphone » : essai sur vrai téléphone fait par Isaac le 2026-11-08, positif (sans détail rapporté).
 
 ### 8.5 Vérifier et refaire
 
