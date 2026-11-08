@@ -1,8 +1,9 @@
-# Nombres croisés (fiche M1, moteur F) : note de conception des lots A et B
+# Nombres croisés (fiche M1, moteur F) : note de conception des lots A, B et C
 
 - **Date** : 2026-11-08
 - **Statut** : lot A fusionné (pull request n° 24, fusion 5c4e303). Relu par le reviewer (PRÊT) ; corrections de réglages décidées par Isaac le 2026-11-08 après lecture de l'échantillon par l'educator (§4 bis). Non validé par un enseignant (démonstration seulement, D14 ; Q7 ouvert).
 - **Lot B** (interface, niveaux 1 et 2) : fusionné (pull request n° 25, fusion 2e8cffa), voir §8. Relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserves 1 et 3 corrigées, sans nouvelle relecture) ; essai d'Isaac sur vrai téléphone positif le 2026-11-08 ; 13 choix provisoires du §8.3 confirmés par Isaac le 2026-11-08.
+- **Lot C** (niveau 3 : CM1, CM2, Class 5, Class 6 à l'écran ; nouveaux types de définitions ; BODMAS en Class 4) : en cours sur la branche `feature/nombres-croises-lot-c` (2026-11-08), non commité, relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserve R1 corrigée sur décision d'Isaac ; second passage ciblé le 2026-11-08 : PRÊT), échantillon non lu par Isaac, pas d'essai sur vrai téléphone ; voir §9.
 - **Source des règles** : `DIBIE/pedagogie/cadrage-phase5-nombres-croises-v0.1.md` (dépôt JARVIS), décisions P1 à P12 validées par Isaac le 2026-11-08 (option a partout).
 
 ## 1. Fichiers
@@ -95,7 +96,7 @@ Gabarits : 3 en 3 × 3, 3 par taille ensuite (T6-c, avec des nombres de 6 chiffr
 Constat de l'educator : CM1 / CM2 trop lourds (≈ 70 % de divisions, dividendes de 7 à 9 chiffres) ; Class 3 / 4 trop faciles et monotones (« 9 + 4 », « 6 + 20 »).
 
 1. **Addition et soustraction au CM1 et au CM2** (acquis des classes précédentes, comme Class 5-6) ; le §4.3 du cadrage sera mis à jour par JARVIS.
-2. **Au plus 40 % de divisions par grille** — CHOIX D'APPLICATION : la règle est appliquée à **toutes** les classes (sans effet visible hors CM : 11 à 12 % de divisions au CE). Arrondi à l'entier inférieur (8 nombres → 3 divisions au plus). Seul le type `div` est compté : moitié, tiers et quart (qui sont aussi des divisions pour l'élève) ne le sont pas — choix à soumettre à Isaac.
+2. **Au plus 40 % de divisions par grille** — CHOIX D'APPLICATION : la règle est appliquée à **toutes** les classes (sans effet visible hors CM : 11 à 12 % de divisions au CE). Arrondi à l'entier inférieur (8 nombres → 3 divisions au plus). Seul le type `div` est compté : moitié, tiers et quart (qui sont aussi des divisions pour l'élève) ne le sont pas — décidé par Isaac le 2026-11-08 (recommandation de JARVIS).
 3. **× 50 et × 500 au CM** — MÉCANISME : avant le remplissage, un nombre d'au moins 3 chiffres est tiré au hasard parmi ceux dont les deux derniers chiffres ne commencent aucun autre nombre ; ses deux derniers chiffres sont fixés à « 00 » ou « 50 » (une chance sur deux), et sa définition est imposée en « × 50 » ou « × 500 » (« × 500 » choisi dès qu'il est possible). Si aucun nombre ne convient (cas du gabarit T6-c dans certaines symétries), rien n'est imposé. Mesure sur 200 graines : × 50 / × 500 sur **183 grilles sur 200 au CM1** et **200 sur 200 au CM2** ; « × 500 » reste rare (11 définitions au CM1, 10 au CM2 sur 200 grilles), parce qu'il faut un multiple de 500.
 4. **Plafonds** : quotient ≤ 4 chiffres (CM1, Class 5), ≤ 5 chiffres (CM2, Class 6) ; diviseur ≤ 99 conservé ; au plus 3 divisions par un nombre de 2 chiffres par grille ; type `mul` par un nombre de 2 chiffres : multiplicande ≤ 4 chiffres. CHOIX D'APPLICATION : cette dernière limite ne vise que le type `mul` ; les types `times…` n'y sont pas soumis. Seuls × 25 et × 50 / × 500 (multiplicande libre) fournissent de grands nombres ; × 11 et × 12 gardent un multiplicande de 2 à 12 (§4, point 3).
 5. **Termes ≥ 10** à partir du CE1 et de Class 3 (addition : chaque terme ; soustraction : le nombre retiré). Code `too-small`.
@@ -121,7 +122,7 @@ Répartition des types mesurée sur 200 graines par classe après correction, y 
 
 ## 5. Écarts au cadrage
 
-- Le lot A couvre **toutes** les classes CP / Class 2 à CM2 / Class 6 (instruction d'Isaac), alors que le §3 place le niveau 3 au lot C. Les types propres au lot C (nombre qui suit / qui précède, décomposition par rang, × / ÷ par 10, 100, 1 000 au CM, expressions avec priorité) ne sont **pas** faits ; × 10 et × 100 sont faits au CE2, où le §4.3 les place.
+- Le lot A couvre **toutes** les classes CP / Class 2 à CM2 / Class 6 (instruction d'Isaac), alors que le §3 place le niveau 3 au lot C. Les types propres au lot C (nombre qui suit / qui précède, décomposition par rang, × / ÷ par 10, 100, 1 000 au CM, expressions avec priorité) ne sont **pas** faits au lot A (faits au lot C, voir §9) ; × 10 et × 100 sont faits au CE2, où le §4.3 les place.
 - Règles ajoutées (plus strictes) : pas de doublon, au moins deux types par grille (choix 8 et 9).
 - Corrections d'Isaac du 2026-11-08 (§4 bis) : addition et soustraction au CM1 / CM2 (le §4.3 du cadrage sera mis à jour par JARVIS) ; plafonds, termes ≥ 10, nombre de produits des tables, opérande ≠ réponse d'un autre nombre, escalier 3 × 3 : règles nouvelles, absentes du cadrage v0.1.
 
@@ -208,3 +209,90 @@ npm run build
 - Message d'échec de génération : chemin du code présent, **non déclenché en test navigateur** (aucune graine connue ne fait échouer la génération ; le cas d'échec est testé au lot A dans le module pur).
 - Pas de flèches du clavier pour se déplacer dans la grille ; lecteur d'écran non essayé (étiquettes `aria-label` posées).
 - Suite Playwright complète non relancée.
+
+## 9. Lot C : niveau 3 et BODMAS (2026-11-08)
+
+Source : cadrage §3 (ligne « Lot C »), §4.1, §4.3, §6 ; décisions P1 à P12 (option a). Branche `feature/nombres-croises-lot-c`, non commitée, relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserve R1 corrigée sur décision d'Isaac ; second passage ciblé le 2026-11-08 : PRÊT).
+
+### 9.1 Fichiers
+
+| Fichier | Modification |
+|---|---|
+| `src/utils/crossNumberDefinitions.js` | 7 types nouveaux : `next`, `prev`, `decomposition`, `timesPow10`, `divPow10`, `addProduct`, `subProduct` (calcul, contrôle, options, textes FR et EN) ; nouveau code de contrôle `too-long` |
+| `src/data/reglages-maths.js` | Champ `operations` : CM1 et CM2 + `next`, `prev`, `decomposition`, `timesPow10`, `divPow10` ; Class 5 et Class 6 + `next`, `prev`, `decomposition` ; Class 4 + `addProduct`, `subProduct` |
+| `src/utils/crossNumberGame.js` | Réglage `featureLevel3` (CM1, CM2, Class 5, Class 6) et nombre préparé pour le niveau 3 (`planRequirements`) ; `MAX_POW10_PER_GRID` (générateur et vérificateur, code `pow10-count`) |
+| `src/utils/crossNumberPlay.js` | `crossNumberAvailability` : toutes les classes réglées sont jouables (`LOT_B_CLASSES` et l'état `soon` supprimés) |
+| `src/pages/CrossNumberGame.jsx` | Message « Bientôt » supprimé ; défilement jusqu'au haut du jeu à l'ouverture d'une grille 6 × 6 ou 7 × 7 (choix 9) ; en-tête mis à jour |
+| `src/styles/CrossNumberGame.css` | Grilles de 6 et 7 colonnes : taille, écart, chiffres et numéros |
+| `src/utils/crossNumberGame.test.js` | N2 et N14 mis à jour ; N18 à N21 ajoutés |
+| `src/utils/crossNumberPlay.test.js` | NP15 mis à jour ; NP20 et NP21 ajoutés |
+| `e2e/nombres-croises.spec.js` | Test des classes non jouables mis à jour ; 8 tests ajoutés (disposition à 320 et 375 px, 4 parties complètes, aides en 7 × 7, BODMAS) |
+| `scripts/nombres-croises-echantillon.js` | Libellés des types nouveaux ; options `--classes` et `--lot` |
+
+Échantillon : `DIBIE/contenus/echantillon-nombres-croises-lot-c-v0.1.md` (dépôt JARVIS), produit par `node scripts/nombres-croises-echantillon.js <fichier.md> --graines 1,2 --classes "CM1,CM2,Class 5,Class 6,Class 4" --lot C`.
+
+### 9.2 Règles mises en œuvre
+
+- **Classes à l'écran** : CP à CM2 et Class 2 à Class 6 ; SIL et Class 1 gardent leur message (P2 a). Grilles 6 × 6 (CM1, Class 5) et 7 × 7 (CM2, Class 6), déjà couvertes par le générateur depuis le lot A.
+- **Types ajoutés** (tous des définitions fermées, P6 a ; texte FR et EN tirés de la même structure `{ type, operands }`, recalculés par le vérificateur) :
+
+| Type | Exemple FR / EN | Classes |
+|---|---|---|
+| `next` | « le nombre qui suit 4 599 » / « the number after 4,599 » | CM1, CM2, Class 5, Class 6 |
+| `prev` | « le nombre qui précède 70 980 » / « the number before 70,980 » | CM1, CM2, Class 5, Class 6 |
+| `decomposition` | « 4 centaines de mille, 5 dizaines de mille et 3 unités » / « 4 hundred thousands, 5 ten thousands and 3 units » | CM1, CM2, Class 5, Class 6 |
+| `timesPow10` | « 45 × 1 000 » | CM1, CM2 |
+| `divPow10` | « 45 000 ÷ 100 » | CM1, CM2 |
+| `addProduct` | « 13 + 4 × 5 » (= 33) | Class 4 |
+| `subProduct` | « 45 − 3 × 9 » (= 18) | Class 4 |
+
+- **Règles des lots A et B conservées** (vérifiées par N6 sur 200 graines par classe et par N21 sur 50 graines par classe du lot C) : au plus 40 % de divisions par grille, seul le type `div` compté (décision d'Isaac du 2026-11-08 ; `divPow10` n'est donc pas compté) ; quotient ≤ 4 chiffres (CM1, Class 5) ou 5 chiffres (CM2, Class 6), diviseur ≤ 99, au plus 3 divisions par un nombre de 2 chiffres, multiplicande ≤ 9 999 (type `mul`) ; au plus 2 produits des tables au CM et en Class 5-6 (`timesPow10` « 7 × 10 » compté) ; aucun opérande égal à la réponse d'un autre nombre ; même graine + même classe = même grille ; 0 point pour un nombre rempli par les aides (NP21, test e2e en 7 × 7).
+- **Exclus** : multiples et divisibilité (P6 b non retenue), définitions ouvertes, nombres négatifs, parenthèses.
+- **Écran 6 × 6 et 7 × 7** (P11 a) : grille, définition courante et pavé fixé en bas, liste repliable, comme au lot B. Pour 6 et 7 colonnes, la hauteur réservée au pavé et à l'en-tête passe de 420 à 370 px, avec un côté minimal de 236 px (6 × 6) ou 264 px (7 × 7) et un écart de 3 ou 2 px ; à l'ouverture, la page défile jusqu'au haut du jeu (choix 9). Mesuré dans Edge (Playwright, numéro 3, après le défilement automatique de 44 px), à 320 × 640 : cases de 42,5 px (6 × 6) et 36,8 px (7 × 7), grille entière au-dessus du bas d'écran (bas de la grille à 384 px, haut du bloc fixé à 390 px) ; à 375 × 812 : 54,0 px et 46,7 px (bas de la grille à 453 px, bloc fixé à 562 px). Mesures de fenêtre, pas d'un vrai téléphone.
+
+### 9.3 Choix provisoires du developer (à présenter à Isaac)
+
+1. **Nombre qui suit / qui précède** : seulement pour une réponse d'au moins 4 chiffres, avec une retenue (« qui suit » : réponse terminée par 0 ; « qui précède » : réponse terminée par 9). Sans cette règle, « le nombre qui suit 45 123 » serait trivial au CM.
+2. **Décomposition par rang** : nombre de 4 à 9 chiffres, au plus 3 rangs non nuls (au moins un zéro à placer, texte court sur téléphone) ; rangs « unités de mille », « dizaines de mille », « centaines de mille », « millions »… ; en anglais « thousands », « ten thousands », « hundred thousands »… (à confirmer par des enseignants, cadrage §9, point 5). Comme `placeValue`, pas de refus « contient sa réponse » (les chiffres sont la définition).
+3. **× / ÷ par 10, 100, 1 000** : deux types nouveaux (`timesPow10`, `divPow10`) ; le type `times10` du CE2 (× 10, × 100) est inchangé. CM1 et CM2 seulement : le §4.3 ne les cite pas pour Class 5-6. Multiplicande ≥ 2, sans autre limite (comme × 10 au CE2) ; au plus 2 par grille, « × 10 / × 100 / × 1 000 » et « ÷ 10 / ÷ 100 / ÷ 1 000 » comptés ensemble (choix 4) ; « ÷ 10 » non soumis au plafond du quotient (calcul mental, pas une division posée) et dispensé du refus « contient sa réponse » (le dividende contient toujours le quotient suivi de zéros : c'est la règle étudiée).
+4. **Au plus 2 « × / ÷ par 10, 100, 1 000 » par grille** (code `pow10-count`) : sans limite, « ÷ 10 » était possible pour presque tous les nombres et faisait 19 % des définitions au CM1 (200 graines) ; avec la limite, 8 à 11 %.
+5. **Nombre préparé pour le niveau 3** (CM1, CM2, Class 5, Class 6) : un type est tiré parmi « qui suit », « qui précède », « décomposition » ; un nombre d'au moins 4 chiffres (au plus 5 pour la décomposition) reçoit d'avance son dernier chiffre (0 ou 9) ou ses deux derniers (« 00 »), puis ce type. Sans cette préparation, ces types faisaient 1 à 3 % des définitions (≈ 0,3 par grille) ; avec, un type du niveau 3 figure sur au moins 40 grilles sur 50 dans chaque classe (N21).
+6. **Class 5 et Class 6 : « qui précède » ajouté à « qui suit »** : le §4.3 ne cite que « nombre qui suit » pour Class 5-6, mais la ligne « Lot C » du §3 cite les deux.
+7. **BODMAS (Class 4)** : deux formes seulement, avec la multiplication en second, « a + b × c » et « a − b × c », les seules où l'ordre de calcul change le résultat (« 4 × 5 + 3 » se calcule de la même façon dans les deux ordres) ; b × c est un produit des tables de la classe (2 à 9 par 2 à 10) ; a ≥ 10 dans « a + b × c » (comme les termes d'une addition) et b × c ≥ 10 dans les deux formes (décision d'Isaac du 2026-11-08, réserve R1 du reviewer : « 10 + 3 × 2 » et « 11 + 2 × 4 » sont refusés, code `too-small`) ; résultat jamais négatif ; pas de division (absente des opérations de Class 4) ; le produit d'une expression n'est pas compté comme produit des tables.
+8. **Part des expressions en Class 4** : environ 41 % des définitions après la règle b × c ≥ 10 (a + b × c 20 %, a − b × c 21 % sur 200 graines ; 42 % avant ; 2 types sur 5 avec la règle « type le moins employé ») ; le minimum de 2 produits des tables par grille est gardé. Réglable si Isaac ou l'educator trouvent cette part trop forte.
+9. **Écran en 6 × 6 et 7 × 7** : sous 768 px de large, le sélecteur de langue est en haut de la page, dans le flux (`App.css`, anomalie A-02) ; à 320 × 640, avec lui, la dernière rangée d'une grille 7 × 7 passait sous le pavé (constaté par le test e2e). Solution retenue : à l'ouverture d'une partie en 6 × 6 ou 7 × 7, la page défile d'elle-même jusqu'au haut du jeu (une fois par partie) ; le sélecteur reste accessible en remontant. Le pavé garde sa taille (touches ≥ 44 px), les grilles plus petites ne changent pas. Si la définition ou le message prennent deux lignes, ou si l'écran fait moins de 640 px de haut, le bas d'écran fixé peut encore couvrir la dernière rangée ; la page peut alors défiler (sa place est réservée en bas de la page).
+10. **Mêmes numéros, grilles différentes** : les grilles CM, Class 4, Class 5 et Class 6 d'un même numéro ne sont plus celles du lot B (nouveaux types). La règle P12 a vaut « avec la même version de l'application », comme l'indique l'écran.
+
+### 9.4 Écarts au cadrage
+
+- Choix 1, 2, 4, 5 : règles absentes du cadrage (plus strictes ou nouvelles).
+- Choix 3 : exception à la règle 6 du §5 (« pas de définition qui contient sa réponse ») pour « ÷ 10, 100, 1 000 ».
+- Choix 6 : « qui précède » en Class 5-6, non cité au §4.3 pour ces classes.
+- Choix 9 : défilement automatique de la page à l'ouverture d'une grille 6 × 6 ou 7 × 7, non prévu au §6 (grille, définition courante, pavé fixé en bas) ; sans lui, à 320 × 640, la dernière rangée de la grille 7 × 7 passait sous le pavé.
+- Cadrage §3, « correction des réglages après l'essai du lot B » : aucune correction rapportée par Isaac (essai positif, sans détail), donc aucune modification.
+- Cadrage §3 et §6, « essai sur téléphone » et mesure du temps sur téléphone : **non faits** par le developer (aucun téléphone).
+
+### 9.5 Tests et mesures (2026-11-08, machine de développement)
+
+- `npm test` : 297 tests, 295 réussis, 0 échec, 2 ignorés (les 2 ignorés existaient avant le lot C ; avant le lot C : 291 tests, 289 réussis, 2 ignorés). Nouveaux : N18 à N21, NP20, NP21 ; mis à jour : N2, N14, NP15.
+- `npx playwright test e2e/nombres-croises.spec.js` (seulement ce fichier, avec `DIBIE_URL` et un serveur `vite --host localhost --port 4181`) : 57 réussis sur 57 (19 tests × 3 projets : ordinateur, tablette, téléphone), 8,0 min. Un premier passage avait échoué sur le test « Lot C à 320 px » (3 projets) : grille 7 × 7 sous le pavé à cause du sélecteur de langue ; corrigé par le choix 9, puis relancé.
+- `npm run lint` : aucune erreur ni avertissement (`eslint src`, qui ne couvre pas `e2e/` ni `scripts/`).
+- `npm run build` : réussi ; avertissement de Vite sur un bloc de plus de 500 kB (non comparé à l'état d'avant le lot C).
+- Temps de génération, `node scripts/nombres-croises-echantillon.js --mesure 500 --classes "CM1,CM2,Class 5,Class 6,Class 4"` (500 graines par classe ; Intel i5-2430M, **pas un téléphone**) :
+
+| Classe | Grille | Moyenne | Médiane | 95e centile | Maximum | Essais au plus |
+|---|---|---|---|---|---|---|
+| CM1 | 6 × 6 | 3,8 ms | 2,8 ms | 6,6 ms | 61,4 ms | 4 |
+| Class 5 | 6 × 6 | 3,0 ms | 2,7 ms | 4,9 ms | 41,2 ms | 2 |
+| CM2 | 7 × 7 | 4,9 ms | 3,9 ms | 8,8 ms | 47,9 ms | 5 |
+| Class 6 | 7 × 7 | 3,8 ms | 3,5 ms | 6,0 ms | 44,0 ms | 2 |
+| Class 4 | 5 × 5 | 5,1 ms | 3,5 ms | 13,8 ms | 23,3 ms | 3 |
+
+- Répartition des types sur 200 graines (mesure exploratoire, script hors dépôt) : CM1 : soustraction, addition, division 21 % chacune, × 5 / × 50 / × 500 10 %, ÷ 10 / 100 / 1 000 10 %, tables 8 %, qui suit 3 %, qui précède 3 %, décomposition 2 %, × 10 / 100 / 1 000 1 % ; CM2 : comparable (décomposition 4 %, × 11 / × 12 5 %) ; Class 5 et 6 : addition, soustraction, division ≈ 21 % chacune, multiplication 20 %, tables 6 à 8 %, types du niveau 3 ≈ 10 % ensemble ; Class 4 (après la règle b × c ≥ 10) : addition, soustraction, a − b × c 21 % chacune, a + b × c 20 %, tables 17 %.
+
+### 9.6 Limites du lot C
+
+- Relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserve R1 corrigée sur décision d'Isaac ; second passage ciblé le 2026-11-08 : PRÊT) ; échantillon non lu par l'educator ni par Isaac ; aucun enseignant (D14, Q7).
+- Pas d'essai sur vrai téléphone ; tests à 320 et 375 px dans Edge (Playwright) seulement.
+- Libellés anglais des types nouveaux (« the number after », « ten thousands ») et français (« unités de mille ») à confirmer.
+- Suite Playwright complète non relancée (seul `e2e/nombres-croises.spec.js`).

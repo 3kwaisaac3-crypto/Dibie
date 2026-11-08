@@ -375,14 +375,84 @@ test('NP19 chiffre révélé qui complète un nombre avec un nombre montré : mo
   assert.equal(r.state.status['2A'], 'open', '2A : [1,2] encore libre')
 })
 
-test('NP15 disponibilité par classe : lot B jouable, CM et Class 5-6 bientôt, SIL et Class 1 non proposés', () => {
-  for (const c of ['CP', 'CE1', 'CE2']) assert.equal(crossNumberAvailability(c, 'fr'), 'playable')
-  for (const c of ['Class 2', 'Class 3', 'Class 4']) assert.equal(crossNumberAvailability(c, 'en'), 'playable')
-  for (const c of ['CM1', 'CM2']) assert.equal(crossNumberAvailability(c, 'fr'), 'soon')
-  for (const c of ['Class 5', 'Class 6']) assert.equal(crossNumberAvailability(c, 'en'), 'soon')
+test('NP15 disponibilité par classe (lot C) : CP à CM2 et Class 2 à Class 6 jouables, SIL et Class 1 non proposés', () => {
+  for (const c of ['CP', 'CE1', 'CE2', 'CM1', 'CM2']) assert.equal(crossNumberAvailability(c, 'fr'), 'playable', c)
+  for (const c of ['Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6']) assert.equal(crossNumberAvailability(c, 'en'), 'playable', c)
   assert.equal(crossNumberAvailability('SIL', 'fr'), 'not-offered')
   assert.equal(crossNumberAvailability('Class 1', 'en'), 'not-offered')
   assert.equal(crossNumberAvailability('CP', 'en'), 'not-offered', 'classe d\'un autre sous-système')
+  assert.equal(crossNumberAvailability('Inconnue', 'fr'), 'not-offered')
+})
+
+// Classes ouvertes à l'écran au lot C (grilles 6 × 6 et 7 × 7)
+const LOT_C_CLASSES = [['CM1', 'fr'], ['CM2', 'fr'], ['Class 5', 'en'], ['Class 6', 'en']]
+
+test('NP20 lot C (CM1, CM2, Class 5, Class 6) : 30 parties jouées en entier par classe, score = 10 × nombres', () => {
+  for (const [className, subsystem] of LOT_C_CLASSES) {
+    for (let seed = 1; seed <= 30; seed++) {
+      const g = createCrossNumberGame({ className, subsystem, seed })
+      assert.equal(g.size, className === 'CM1' || className === 'Class 5' ? 6 : 7)
+      // Grille entière affichée (aucune rangée ni colonne noire au bord retirée)
+      const a = visibleArea(g)
+      g.cells.forEach((row, r) => row.forEach((d, c) => {
+        if (d !== null) assert.ok(r >= a.top && r <= a.bottom && c >= a.left && c <= a.right)
+      }))
+      let s = createPlayState(g)
+      for (const e of g.entries) {
+        s = selectEntry(s, g, e.id)
+        if (s.selected?.id !== e.id) continue
+        s = e.cells.reduce((st, [r, c]) => (st.fixed[r][c] ? st : inputDigit(st, g, String(g.cells[r][c]))), s)
+        const r = checkEntry(s, g)
+        assert.equal(r.result, 'correct', `${className} n° ${seed} ${e.id}`)
+        s = r.state
+      }
+      assert.ok(isFinished(s), `${className} n° ${seed}`)
+      assert.equal(crossNumberScore(s), g.entries.length * POINTS_PER_NUMBER)
+    }
+  }
+})
+
+test('NP21 lot C : tous les horizontaux montrés ; un vertical rempli seulement par les aides est montré d\'office, 0 point (choix n° 8)', () => {
+  for (const [className, subsystem] of LOT_C_CLASSES) {
+    let autoTotal = 0
+    for (let seed = 1; seed <= 30; seed++) {
+      const g = createCrossNumberGame({ className, subsystem, seed })
+      let s = createPlayState(g)
+      const across = g.entries.filter(e => e.direction === 'across')
+      for (const e of across) {
+        if (s.status[e.id] !== 'open') continue
+        s = selectEntry(s, g, e.id)
+        // Chiffres faux dans les cases modifiables
+        s = e.cells.reduce((st, [r, c]) => (st.fixed[r][c] ? st : inputDigit(st, g, String((g.cells[r][c] + 1) % 10))), s)
+        while (s.status[e.id] === 'open' && !canShowAnswer(s, e.id)) {
+          const r = checkEntry(s, g)
+          s = r.state
+          if (r.result === 'correct') break
+        }
+        if (canShowAnswer(s, e.id)) s = showAnswerResult(selectEntry(s, g, e.id), g).state
+      }
+      assert.equal(crossNumberScore(s), 0, `${className} n° ${seed}`)
+      // Un vertical dont toutes les cases sont dans des horizontaux (montrés) est montré d'office
+      // (un horizontal devenu juste par le chiffre révélé compte comme trouvé)
+      const inAcross = (r, c) => across.some(x => s.status[x.id] === 'shown' && x.cells.some(([a, b]) => a === r && b === c))
+      let open = 0
+      for (const e of g.entries.filter(x => x.direction === 'down')) {
+        const covered = e.cells.every(([r, c]) => inAcross(r, c))
+        assert.equal(s.status[e.id], covered ? 'shown' : 'open', `${className} n° ${seed} ${e.id}`)
+        if (covered) autoTotal++
+        else open++
+      }
+      // Les verticaux restants, trouvés par l'élève : 10 points chacun, rien de plus
+      for (const e of g.entries.filter(x => x.direction === 'down' && s.status[x.id] === 'open')) {
+        s = selectEntry(s, g, e.id)
+        s = e.cells.reduce((st, [r, c]) => (st.fixed[r][c] ? st : inputDigit(st, g, String(g.cells[r][c]))), s)
+        s = checkEntry(s, g).state
+      }
+      assert.ok(isFinished(s))
+      assert.equal(crossNumberScore(s), open * POINTS_PER_NUMBER, `${className} n° ${seed}`)
+    }
+    assert.ok(autoTotal > 0, `${className} : au moins un vertical montré d'office sur 30 parties`)
+  }
 })
 
 test('NP14 identifiant de progrès et type de jeu propres à M1', () => {

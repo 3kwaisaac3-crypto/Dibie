@@ -1,9 +1,12 @@
-// Échantillon lisible des nombres croisés (phase 5, lot A) pour lecture par
-// l'educator puis Isaac, et mesure du temps de génération.
+// Échantillon lisible des nombres croisés (phase 5, lots A et C) pour lecture
+// par l'educator puis Isaac, et mesure du temps de génération.
 //
 // Usage (depuis la racine du projet) :
 //   node scripts/nombres-croises-echantillon.js <fichier.md> [--graines 1,2]
-//   node scripts/nombres-croises-echantillon.js --mesure 200
+//        [--classes "CM1,CM2,Class 5,Class 6,Class 4"] [--lot C]
+//   node scripts/nombres-croises-echantillon.js --mesure 200 [--classes ...]
+// --classes : classes retenues, dans cet ordre (par défaut : toutes) ;
+// --lot : lot nommé dans le titre et la branche (par défaut : A).
 //
 // Le fichier Markdown contient, pour chaque classe où le jeu est proposé, une
 // grille par graine (numéro de partie) : grille vide numérotée, définitions
@@ -37,14 +40,30 @@ const TYPE_LABELS = {
   times10: '× 10, × 100',
   times5: '× 5, × 50, × 500',
   times11_12: '× 11, × 12',
-  times25: '× 25'
+  times25: '× 25',
+  next: 'nombre qui suit',
+  prev: 'nombre qui précède',
+  decomposition: 'décomposition par rang',
+  timesPow10: '× 10, × 100, × 1 000',
+  divPow10: '÷ 10, ÷ 100, ÷ 1 000',
+  addProduct: 'a + b × c (priorité, BODMAS)',
+  subProduct: 'a − b × c (priorité, BODMAS)'
 }
 
 const SUBSYSTEM_LABEL = { fr: 'francophone', en: 'anglophone' }
 
+// Classes retenues (option --classes, dans l'ordre donné ; par défaut toutes)
+let onlyClasses = null
 function classes() {
-  return ['fr', 'en'].flatMap(subsystem => crossNumberClasses(subsystem).map(className => ({ className, subsystem })))
+  const all = ['fr', 'en'].flatMap(subsystem => crossNumberClasses(subsystem).map(className => ({ className, subsystem })))
+  if (!onlyClasses) return all
+  return onlyClasses.map(name => {
+    const found = all.find(c => c.className === name)
+    if (!found) throw new Error(`Classe inconnue ou non proposée : ${name}`)
+    return found
+  })
 }
+let lot = 'A'
 
 function entryTable(entries) {
   const lines = ['| N° | Définition (FR) | Definition (EN) | Réponse |', '|---|---|---|---|']
@@ -54,13 +73,14 @@ function entryTable(entries) {
 
 function sample(outFile, seeds) {
   const out = []
-  out.push('# Échantillon de grilles « Nombres croisés » — lot A de la phase 5 de Dibiè')
+  out.push(`# Échantillon de grilles « Nombres croisés » — lot ${lot} de la phase 5 de Dibiè`)
   out.push('')
   out.push('**Pôle DIBIÈ — contenu généré par programme**')
   out.push('')
   out.push(`VERSION : V0.1 — STATUT : BROUILLON, NON VALIDÉ (à lire par l'educator puis Isaac ; aucun enseignant n'a validé ces grilles, D14 / Q7) — DATE : ${new Date().toISOString().slice(0, 10)}`)
   out.push('')
-  out.push('Produit par : `node scripts/nombres-croises-echantillon.js <fichier.md>` dans le dépôt de l\'application Dibiè, branche `feature/nombres-croises-lot-a` (générateur `src/utils/crossNumberGame.js`). Rien n\'est rédigé à la main : grilles, nombres et définitions sortent du générateur, et chaque grille a passé le vérificateur (`verifyCrossNumberGame`) avant d\'être écrite ici.')
+  const command = `node scripts/nombres-croises-echantillon.js <fichier.md> --graines ${seeds.join(',')}${onlyClasses ? ` --classes "${onlyClasses.join(',')}"` : ''}${lot !== 'A' ? ` --lot ${lot}` : ''}`
+  out.push('Produit par : `' + command + '` dans le dépôt de l\'application Dibiè, branche `feature/nombres-croises-lot-' + lot.toLowerCase() + '` (générateur `src/utils/crossNumberGame.js`). Rien n\'est rédigé à la main : grilles, nombres et définitions sortent du générateur, et chaque grille a passé le vérificateur (`verifyCrossNumberGame`) avant d\'être écrite ici.')
   out.push('')
   out.push('Règles appliquées : cadrage de la phase 5 (`DIBIE/pedagogie/cadrage-phase5-nombres-croises-v0.1.md`), décisions P1 à P12 validées par Isaac le 2026-11-08. Toutes les valeurs par classe (taille, chiffres, types de définitions) sont des **hypothèses à vérifier** avec un enseignant (D4).')
   out.push('')
@@ -137,6 +157,10 @@ function measure(count) {
 }
 
 const args = process.argv.slice(2)
+const ci = args.indexOf('--classes')
+if (ci !== -1) onlyClasses = args[ci + 1].split(',').map(s => s.trim()).filter(Boolean)
+const li = args.indexOf('--lot')
+if (li !== -1) lot = args[li + 1]
 const m = args.indexOf('--mesure')
 if (m !== -1) {
   measure(Number(args[m + 1]) || 200)
@@ -145,6 +169,6 @@ if (m !== -1) {
   const seeds = g !== -1 ? args[g + 1].split(',').map(Number) : [1, 2]
   sample(args[0], seeds)
 } else {
-  console.error('Usage : node scripts/nombres-croises-echantillon.js <fichier.md> [--graines 1,2] | --mesure 200')
+  console.error('Usage : node scripts/nombres-croises-echantillon.js <fichier.md> [--graines 1,2] [--classes "CM1,CM2"] [--lot C] | --mesure 200 [--classes ...]')
   process.exit(1)
 }

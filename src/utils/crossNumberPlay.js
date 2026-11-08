@@ -34,18 +34,12 @@
 
 import { isCrossNumberPlayable } from './crossNumberGame.js'
 
-// Classes jouables à l'écran au lot B (niveaux 1 et 2, cadrage §3) ; CM1-CM2
-// et Class 5-6 viendront au lot C (le générateur les connaît déjà).
-export const LOT_B_CLASSES = Object.freeze({
-  fr: Object.freeze(['CP', 'CE1', 'CE2']),
-  en: Object.freeze(['Class 2', 'Class 3', 'Class 4'])
-})
-
-// Disponibilité du jeu pour une classe : 'playable' (lot B), 'soon' (classe
-// prévue au lot C), 'not-offered' (SIL, Class 1 : jeu non proposé, P2 a)
+// Disponibilité du jeu pour une classe : 'playable' (toutes les classes où le
+// générateur est réglé : CP à CM2, Class 2 à Class 6, depuis le lot C ; au
+// lot B, CM1-CM2 et Class 5-6 affichaient « bientôt ») ou 'not-offered' (SIL,
+// Class 1 : jeu non proposé, P2 a ; classe inconnue)
 export function crossNumberAvailability(className, subsystem) {
-  if (LOT_B_CLASSES[subsystem]?.includes(className)) return 'playable'
-  return isCrossNumberPlayable(className, subsystem) ? 'soon' : 'not-offered'
+  return isCrossNumberPlayable(className, subsystem) ? 'playable' : 'not-offered'
 }
 
 export const POINTS_PER_NUMBER = 10

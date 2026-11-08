@@ -92,6 +92,10 @@ export const CROSS_NUMBER_TEMPLATES = Object.freeze({
 //   Class 3-4, au plus 2 au CM et en Class 5-6 ; null = sans limite) ;
 // - featureTimes50 : un nombre de la grille est préparé pour « × 50 » ou
 //   « × 500 » (CM1, CM2), voir planRequirements.
+// Lot C (CHOIX PROVISOIRE du developer) :
+// - featureLevel3 : un nombre d'au moins 4 chiffres est préparé pour l'un des
+//   types du niveau 3 (nombre qui suit, qui précède, décomposition par rang),
+//   tiré au hasard (CM1, CM2, Class 5, Class 6), voir planRequirements.
 // Classes absentes (SIL, Class 1) : jeu non proposé (P2 a).
 const setting = (size, minDigits, maxDigits, extra = {}) => Object.freeze({
   size,
@@ -101,11 +105,12 @@ const setting = (size, minDigits, maxDigits, extra = {}) => Object.freeze({
   maxQuotientDigits: null,
   tablesPerGrid: Object.freeze([0, null]),
   featureTimes50: false,
+  featureLevel3: false,
   ...extra
 })
 const ce = { minTerm: 10 }
 const ceTables = { minTerm: 10, tablesPerGrid: Object.freeze([2, null]) }
-const cm = (maxQuotientDigits, featureTimes50) => ({ minTerm: 10, maxQuotientDigits, tablesPerGrid: Object.freeze([0, 2]), featureTimes50 })
+const cm = (maxQuotientDigits, featureTimes50) => ({ minTerm: 10, maxQuotientDigits, tablesPerGrid: Object.freeze([0, 2]), featureTimes50, featureLevel3: true })
 export const CROSS_NUMBER_SETTINGS = Object.freeze({
   fr: Object.freeze({
     CP: setting(3, 2, 2),
@@ -130,6 +135,12 @@ export const CROSS_NUMBER_SETTINGS = Object.freeze({
 export const MAX_DIVISION_SHARE = 0.4
 export const MAX_TWO_DIGIT_DIVISIONS = 3
 export const MAX_TWO_DIGIT_MULTIPLICAND = 9999
+// Lot C, CHOIX PROVISOIRE : au plus 2 définitions « × / ÷ par 10, 100, 1 000 »
+// (types timesPow10 et divPow10 ensemble) par grille ; sans limite, « ÷ 10 »
+// était possible pour presque tous les nombres et faisait 19 % des définitions
+// au CM1 (mesure sur 200 graines)
+export const MAX_POW10_PER_GRID = 2
+const POW10_TYPES = Object.freeze(['timesPow10', 'divPow10'])
 
 // Modèle des mots mêlés (décision du 2026-10-06) : 20 essais au plus ; chaque
 // essai = un gabarit et une symétrie tirés au hasard, puis un remplissage
@@ -182,6 +193,7 @@ export function crossNumberSettings(className, subsystem) {
     minTables: own.tablesPerGrid[0],
     maxTables: own.tablesPerGrid[1],
     featureTimes50: own.featureTimes50,
+    featureLevel3: own.featureLevel3,
     templates: templatesFor(own.size, own.minDigits, own.maxDigits)
   }
 }
@@ -306,6 +318,15 @@ export function fillTemplate(rows, settings, random, { maxNodes = MAX_FILL_NODES
 //   ce qui évite de longues recherches ; sa définition est « × 50 » ou
 //   « × 500 ». Sans nombre possible, rien n'est imposé (règle souple : « doit
 //   pouvoir apparaître »).
+// - Lot C, CM1, CM2, Class 5, Class 6 (featureLevel3, CHOIX PROVISOIRE) : un
+//   type est tiré au hasard parmi « nombre qui suit », « qui précède » et
+//   « décomposition par rang » ; un nombre d'au moins 4 chiffres (au plus 5
+//   pour la décomposition) reçoit d'avance son dernier chiffre (0 pour « qui
+//   suit », 9 pour « qui précède ») ou ses deux derniers (« 00 » pour la
+//   décomposition : au plus 3 rangs non nuls), puis ce type de définition.
+//   Mêmes précautions que pour × 50 : aucun 0 fixé sur une case où commence un
+//   autre nombre, aucune case fixée deux fois. Sans nombre possible, rien
+//   n'est imposé.
 // Renvoie Map(id → { predicate, type, filter, prefer?, tail? }) ou null si l'essai est impossible.
 export function planRequirements(rows, settings, random) {
   const ctx = definitionContext(settings)
@@ -338,8 +359,40 @@ export function planRequirements(rows, settings, random) {
       })
     }
   }
+  if (settings.featureLevel3) {
+    const kinds = LEVEL3_TAILS.filter(k => ctx.operations.includes(k.type))
+    if (kinds.length > 0) {
+      const kind = kinds[Math.floor(random() * kinds.length)]
+      const starts = new Set(entries.map(e => e.cells[0].join(',')))
+      // Cases déjà fixées par un autre nombre préparé
+      const taken = new Set()
+      for (const [id, req] of requirements) {
+        if (!req.tail) continue
+        const e = entries.find(x => x.id === id)
+        e.cells.slice(-req.tail.length).forEach(cell => taken.add(cell.join(',')))
+      }
+      const eligible = entries.filter(e => e.length >= 4 && e.length <= kind.maxLength && !requirements.has(e.id) &&
+        e.cells.slice(-kind.tail.length).every((cell, i) => !taken.has(cell.join(',')) && (kind.tail[i] !== 0 || !starts.has(cell.join(',')))))
+      if (eligible.length > 0) {
+        const e = eligible[Math.floor(random() * eligible.length)]
+        requirements.set(e.id, {
+          predicate: (n) => definitionOptions(kind.type, n, ctx).length > 0,
+          type: kind.type,
+          filter: null,
+          tail: [...kind.tail]
+        })
+      }
+    }
+  }
   return requirements
 }
+
+// Chiffres fixés d'avance pour les types du niveau 3 (featureLevel3)
+const LEVEL3_TAILS = Object.freeze([
+  Object.freeze({ type: 'next', tail: Object.freeze([0]), maxLength: Infinity }),
+  Object.freeze({ type: 'prev', tail: Object.freeze([9]), maxLength: Infinity }),
+  Object.freeze({ type: 'decomposition', tail: Object.freeze([0, 0]), maxLength: 5 })
+])
 
 // Choisit une définition pour chaque nombre. Les nombres préparés
 // (requirements) reçoivent d'abord leur type imposé. Ensuite, mélange des
@@ -348,7 +401,8 @@ export function planRequirements(rows, settings, random) {
 // l'ordre de la grille (horizontaux puis verticaux). Limites par grille :
 // divisions (MAX_DIVISION_SHARE, type div seulement), divisions par un nombre
 // de 2 chiffres (MAX_TWO_DIGIT_DIVISIONS), produits des tables (maxTables,
-// comptés avec isTableProduct : toute multiplication de deux facteurs de 2 à 10). Aucun opérande
+// comptés avec isTableProduct : toute multiplication de deux facteurs de 2 à 10),
+// « × / ÷ par 10, 100, 1 000 » (MAX_POW10_PER_GRID, lot C). Aucun opérande
 // n'est égal à la réponse d'un autre nombre de la grille. Renvoie null si un
 // nombre ne peut pas recevoir de définition (l'essai échoue).
 function chooseDefinitions(answers, ids, ctx, settings, requirements, random) {
@@ -356,12 +410,14 @@ function chooseDefinitions(answers, ids, ctx, settings, requirements, random) {
   const divMax = Math.floor(MAX_DIVISION_SHARE * answers.length)
   let twoDigitDivisions = 0
   let tableProducts = 0
+  let pow10 = 0
   const result = new Array(answers.length).fill(null)
   const excludeFor = (i) => new Set(answers.filter((_, j) => j !== i))
   const take = (i, def) => {
     counts.set(def.type, counts.get(def.type) + 1)
     if (def.type === 'div' && def.operands[1] >= 10) twoDigitDivisions++
     if (isTableProduct(def)) tableProducts++
+    if (POW10_TYPES.includes(def.type)) pow10++
     result[i] = def
   }
   for (let i = 0; i < answers.length; i++) {
@@ -378,6 +434,7 @@ function chooseDefinitions(answers, ids, ctx, settings, requirements, random) {
     const byType = new Map()
     for (const type of ctx.operations) {
       if (type === 'div' && counts.get('div') >= divMax) continue
+      if (POW10_TYPES.includes(type) && pow10 >= MAX_POW10_PER_GRID) continue
       let options = definitionOptions(type, answers[i], ctx, random, excludeFor(i))
       if (type === 'div' && twoDigitDivisions >= MAX_TWO_DIGIT_DIVISIONS) options = options.filter(d => d.operands[1] < 10)
       // Limite des produits des tables : toute multiplication de deux facteurs de 2 à 10
@@ -501,8 +558,9 @@ export function createCrossNumberGame({ className, subsystem, seed, maxNodes = M
 // 'division-share' (plus de 40 % de divisions), 'two-digit-divisions' (plus
 // de 3 divisions par un nombre de 2 chiffres), 'tables-count' (produits des
 // tables hors de [minTables, maxTables] ; produit des tables = toute
-// multiplication de deux facteurs de 2 à 10, quel que soit son type), 'not-a-game' (entrée qui n'est pas
-// un objet).
+// multiplication de deux facteurs de 2 à 10, quel que soit son type),
+// 'pow10-count' (plus de 2 définitions « × / ÷ par 10, 100, 1 000 », lot C),
+// 'not-a-game' (entrée qui n'est pas un objet).
 export function verifyCrossNumberGame(game) {
   const errors = []
   if (game === null || typeof game !== 'object') return { ok: false, errors: [{ code: 'not-a-game' }] }
@@ -574,6 +632,8 @@ export function verifyCrossNumberGame(game) {
   const divisions = counts.get('div') ?? 0
   if (divisions > Math.floor(MAX_DIVISION_SHARE * entries.length)) errors.push({ code: 'division-share', detail: divisions })
   if (twoDigitDivisions > MAX_TWO_DIGIT_DIVISIONS) errors.push({ code: 'two-digit-divisions', detail: twoDigitDivisions })
+  const pow10 = POW10_TYPES.reduce((sum, t) => sum + (counts.get(t) ?? 0), 0)
+  if (pow10 > MAX_POW10_PER_GRID) errors.push({ code: 'pow10-count', detail: pow10 })
   const tables = tableProducts
   if (tables < settings.minTables || (settings.maxTables !== null && tables > settings.maxTables)) {
     errors.push({ code: 'tables-count', detail: tables })

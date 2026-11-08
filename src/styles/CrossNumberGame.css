@@ -47,6 +47,37 @@
 .cn-grid--cols-2 { --cn-max: 180px; }
 .cn-grid--cols-3 { --cn-max: 240px; }
 
+/* Lot C : grilles 6 × 6 et 7 × 7 (CM1-CM2, Class 5-6). Hauteur réservée
+   au pavé et à l'en-tête ramenée de 420 à 370 px, côté minimal de 236 px
+   (6 × 6) ou 264 px (7 × 7), écart réduit : à 320 × 640, la grille 7 × 7
+   tient au-dessus du pavé avec des cases d'environ 37 px. Sur un écran plus
+   bas, ou quand la définition ou le message prennent deux lignes, le bas
+   d'écran fixé peut couvrir la dernière rangée : la page défile alors (la
+   place du bas d'écran est réservée en bas de la page). */
+.cn-grid--cols-6 {
+  --cn-gap: 3px;
+  --cn-side: max(236px, calc(100dvh - 370px));
+}
+
+.cn-grid--cols-7 {
+  --cn-gap: 2px;
+  --cn-side: max(264px, calc(100dvh - 370px));
+}
+
+.cn-grid--cols-6 .cn-cell,
+.cn-grid--cols-7 .cn-cell {
+  border-width: 2px;
+  border-radius: 4px;
+  font-size: clamp(1rem, 5.5vw, 1.6rem);
+}
+
+.cn-grid--cols-6 .cn-cell__num,
+.cn-grid--cols-7 .cn-cell__num {
+  top: 1px;
+  left: 2px;
+  font-size: 0.6rem;
+}
+
 .cn-cell {
   position: relative;
   aspect-ratio: 1 / 1;

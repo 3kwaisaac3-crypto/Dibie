@@ -4,6 +4,8 @@
 // après 2 erreurs, « Voir la réponse » après 3, score enregistré une seule
 // fois (même sans « Terminer »), même numéro = même grille, langue qui ne
 // change que les définitions, classes non jouables, affichage à 320 et 375 px.
+// Lot C : CM1, CM2, Class 5, Class 6 jouables (grilles 6 × 6 et 7 × 7, à 320
+// et 375 px), expressions avec priorité (BODMAS) en Class 4.
 // La grille attendue est calculée par le module pur (src/utils/crossNumberGame.js) :
 // l'écran doit montrer la même.
 import { test, expect } from '@playwright/test'
@@ -320,13 +322,24 @@ test('Même numéro, même grille ; la langue ne change que les définitions ; n
   expect(erreurs).toEqual([])
 })
 
-test('Classes non jouables au lot B : SIL et Class 1 (jeu non proposé), CM1 et Class 5 (bientôt)', async ({ page }) => {
+test('Classes non jouables : SIL et Class 1 (jeu non proposé) ; depuis le lot C, plus de message « Bientôt » en CM1 et Class 5', async ({ page }) => {
   const erreurs = suivreErreurs(page)
+  // Lot C : CM1 et Class 5 ont un bouton « Commencer », aucun message « Bientôt »
+  for (const c of [
+    { pseudo: 'Ouvert CM1', niveau: 'CM1-CM2', sousSysteme: 'fr', classe: 'CM1' },
+    { pseudo: 'Ouvert Class 5', niveau: 'CM1-CM2', sousSysteme: 'en', classe: 'Class 5' }
+  ]) {
+    await creerProfilComplet(page, c)
+    await page.getByRole('button', { name: /Nombres croisés/ }).click()
+    await expect(page.locator('.pyramid-select__start')).toBeVisible()
+    await expect(page.getByTestId('cn-soon')).toHaveCount(0)
+    await expect(page.getByTestId('cn-not-offered')).toHaveCount(0)
+    await expect(page.locator('.pyramid-select')).not.toContainText('Bientôt')
+    await page.evaluate(() => localStorage.clear())
+  }
   const cas = [
     { pseudo: 'Croises SIL', niveau: 'SIL-CP', sousSysteme: 'fr', classe: 'SIL', id: 'cn-not-offered', texte: 'Pas encore de nombres croisés pour ta classe (SIL)' },
-    { pseudo: 'Croises Class 1', niveau: 'SIL-CP', sousSysteme: 'en', classe: 'Class 1', id: 'cn-not-offered', texte: 'à partir de la classe Class 2' },
-    { pseudo: 'Croises CM1', niveau: 'CM1-CM2', sousSysteme: 'fr', classe: 'CM1', id: 'cn-soon', texte: 'Bientôt : les nombres croisés de ta classe (CM1)' },
-    { pseudo: 'Croises Class 5', niveau: 'CM1-CM2', sousSysteme: 'en', classe: 'Class 5', id: 'cn-soon', texte: 'ta classe (Class 5)' }
+    { pseudo: 'Croises Class 1', niveau: 'SIL-CP', sousSysteme: 'en', classe: 'Class 1', id: 'cn-not-offered', texte: 'à partir de la classe Class 2' }
   ]
   for (const c of cas) {
     await creerProfilComplet(page, c)
@@ -485,5 +498,174 @@ test('Décision d\'Isaac (choix n° 8) : carré CP, deux horizontaux montrés : 
   await page.getByRole('button', { name: 'Terminer' }).click()
   await expect(page.getByTestId('cn-final-score')).toHaveText('0')
   await expect(page.locator('.cn-finished')).toContainText('Réponses montrées (sans points) : 4')
+  expect(erreurs).toEqual([])
+})
+
+// --- Lot C : CM1, CM2, Class 5, Class 6 (grilles 6 × 6 et 7 × 7) --------------
+
+const LOT_C = [
+  { classe: 'CM1', sousSysteme: 'fr', taille: 6 },
+  { classe: 'CM2', sousSysteme: 'fr', taille: 7 },
+  { classe: 'Class 5', sousSysteme: 'en', taille: 6 },
+  { classe: 'Class 6', sousSysteme: 'en', taille: 7 }
+]
+
+// Disposition à l'ouverture (numéro 3 : définition courante sur une ligne dans
+// les quatre classes) : grille entière au-dessus du bas d'écran fixé, cases
+// d'au moins 36 px, touches d'au moins 44 px, pavé dans l'écran ; liste ouverte
+// et page défilée : pavé toujours visible, aucun débordement horizontal.
+// En 6 × 6 et 7 × 7, la page défile d'elle-même jusqu'au haut du jeu à
+// l'ouverture (sous 768 px, le sélecteur de langue est en haut de la page) :
+// la grille et l'en-tête sont visibles sans geste de l'élève.
+for (const largeur of [320, 375]) {
+  test(`Lot C à ${largeur} px : grilles 6 × 6 et 7 × 7 (CM1, CM2, Class 5, Class 6) entières, cases ≥ 36 px, pavé fixé en bas`, async ({ page }) => {
+    const erreurs = suivreErreurs(page)
+    await page.setViewportSize({ width: largeur, height: largeur === 320 ? 640 : 812 })
+    for (const c of LOT_C) {
+      await creerProfilComplet(page, { pseudo: `Grand ${c.classe}`, niveau: 'CM1-CM2', sousSysteme: c.sousSysteme, classe: c.classe })
+      const numero = 3
+      const g = createCrossNumberGame({ className: c.classe, subsystem: c.sousSysteme, seed: numero })
+      expect(g.size).toBe(c.taille)
+      await lancer(page, { numero })
+      await expect(page.locator('.cn-header h1')).toHaveText(`Nombres croisés - ${c.classe}`)
+      // Grille entière, cases noires comprises
+      const a = visibleArea(g)
+      expect(a.rows * a.cols).toBe(c.taille * c.taille)
+      await expect(page.locator('.cn-grid > *')).toHaveCount(c.taille * c.taille)
+      await expect(page.locator('.cn-game input, .cn-game textarea')).toHaveCount(0)
+      await expect.poll(async () => {
+        const x = await mesurer(page)
+        return x.gridBottom <= x.bottomTop
+      }, { message: `${c.classe} : grille sous le bas d'écran` }).toBe(true)
+      const m = await mesurer(page)
+      expect(m.overflow).toBe(false)
+      expect(m.gridInCard).toBe(true)
+      const hauts = await page.evaluate(() => ({
+        grille: document.querySelector('.cn-grid').getBoundingClientRect().top,
+        titre: document.querySelector('.cn-header h1').getBoundingClientRect().top
+      }))
+      expect(hauts.titre).toBeGreaterThanOrEqual(-0.5)
+      expect(hauts.grille).toBeGreaterThanOrEqual(0)
+      expect(m.gridBottom, `${c.classe} : grille sous le bas d'écran`).toBeLessThanOrEqual(m.bottomTop)
+      expect(m.minCell, `${c.classe} : cases`).toBeGreaterThanOrEqual(36)
+      expect(m.minKey).toBeGreaterThanOrEqual(44)
+      expect(m.padTop).toBeGreaterThanOrEqual(0)
+      expect(m.padBottom).toBeLessThanOrEqual(m.viewport + 0.5)
+      // Définition courante affichée en bas, liste repliée au départ
+      await expect(page.getByTestId('cn-current')).toHaveText(`${nomNombre(g.entries[0])} : ${g.entries[0].text.fr}`)
+      await expect(page.getByTestId('cn-list')).toHaveCount(0)
+      await page.getByRole('button', { name: `Toutes les définitions (${g.entries.length})` }).click()
+      for (const e of g.entries) await expect(page.locator(`.cn-list [data-entry="${e.id}"]`)).toContainText(e.text.fr)
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+      const m2 = await mesurer(page)
+      expect(m2.overflow).toBe(false)
+      expect(m2.padTop).toBeGreaterThanOrEqual(0)
+      expect(m2.padBottom).toBeLessThanOrEqual(m2.viewport + 0.5)
+      await page.locator('.cn-game .pyramid-game__back').click()
+      await page.evaluate(() => localStorage.clear())
+    }
+    expect(erreurs).toEqual([])
+  })
+}
+
+// Une partie complète par classe du lot C, au toucher, à 320 ou 375 px :
+// nombres choisis dans la liste, score enregistré une fois, fin sans débordement
+const PARTIES_LOT_C = [
+  { ...LOT_C[0], largeur: 320, numero: 11 },
+  { ...LOT_C[1], largeur: 320, numero: 12 },
+  { ...LOT_C[2], largeur: 375, numero: 13 },
+  { ...LOT_C[3], largeur: 375, numero: 14 }
+]
+for (const p of PARTIES_LOT_C) {
+  test(`Lot C : partie complète ${p.classe} (${p.taille} × ${p.taille}) à ${p.largeur} px, score enregistré une fois`, async ({ page }) => {
+    const erreurs = suivreErreurs(page)
+    await page.setViewportSize({ width: p.largeur, height: p.largeur === 320 ? 640 : 812 })
+    await creerProfilComplet(page, { pseudo: `Partie ${p.classe}`, niveau: 'CM1-CM2', sousSysteme: p.sousSysteme, classe: p.classe })
+    const g = createCrossNumberGame({ className: p.classe, subsystem: p.sousSysteme, seed: p.numero })
+    await lancer(page, { numero: p.numero })
+    await expect(page.getByTestId('cn-seed-line')).toHaveText(`Partie n° ${p.numero} · ${p.classe} · CM1-CM2`)
+    await page.getByRole('button', { name: /Toutes les définitions/ }).click()
+    for (const e of g.entries) {
+      const bouton = page.locator(`.cn-list button[data-entry="${e.id}"]`)
+      // Nombre déjà complété par ses croisements et résolu : bouton désactivé
+      if (await bouton.isDisabled()) continue
+      await bouton.click()
+      await expect(page.getByTestId('cn-current')).toHaveText(`${nomNombre(e)} : ${e.text.fr}`)
+      await ecrireNombre(page, e, chiffresJustes(g, e))
+      await valider(page)
+      for (const cell of e.cells) await expect(caseGrille(page, cell)).toHaveClass(/cn-cell--found/)
+    }
+    const points = g.entries.length * 10
+    await expect(page.getByTestId('cn-progress')).toHaveText(`Nombres ${g.entries.length} / ${g.entries.length} · ${points} points`)
+    let scores = await scoresM1(page)
+    expect(scores).toHaveLength(1)
+    expect(scores[0]).toMatchObject({
+      score: points, niveau: 'CM1-CM2', seed: p.numero, className: p.classe, subsystem: p.sousSysteme,
+      templateId: g.templateId, numberCount: g.entries.length, shown: [], revealed: [], errors: 0
+    })
+    await page.getByRole('button', { name: 'Terminer' }).click()
+    await expect(page.getByTestId('cn-final-score')).toHaveText(String(points))
+    await expect(page.locator('.cn-finished .cn-grid > *')).toHaveCount(p.taille * p.taille)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false)
+    scores = await scoresM1(page)
+    expect(scores).toHaveLength(1)
+    expect(erreurs).toEqual([])
+  })
+}
+
+test('Lot C : nombre rempli par les aides en CM2 (7 × 7) : montré d\'office, 0 point (choix n° 8)', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  // Premier numéro dont un vertical de 2 chiffres a toutes ses cases dans des horizontaux
+  let numero = 1
+  let g
+  let cible
+  for (; numero < 200; numero++) {
+    g = createCrossNumberGame({ className: 'CM2', subsystem: 'fr', seed: numero })
+    const across = g.entries.filter(e => e.direction === 'across')
+    const dans = (e, [r, c]) => e.cells.some(([a, b]) => a === r && b === c)
+    cible = g.entries.find(v => v.direction === 'down' && v.length === 2 && v.cells.every(cell => across.some(h => dans(h, cell))))
+    if (cible) break
+  }
+  expect(cible).toBeTruthy()
+  const across = g.entries.filter(e => e.direction === 'across' && e.cells.some(([r, c]) => cible.cells.some(([a, b]) => a === r && b === c)))
+  await page.setViewportSize({ width: 375, height: 812 })
+  await creerProfilComplet(page, { pseudo: 'Aides CM2', niveau: 'CM1-CM2', classe: 'CM2' })
+  await lancer(page, { numero })
+  await page.getByRole('button', { name: /Toutes les définitions/ }).click()
+  for (const h of across) {
+    await page.locator(`.cn-list button[data-entry="${h.id}"]`).click()
+    const faux = chiffresJustes(g, h).map(d => (d + 1) % 10)
+    await ecrireNombre(page, h, faux)
+    for (let k = 0; k < 3; k++) await valider(page)
+    await page.getByRole('button', { name: 'Voir la réponse' }).click()
+  }
+  for (const cell of cible.cells) await expect(caseGrille(page, cell)).toHaveClass(/cn-cell--shown/)
+  await expect(page.locator(`.cn-list [data-entry="${cible.id}"]`)).toContainText('(réponse montrée)')
+  await expect(page.getByTestId('cn-progress')).toContainText('· 0 points')
+  const progres = await lignes(page)
+  expect(progres.filter(l => l.itemId === `fr:CM2:${numero}:${cible.id}`).map(l => l.isCorrect)).toEqual([false])
+  expect(erreurs).toEqual([])
+})
+
+test('Class 4 : expression avec priorité (BODMAS) affichée sans parenthèses, juste quand la multiplication est faite d\'abord', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  const estExpression = (e) => e.definition.type === 'addProduct' || e.definition.type === 'subProduct'
+  let numero = 1
+  while (!createCrossNumberGame({ className: 'Class 4', subsystem: 'en', seed: numero }).entries.some(estExpression)) numero++
+  const g = createCrossNumberGame({ className: 'Class 4', subsystem: 'en', seed: numero })
+  const e = g.entries.find(estExpression)
+  const [a, b, c] = e.definition.operands
+  expect(e.answer).toBe(e.definition.type === 'addProduct' ? a + b * c : a - b * c)
+  await creerProfilComplet(page, { pseudo: 'Bodmas Class 4', niveau: 'CE1-CE2', sousSysteme: 'en', classe: 'Class 4' })
+  await page.getByRole('button', { name: 'English' }).click()
+  await lancer(page, { numero, langue: 'en' })
+  await page.getByRole('button', { name: /All the clues/ }).click()
+  await page.locator(`.cn-list button[data-entry="${e.id}"]`).click()
+  await expect(page.getByTestId('cn-current')).toHaveText(`${nomNombre(e, 'en')}: ${e.text.en}`)
+  expect(e.text.en).toMatch(/^[\d,]+ [+−] \d+ × \d+$/)
+  await page.locator(`.cn-list button[data-entry="${e.id}"]`).click()
+  await ecrireNombre(page, e, chiffresJustes(g, e))
+  await valider(page, 'en')
+  for (const cell of e.cells) await expect(caseGrille(page, cell)).toHaveClass(/cn-cell--found/)
   expect(erreurs).toEqual([])
 })

@@ -31,12 +31,13 @@ import '../styles/PyramidGame.css'
 import '../styles/CrossNumberGame.css'
 
 // Nombres croisés (fiche M1 du catalogue v0.2, moteur F ; phase 5, lot B :
-// interface des niveaux 1 et 2). Grille : src/utils/crossNumberGame.js (lot A) ;
+// interface des niveaux 1 et 2 ; lot C : niveau 3, grilles 6 × 6 et 7 × 7).
+// Grille : src/utils/crossNumberGame.js (lot A) ;
 // état de la partie : src/utils/crossNumberPlay.js ; docs/nombres-croises.md.
 // Décisions d'Isaac du 2026-11-08 (cadrage, P7 à P12 option a) :
 // - classe et sous-système du profil (resolveMathClass), comme les pyramides ;
-//   jouable au lot B en CP, CE1, CE2, Class 2, Class 3, Class 4 ; CM1-CM2 et
-//   Class 5-6 : message « bientôt » (lot C) ; SIL et Class 1 : message (P2 a) ;
+//   jouable en CP, CE1, CE2, CM1, CM2, Class 2 à Class 6 (CM et Class 5-6
+//   depuis le lot C) ; SIL et Class 1 : message (P2 a) ;
 // - grille de BOUTONS (aucun champ de saisie : le clavier du téléphone ne
 //   s'ouvre pas), saisie au pavé numérique ou au clavier physique (P10 a) ;
 // - ✓ vérifie le nombre choisi ; nombre juste verrouillé (P7 a) ;
@@ -97,6 +98,22 @@ export default function CrossNumberGame() {
     observer.observe(el)
     return () => observer.disconnect()
   }, [gameState, game])
+
+  // Lot C (CHOIX PROVISOIRE) : grilles 6 × 6 et 7 × 7 sur petit écran. Sous
+  // 768 px, le sélecteur de langue est en haut de la page, dans le flux (App.css) ;
+  // à 320 × 640, il repoussait la dernière rangée sous le pavé fixé. À
+  // l'ouverture de la partie, la page défile donc jusqu'au haut du jeu (une
+  // seule fois par partie, quand la place du bas d'écran est réservée) ; le
+  // sélecteur reste accessible en remontant. Grilles plus petites : inchangé.
+  const gameRef = useRef(null)
+  const scrolledForRef = useRef(null)
+  useEffect(() => {
+    if (gameState !== 'playing' || !game || game.size < 6 || bottomHeight === 0) return
+    if (scrolledForRef.current === game || !gameRef.current) return
+    scrolledForRef.current = game
+    const top = gameRef.current.getBoundingClientRect().top + window.scrollY
+    if (top > 0) window.scrollTo({ top, behavior: 'instant' })
+  }, [gameState, game, bottomHeight])
 
   const title = t('Nombres croisés', 'Number crossword')
   const dirName = (d) => (d === 'across' ? t('horizontal', 'across') : t('vertical', 'down'))
@@ -414,13 +431,6 @@ export default function CrossNumberGame() {
                 `No number crossword yet for your class (${className}): the numbers you study are still small. This game will open from ${FIRST_CLASS[subsystem]}.`)}
             </p>
           )}
-          {availability === 'soon' && (
-            <p className="cn-notice" role="status" data-testid="cn-soon">
-              {t(`Bientôt : les nombres croisés de ta classe (${className}), avec de plus grandes grilles, arrivent dans une prochaine version.`,
-                `Coming soon: the number crossword for your class (${className}), with bigger grids, will come in a future version.`)}
-            </p>
-          )}
-
           {availability === 'playable' && (
             <div className="pyramid-select__section">
               <label className="pyramid-select__label" htmlFor="cn-seed">
@@ -530,7 +540,7 @@ export default function CrossNumberGame() {
   const resolvedCount = game.entries.filter(e => isResolved(play, e.id)).length
 
   return (
-    <div className="pyramid-game cn-game" style={{ paddingBottom: bottomHeight + 16 }}>
+    <div className="pyramid-game cn-game" ref={gameRef} style={{ paddingBottom: bottomHeight + 16 }}>
       <div className="pyramid-game__header cn-header">
         <h1>{title} - {game.className}</h1>
         <div className="pyramid-game__progress" data-testid="cn-progress">
