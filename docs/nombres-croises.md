@@ -3,7 +3,7 @@
 - **Date** : 2026-11-08
 - **Statut** : lot A fusionné (pull request n° 24, fusion 5c4e303). Relu par le reviewer (PRÊT) ; corrections de réglages décidées par Isaac le 2026-11-08 après lecture de l'échantillon par l'educator (§4 bis). Non validé par un enseignant (démonstration seulement, D14 ; Q7 ouvert).
 - **Lot B** (interface, niveaux 1 et 2) : fusionné (pull request n° 25, fusion 2e8cffa), voir §8. Relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserves 1 et 3 corrigées, sans nouvelle relecture) ; essai d'Isaac sur vrai téléphone positif le 2026-11-08 ; 13 choix provisoires du §8.3 confirmés par Isaac le 2026-11-08.
-- **Lot C** (niveau 3 : CM1, CM2, Class 5, Class 6 à l'écran ; nouveaux types de définitions ; BODMAS en Class 4) : fusionné (pull request n° 27, fusion 3bcf0e7), relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserve R1 corrigée sur décision d'Isaac ; second passage ciblé le 2026-11-08 : PRÊT), échantillon non lu par Isaac, essai d'Isaac sur vrai téléphone positif le 2026-11-08 ; voir §9.
+- **Lot C** (niveau 3 : CM1, CM2, Class 5, Class 6 à l'écran ; nouveaux types de définitions ; BODMAS en Class 4) : fusionné (pull request n° 27, fusion 3bcf0e7), relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserve R1 corrigée sur décision d'Isaac ; second passage ciblé le 2026-11-08 : PRÊT), échantillon lu par Isaac le 2026-11-08, essai d'Isaac sur vrai téléphone positif le 2026-11-08 ; voir §9.
 - **Source des règles** : `DIBIE/pedagogie/cadrage-phase5-nombres-croises-v0.1.md` (dépôt JARVIS), décisions P1 à P12 validées par Isaac le 2026-11-08 (option a partout).
 
 ## 1. Fichiers
@@ -292,7 +292,7 @@ Source : cadrage §3 (ligne « Lot C »), §4.1, §4.3, §6 ; décisions P1 à P
 
 ### 9.6 Limites du lot C
 
-- Relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserve R1 corrigée sur décision d'Isaac ; second passage ciblé le 2026-11-08 : PRÊT) ; échantillon non lu par l'educator ni par Isaac ; aucun enseignant (D14, Q7).
+- Relu une fois par le reviewer le 2026-11-08 (NON PRÊT, réserve R1 corrigée sur décision d'Isaac ; second passage ciblé le 2026-11-08 : PRÊT) ; échantillon lu par Isaac le 2026-11-08, pas par l'educator ; aucun enseignant (D14, Q7).
 - Essai d'Isaac sur vrai téléphone positif le 2026-11-08 (sans détail rapporté) ; temps de génération non mesuré sur téléphone.
 - Libellés anglais des types nouveaux (« the number after », « ten thousands ») et français (« unités de mille ») à confirmer.
 - Suite Playwright complète non relancée (seul `e2e/nombres-croises.spec.js`).
