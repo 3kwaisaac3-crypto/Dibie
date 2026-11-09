@@ -223,9 +223,10 @@ test('quelques définitions finales et d\'origine, relues mot pour mot', () => {
   assert.equal(def('G085', 'MÛRE').definition, 'Après .......... réflexion, j\'ai refusé.')
 })
 
-test('métadonnées (§4.1) : statut BROUILLON, droits déclarés par Isaac, source tracée', () => {
+test('métadonnées (§4.1) : statut VALIDÉE PAR ISAAC (2026-11-09), droits déclarés par Isaac, source tracée', () => {
   for (const g of DATA.grilles) {
-    assert.equal(g.statut, 'BROUILLON')
+    assert.equal(g.statut, 'VALIDÉE PAR ISAAC')
+    assert.deepEqual(g.validation, { par: 'Isaac', date: '2026-11-09', mention: 'validé par Isaac', reference: '« Je valide les 12 » (décision d\'Isaac du 2026-11-09)' })
     assert.equal(g.droits.statut, 'déclarés par Isaac')
     assert.equal(g.type_activite, 'mots croisés')
     assert.match(g.auteur, /kwa isaac/i)

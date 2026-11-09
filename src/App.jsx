@@ -20,10 +20,11 @@ import DefinitionGame from './pages/DefinitionGame'
 import MemoryGame from './pages/MemoryGame'
 import TablesMemoryGame from './pages/TablesMemoryGame'
 import CrossNumberGame from './pages/CrossNumberGame'
+import MasterGridGame from './pages/MasterGridGame'
 
 import './App.css'
 
-const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'mysteryGame', 'pyramidGame', 'pairsGame', 'definitionGame', 'memoryGame', 'tablesMemoryGame', 'crossNumberGame']
+const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'mysteryGame', 'pyramidGame', 'pairsGame', 'definitionGame', 'memoryGame', 'tablesMemoryGame', 'crossNumberGame', 'masterGridGame']
 const ADULT_PAGES = ['roleSelect', 'teacherDashboard', 'parentDashboard', 'adminDashboard']
 
 export default function App() {
@@ -97,6 +98,8 @@ export default function App() {
       {page === 'tablesMemoryGame' && <TablesMemoryGame />}
       {/* Nombres croisés : grilles générées, sans vocabulaire à attendre */}
       {page === 'crossNumberGame' && <CrossNumberGame />}
+      {/* Grilles du maître : grilles fixes embarquées, sans vocabulaire à attendre */}
+      {page === 'masterGridGame' && <MasterGridGame />}
 
       {/* Sélecteur de langue global ; l'écran des profils a le sien */}
       {page !== 'profiles' && (

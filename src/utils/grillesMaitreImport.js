@@ -225,6 +225,7 @@ export function importGrid(bytes, fiche, source) {
     copyright: parsed.entete.Copyright || null,
     droits: fiche.droits,
     statut: fiche.statut,
+    validation: fiche.validation ?? null,
     source: {
       chemin: source.chemin,
       copies: source.copies,

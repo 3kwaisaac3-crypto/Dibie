@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { GRID_SIZE, normalizeTypedLetter, backspaceAction, answerChanges, letterCountLabel } from '../utils/crosswordLayout'
+import { normalizeTypedLetter, backspaceAction, answerChanges, letterCountLabel } from '../utils/crosswordLayout'
 import '../styles/EclipseGrid.css'
 
-// game : grille préparée par createCrosswordGame (CrosswordGame.jsx)
-export default function EclipseGrid({ game, language, onAnswerCorrect, onAnswerRemoved, onBack, onWordsPlaced, onLettersChange, subject }) {
+// game : grille préparée par createCrosswordGame (CrosswordGame.jsx), ou par
+// toEclipseGame (Grilles du maître, MasterGridGame.jsx). La taille est lue dans
+// game.grid : mots croisés toujours 15 × 15 ; Grilles du maître, largeur ×
+// hauteur variables (phase 6, lot B).
+// title (facultatif) remplace le titre « Mots croisés — SUJET ».
+export default function EclipseGrid({ game, language, onAnswerCorrect, onAnswerRemoved, onBack, onWordsPlaced, onLettersChange, subject, title }) {
   const [grid, setGrid] = useState([])
   const [placements, setPlacements] = useState([])
   const [userAnswers, setUserAnswers] = useState({})
@@ -115,6 +119,10 @@ export default function EclipseGrid({ game, language, onAnswerCorrect, onAnswerR
     setSelectedCell([row, col])
   }
 
+  // Taille réelle de la grille : bornes des flèches, colonnes et lignes du CSS
+  const height = grid.length
+  const width = grid[0]?.length || 0
+
   const handleKeyDown = (e, row, col) => {
     // Caractère tapé au clavier : traité ici plutôt que par onChange, qui ne se
     // déclenche pas si la case contient déjà la même lettre (case de croisement).
@@ -130,8 +138,8 @@ export default function EclipseGrid({ game, language, onAnswerCorrect, onAnswerR
     if (e.key === 'ArrowRight') {
       e.preventDefault()
       let c = col + 1
-      while (c < GRID_SIZE && !grid[row]?.[c]) c++
-      if (c < GRID_SIZE) setSelectedCell([row, c])
+      while (c < width && !grid[row]?.[c]) c++
+      if (c < width) setSelectedCell([row, c])
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault()
       let c = col - 1
@@ -140,8 +148,8 @@ export default function EclipseGrid({ game, language, onAnswerCorrect, onAnswerR
     } else if (e.key === 'ArrowDown') {
       e.preventDefault()
       let r = row + 1
-      while (r < GRID_SIZE && !grid[r]?.[col]) r++
-      if (r < GRID_SIZE) setSelectedCell([r, col])
+      while (r < height && !grid[r]?.[col]) r++
+      if (r < height) setSelectedCell([r, col])
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
       let r = row - 1
@@ -168,15 +176,19 @@ export default function EclipseGrid({ game, language, onAnswerCorrect, onAnswerR
   const down = placements.filter(p => p.dir === 'down').sort((a, b) => a.clueNum - b.clueNum)
 
   return (
-    <div className="eclipse-grid">
+    <div className="eclipse-grid" style={{ '--eclipse-cols': width, '--eclipse-rows': height }}>
       <div className="eclipse-header">
         <button onClick={onBack} className="eclipse-back-btn">
           ← {language === 'fr' ? 'Retour' : 'Back'}
         </button>
         {/* Titre avec le domaine des mots (décision d'Isaac du 2026-10-07) : « Mots croisés — MAISON » */}
         <h2>
-          {language === 'fr' ? 'Mots croisés' : 'Crossword'}
-          {subject ? ` — ${subject.toUpperCase()}` : ''}
+          {title ?? (
+            <>
+              {language === 'fr' ? 'Mots croisés' : 'Crossword'}
+              {subject ? ` — ${subject.toUpperCase()}` : ''}
+            </>
+          )}
         </h2>
       </div>
 
