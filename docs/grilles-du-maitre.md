@@ -143,7 +143,9 @@ Aucun débordement horizontal ; grille entière dans la largeur (de 16,1 à 303,
 - `npm test` : 359 tests, 357 réussis, 0 échec, 2 ignorés (anciens). Lint : 0 erreur. Build : réussi (avertissement habituel de Vite sur un bloc de plus de 500 kB).
 - Suite Playwright complète : **non lancée** (consigne du lot).
 
-### 8.5 Choix provisoires du developer (à confirmer par Isaac)
+### 8.5 Choix du developer (confirmés par Isaac le 2026-11-09)
+
+Les 11 choix n° 1, 2 et 4 à 12 ont été confirmés par Isaac le 2026-11-09 (« Je confirme les 11 ») ; le n° 3 était déjà une décision. Les n° 11 (réponses accentuées) et 12 (consignes) pourront être repris au lot C.
 
 1. **Langue des grilles** : toutes les grilles du niveau sont proposées, **quelle que soit la langue de l'interface** ; chaque grille reste dans la langue de son auteur (pas de traduction), sa langue est indiquée (« en anglais », « in French »), et les grilles dans la langue de l'interface viennent en premier. Une phrase le rappelle sous la liste. Raison : une grille anglaise est utile à un élève francophone (et inversement), et le premier lot n'a que 5 grilles par niveau au plus.
 2. **Niveau** : celui du profil seulement, sans choix à l'écran (comme les nombres croisés) ; aucune grille en SIL-CP, d'où un message.
