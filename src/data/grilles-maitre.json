@@ -1,0 +1,3439 @@
+{
+  "format": "dibie-grilles-maitre",
+  "version": 1,
+  "description": "Grilles du maître (L16) importées des fichiers EclipseCrossword d'Isaac. Généré par scripts/grilles-maitre-import.js : ne pas modifier à la main.",
+  "selection": "selection-lot0-v0.1.md (dépôt JARVIS), validée par Isaac le 2026-11-09",
+  "dateImport": "2026-11-09",
+  "grilles": [
+    {
+      "id": "G173",
+      "titre": "pluriels des mots 3",
+      "titreOrigine": "pluriels des mots 3",
+      "matiere": "Français",
+      "niveau": "CM1-CM2",
+      "niveauStatut": "confirmé par Isaac le 2026-11-09",
+      "classe": "CM2",
+      "sous_systeme": null,
+      "langue": "fr",
+      "theme": "Orthographe : pluriel en -al / -ail",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": "CM2 : pluriel en -al / -ail (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)",
+      "auteur": "kwa isaac",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DIBIE_SOURCES_A_ANALYSER\\03_DOC_OLEZOA\\pluriels des mots 3.ecw",
+        "copies": [
+          "J:\\DIBIE_SOURCES_A_ANALYSER\\03_DOC_OLEZOA\\pluriels des mots 3.ecw",
+          "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\PLURIEL DES MOTS\\pluriels des mots 3.ecw",
+          "J:\\DOC DIBIE\\NMI DOC\\PLURIEL DES MOTS\\pluriels des mots 3.ecw"
+        ],
+        "sha256": "be8c3b511ec57b0835685ea417174c97f165bf0420486c67a6fbecf1b414d5b6",
+        "octets": 1023,
+        "logiciel": "EclipseCrossword 1.2.61",
+        "tailleDeclaree": {
+          "largeur": 15,
+          "hauteur": 15
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 12,
+      "hauteur": 13,
+      "lignes": [
+        "..CHEVAUX...",
+        "..A.........",
+        "..R.........",
+        "..N...B.....",
+        "..A..RAILS..",
+        "..V...L.....",
+        "CHACALS..B..",
+        "A.L.N....O..",
+        "N.S.I....C..",
+        "A...M.REGALS",
+        "U...A....U..",
+        "X.JOURNAUX..",
+        "....X......."
+      ],
+      "mots": [
+        {
+          "id": "G173-1H",
+          "numero": 1,
+          "direction": "across",
+          "ligne": 0,
+          "colonne": 2,
+          "reponse": "CHEVAUX",
+          "grille": "CHEVAUX",
+          "longueur": 7,
+          "definition": "Le cheval, les ________________.",
+          "definitionOrigine": "Le cheval, les ________________.",
+          "positionSource": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "id": "G173-3H",
+          "numero": 3,
+          "direction": "across",
+          "ligne": 4,
+          "colonne": 5,
+          "reponse": "RAILS",
+          "grille": "RAILS",
+          "longueur": 5,
+          "definition": "Ce rail, ces ______________.",
+          "definitionOrigine": "Ce rail, ces ______________.",
+          "positionSource": {
+            "x": 6,
+            "y": 7
+          }
+        },
+        {
+          "id": "G173-4H",
+          "numero": 4,
+          "direction": "across",
+          "ligne": 6,
+          "colonne": 0,
+          "reponse": "CHACALS",
+          "grille": "CHACALS",
+          "longueur": 7,
+          "definition": "Un chacal, des ____________________.",
+          "definitionOrigine": "Un chacal, des ____________________.",
+          "positionSource": {
+            "x": 1,
+            "y": 9
+          }
+        },
+        {
+          "id": "G173-7H",
+          "numero": 7,
+          "direction": "across",
+          "ligne": 9,
+          "colonne": 6,
+          "reponse": "RÉGALS",
+          "grille": "REGALS",
+          "longueur": 6,
+          "definition": "Le régal, les _______________.",
+          "definitionOrigine": "Le régal, les _______________.",
+          "positionSource": {
+            "x": 7,
+            "y": 12
+          }
+        },
+        {
+          "id": "G173-8H",
+          "numero": 8,
+          "direction": "across",
+          "ligne": 11,
+          "colonne": 2,
+          "reponse": "JOURNAUX",
+          "grille": "JOURNAUX",
+          "longueur": 8,
+          "definition": "Un journal, des _______________.",
+          "definitionOrigine": "un journal, des _______________.",
+          "positionSource": {
+            "x": 3,
+            "y": 14
+          }
+        },
+        {
+          "id": "G173-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 2,
+          "reponse": "CARNAVALS",
+          "grille": "CARNAVALS",
+          "longueur": 9,
+          "definition": "Le carnaval, les ________________.",
+          "definitionOrigine": "Le carnaval, les ________________.",
+          "positionSource": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "id": "G173-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 3,
+          "colonne": 6,
+          "reponse": "BALS",
+          "grille": "BALS",
+          "longueur": 4,
+          "definition": "Un bal, des ________________.",
+          "definitionOrigine": "Un bal, des ________________.",
+          "positionSource": {
+            "x": 7,
+            "y": 6
+          }
+        },
+        {
+          "id": "G173-4V",
+          "numero": 4,
+          "direction": "down",
+          "ligne": 6,
+          "colonne": 0,
+          "reponse": "CANAUX",
+          "grille": "CANAUX",
+          "longueur": 6,
+          "definition": "Le canal, les __________________.",
+          "definitionOrigine": "Le canal, les __________________.",
+          "positionSource": {
+            "x": 1,
+            "y": 9
+          }
+        },
+        {
+          "id": "G173-5V",
+          "numero": 5,
+          "direction": "down",
+          "ligne": 6,
+          "colonne": 4,
+          "reponse": "ANIMAUX",
+          "grille": "ANIMAUX",
+          "longueur": 7,
+          "definition": "Un animal, des _______________.",
+          "definitionOrigine": "Un animal, des _______________.",
+          "positionSource": {
+            "x": 5,
+            "y": 9
+          }
+        },
+        {
+          "id": "G173-6V",
+          "numero": 6,
+          "direction": "down",
+          "ligne": 6,
+          "colonne": 9,
+          "reponse": "BOCAUX",
+          "grille": "BOCAUX",
+          "longueur": 6,
+          "definition": "Ce bocal, ces _______________.",
+          "definitionOrigine": "Ce bocal, ces _______________.",
+          "positionSource": {
+            "x": 10,
+            "y": 9
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C1",
+          "mot": "G173-8H",
+          "reponse": "JOURNAUX",
+          "type": "forme",
+          "avant": "un journal, des",
+          "apres": "Un journal, des",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        }
+      ],
+      "normalisations": []
+    },
+    {
+      "id": "G172",
+      "titre": "pluriels des mots 2",
+      "titreOrigine": "pluriels des mots 2",
+      "matiere": "Français",
+      "niveau": "CM1-CM2",
+      "niveauStatut": "confirmé par Isaac le 2026-11-09",
+      "classe": "CM2",
+      "sous_systeme": null,
+      "langue": "fr",
+      "theme": "Orthographe : pluriels en -eau, -ou, -eu, -ail, noms invariables",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": "CM2 : pluriel en -ail, -ou, -eu (aussi CE1 : pluriel des noms) (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)",
+      "auteur": "kwa isaac",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DIBIE_SOURCES_A_ANALYSER\\03_DOC_OLEZOA\\pluriels des mots 2.ecw",
+        "copies": [
+          "J:\\DIBIE_SOURCES_A_ANALYSER\\03_DOC_OLEZOA\\pluriels des mots 2.ecw",
+          "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\PLURIEL DES MOTS\\pluriels des mots 2.ecw",
+          "J:\\DOC DIBIE\\NMI DOC\\PLURIEL DES MOTS\\pluriels des mots 2.ecw"
+        ],
+        "sha256": "20976d052833f871d5f524b37c4a5ad8c244b0152535194257b5484758ff548a",
+        "octets": 1002,
+        "logiciel": "EclipseCrossword 1.2.61",
+        "tailleDeclaree": {
+          "largeur": 15,
+          "hauteur": 15
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 11,
+      "hauteur": 14,
+      "lignes": [
+        "......T....",
+        "....N.R....",
+        "..CHEVAL...",
+        "....Z.V....",
+        "......A..B.",
+        "....FOURMIS",
+        "......X..J.",
+        ".H...M.F.O.",
+        ".I.CHAPEAUX",
+        ".B...I.U.X.",
+        "SOURIS.X...",
+        ".U...O.....",
+        ".X...N.....",
+        ".....S....."
+      ],
+      "mots": [
+        {
+          "id": "G172-3H",
+          "numero": 3,
+          "direction": "across",
+          "ligne": 2,
+          "colonne": 2,
+          "reponse": "CHEVAL",
+          "grille": "CHEVAL",
+          "longueur": 6,
+          "definition": "Ces chevaux, ce ______________.",
+          "definitionOrigine": "Ce cheval, ces ______________.",
+          "positionSource": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "id": "G172-5H",
+          "numero": 5,
+          "direction": "across",
+          "ligne": 5,
+          "colonne": 4,
+          "reponse": "FOURMIS",
+          "grille": "FOURMIS",
+          "longueur": 7,
+          "definition": "Une fourmi, des ______________.",
+          "definitionOrigine": "Une fourmi, des ______________.",
+          "positionSource": {
+            "x": 5,
+            "y": 6
+          }
+        },
+        {
+          "id": "G172-9H",
+          "numero": 9,
+          "direction": "across",
+          "ligne": 8,
+          "colonne": 3,
+          "reponse": "CHAPEAUX",
+          "grille": "CHAPEAUX",
+          "longueur": 8,
+          "definition": "Le chapeau, les ____________.",
+          "definitionOrigine": "Le chapeau, les ____________.",
+          "positionSource": {
+            "x": 4,
+            "y": 9
+          }
+        },
+        {
+          "id": "G172-10H",
+          "numero": 10,
+          "direction": "across",
+          "ligne": 10,
+          "colonne": 0,
+          "reponse": "SOURIS",
+          "grille": "SOURIS",
+          "longueur": 6,
+          "definition": "La souris, les ________________.",
+          "definitionOrigine": "La souri, les ________________.",
+          "positionSource": {
+            "x": 1,
+            "y": 11
+          }
+        },
+        {
+          "id": "G172-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 6,
+          "reponse": "TRAVAUX",
+          "grille": "TRAVAUX",
+          "longueur": 7,
+          "definition": "Un travail, des ____________.",
+          "definitionOrigine": "Un travail, des ____________.",
+          "positionSource": {
+            "x": 7,
+            "y": 1
+          }
+        },
+        {
+          "id": "G172-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 1,
+          "colonne": 4,
+          "reponse": "NEZ",
+          "grille": "NEZ",
+          "longueur": 3,
+          "definition": "Un nez, des _______________.",
+          "definitionOrigine": "Un nez, des _______________.",
+          "positionSource": {
+            "x": 5,
+            "y": 2
+          }
+        },
+        {
+          "id": "G172-4V",
+          "numero": 4,
+          "direction": "down",
+          "ligne": 4,
+          "colonne": 9,
+          "reponse": "BIJOUX",
+          "grille": "BIJOUX",
+          "longueur": 6,
+          "definition": "Mon bijou, vos _______________.",
+          "definitionOrigine": "Mon bijou, vos _______________.",
+          "positionSource": {
+            "x": 10,
+            "y": 5
+          }
+        },
+        {
+          "id": "G172-6V",
+          "numero": 6,
+          "direction": "down",
+          "ligne": 7,
+          "colonne": 1,
+          "reponse": "HIBOUX",
+          "grille": "HIBOUX",
+          "longueur": 6,
+          "definition": "Un hibou, des _________________.",
+          "definitionOrigine": "Un hibou, des _________________.",
+          "positionSource": {
+            "x": 2,
+            "y": 8
+          }
+        },
+        {
+          "id": "G172-7V",
+          "numero": 7,
+          "direction": "down",
+          "ligne": 7,
+          "colonne": 5,
+          "reponse": "MAISONS",
+          "grille": "MAISONS",
+          "longueur": 7,
+          "definition": "Une maison, des ______________.",
+          "definitionOrigine": "Une maison, des ______________.",
+          "positionSource": {
+            "x": 6,
+            "y": 8
+          }
+        },
+        {
+          "id": "G172-8V",
+          "numero": 8,
+          "direction": "down",
+          "ligne": 7,
+          "colonne": 7,
+          "reponse": "FEUX",
+          "grille": "FEUX",
+          "longueur": 4,
+          "definition": "Le feu, les _______________.",
+          "definitionOrigine": "Le feu, les _______________.",
+          "positionSource": {
+            "x": 8,
+            "y": 8
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C2",
+          "mot": "G172-3H",
+          "reponse": "CHEVAL",
+          "type": "réponse fausse (corrigée par le texte seul)",
+          "avant": "Ce cheval, ces",
+          "apres": "Ces chevaux, ce",
+          "decision": "acceptée par Isaac le 2026-11-09 (« CHEVAL : corriger le texte »)",
+          "remarque": "inverse le sens de l'exercice pour ce mot (du pluriel vers le singulier)"
+        },
+        {
+          "id": "C3",
+          "mot": "G172-10H",
+          "reponse": "SOURIS",
+          "type": "faute",
+          "avant": "La souri, les",
+          "apres": "La souris, les",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        }
+      ],
+      "normalisations": []
+    },
+    {
+      "id": "G093",
+      "titre": "Les mots qui se terminent par -ail, -aille, -eil, -eille,",
+      "titreOrigine": "Les mots qui se terminent par -ail, -aille, -eil, -eille,",
+      "matiere": "Français",
+      "niveau": "CM1-CM2",
+      "niveauStatut": "confirmé par Isaac le 2026-11-09",
+      "classe": null,
+      "sous_systeme": null,
+      "langue": "fr",
+      "theme": "Orthographe : mots en -ail, -aille, -eil, -eille",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": "CM2 : finales -ail, -eil (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)",
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DIBIE_SOURCES_A_ANALYSER\\03_DOC_OLEZOA\\Les mots qui se terminent par -ail, -aille, -eil, -eille,.ecw",
+        "copies": [
+          "J:\\DIBIE_SOURCES_A_ANALYSER\\03_DOC_OLEZOA\\Les mots qui se terminent par -ail, -aille, -eil, -eille,.ecw",
+          "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\TERMINAISON DES MOTS\\Les mots qui se terminent par -ail, -aille, -eil, -eille,.ecw",
+          "J:\\DOC DIBIE\\NMI DOC\\TERMINAISON DES MOTS\\Les mots qui se terminent par -ail, -aille, -eil, -eille,.ecw"
+        ],
+        "sha256": "093a43d0f743dc6814d0a236212ece52fad8f39148d4fe5229ae59ff4a094356",
+        "octets": 1250,
+        "logiciel": "EclipseCrossword 1.3.63",
+        "tailleDeclaree": {
+          "largeur": 15,
+          "hauteur": 15
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 13,
+      "hauteur": 10,
+      "lignes": [
+        ".....T...C...",
+        ".....R...O...",
+        "..DETAIL.N.D.",
+        ".....V...S.E.",
+        ".TRAVAILLE.T.",
+        "..E..I...I.A.",
+        "REVEILLE.L.I.",
+        "..E......L.L.",
+        "..I..CONSEILS",
+        "..L........E."
+      ],
+      "mots": [
+        {
+          "id": "G093-3H",
+          "numero": 3,
+          "direction": "across",
+          "ligne": 2,
+          "colonne": 2,
+          "reponse": "DÉTAIL",
+          "grille": "DETAIL",
+          "longueur": 6,
+          "definition": "Les fabricants vendent en gros et les petits commerçants vendent au ________.",
+          "definitionOrigine": "Les fabricants vendent en gros et les pétits commerçants vendent au ________.",
+          "positionSource": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "id": "G093-5H",
+          "numero": 5,
+          "direction": "across",
+          "ligne": 4,
+          "colonne": 1,
+          "reponse": "TRAVAILLE",
+          "grille": "TRAVAILLE",
+          "longueur": 9,
+          "definition": "Le médecin pédiatre _________________ dans son cabinet.",
+          "definitionOrigine": "Le médecin pédiatre _________________ dans son cabinet.",
+          "positionSource": {
+            "x": 4,
+            "y": 5
+          }
+        },
+        {
+          "id": "G093-7H",
+          "numero": 7,
+          "direction": "across",
+          "ligne": 6,
+          "colonne": 0,
+          "reponse": "RÉVEILLE",
+          "grille": "REVEILLE",
+          "longueur": 8,
+          "definition": "Mon père me ___________________ tôt pour partir à l'école.",
+          "definitionOrigine": "Mon père me ___________________ tôt pour partir à l'école.",
+          "positionSource": {
+            "x": 3,
+            "y": 7
+          }
+        },
+        {
+          "id": "G093-8H",
+          "numero": 8,
+          "direction": "across",
+          "ligne": 8,
+          "colonne": 5,
+          "reponse": "CONSEILS",
+          "grille": "CONSEILS",
+          "longueur": 8,
+          "definition": "Il leur donne des _________________ pour s’occuper de leur enfant.",
+          "definitionOrigine": "Il leur donne des _________________ pour s’occuper de leur enfant.",
+          "positionSource": {
+            "x": 8,
+            "y": 9
+          }
+        },
+        {
+          "id": "G093-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 5,
+          "reponse": "TRAVAIL",
+          "grille": "TRAVAIL",
+          "longueur": 7,
+          "definition": "Son __________________ consiste à surveiller le développement des bébés et des enfants et à les soigner.",
+          "definitionOrigine": "Son __________________ consiste à surveiller le développement des bébés et  des enfants et à les soigner.",
+          "positionSource": {
+            "x": 8,
+            "y": 1
+          }
+        },
+        {
+          "id": "G093-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 9,
+          "reponse": "CONSEILLE",
+          "grille": "CONSEILLE",
+          "longueur": 9,
+          "definition": "Très souvent l'enseignant _____________ aussi les parents.",
+          "definitionOrigine": "Très souvent l'enseignant _____________ aussi les parents.",
+          "positionSource": {
+            "x": 12,
+            "y": 1
+          }
+        },
+        {
+          "id": "G093-4V",
+          "numero": 4,
+          "direction": "down",
+          "ligne": 2,
+          "colonne": 11,
+          "reponse": "DÉTAILLE",
+          "grille": "DETAILLE",
+          "longueur": 8,
+          "definition": "On ____________ cette marchandise dès 10 h du matin.",
+          "definitionOrigine": "On ____________ cette marchandise dès 10 h du matin.",
+          "positionSource": {
+            "x": 14,
+            "y": 3
+          }
+        },
+        {
+          "id": "G093-6V",
+          "numero": 6,
+          "direction": "down",
+          "ligne": 4,
+          "colonne": 2,
+          "reponse": "RÉVEIL",
+          "grille": "REVEIL",
+          "longueur": 6,
+          "definition": "Le _______________ de papa sonne tous les matins à 5 heures.",
+          "definitionOrigine": "Le  _______________ de papa sonne tous les matins à 5 heures.",
+          "positionSource": {
+            "x": 5,
+            "y": 5
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C4",
+          "mot": "G093-3H",
+          "reponse": "DÉTAIL",
+          "type": "faute",
+          "avant": "pétits",
+          "apres": "petits",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        }
+      ],
+      "normalisations": [
+        {
+          "mot": "G093-1V",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G093-6V",
+          "regle": "espaces multiples ou en bordure"
+        }
+      ]
+    },
+    {
+      "id": "G085",
+      "titre": "les homonymes plus 1",
+      "titreOrigine": "les homonymes plus 1",
+      "matiere": "Français",
+      "niveau": "CM1-CM2",
+      "niveauStatut": "confirmé par Isaac le 2026-11-09",
+      "classe": null,
+      "sous_systeme": null,
+      "langue": "fr",
+      "theme": "Homophones (homonymes)",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": "CM1 : homonymes ; CM2 : on/ont, la/là, peu/peut (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)",
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\homophones et homographes\\les homonymes\\les homonymes plus 1.ecw",
+        "copies": [
+          "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\homophones et homographes\\les homonymes\\les homonymes plus 1.ecw",
+          "J:\\DOC DIBIE\\NMI DOC\\homophones et homographes\\les homonymes\\les homonymes plus 1.ecw"
+        ],
+        "sha256": "b65c3fbb651dc61286cea4dc007d97fff2583fdacbdbf1660572df0cc71ba802",
+        "octets": 1920,
+        "logiciel": "EclipseCrossword 1.3.63",
+        "tailleDeclaree": {
+          "largeur": 20,
+          "hauteur": 20
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 13,
+      "hauteur": 15,
+      "lignes": [
+        ".......B..L.M",
+        "......BALLADE",
+        ".......L.A..T",
+        ".....O.A....T",
+        ".....N.D....R",
+        "..MAITRE...CE",
+        "..U........O.",
+        "CORPS....MUR.",
+        ".N.E.....U...",
+        "...U.S.AIR...",
+        ".METRE.I.ERRE",
+        "..R....R.....",
+        ".PEUX..E.....",
+        ".E...........",
+        ".U..........."
+      ],
+      "mots": [
+        {
+          "id": "G085-4H",
+          "numero": 4,
+          "direction": "across",
+          "ligne": 1,
+          "colonne": 6,
+          "reponse": "BALLADE",
+          "grille": "BALLADE",
+          "longueur": 7,
+          "definition": "Missè Ngoh est l'auteur de ma .............. préférée.",
+          "definitionOrigine": "Missè Ngoh est l'auteur de ma .............. préférée.",
+          "positionSource": {
+            "x": 14,
+            "y": 5
+          }
+        },
+        {
+          "id": "G085-7H",
+          "numero": 7,
+          "direction": "across",
+          "ligne": 5,
+          "colonne": 2,
+          "reponse": "MAÎTRE",
+          "grille": "MAITRE",
+          "longueur": 6,
+          "definition": "Il est le .............. chez lui.",
+          "definitionOrigine": "Il est le .............. chez lui.",
+          "positionSource": {
+            "x": 10,
+            "y": 9
+          }
+        },
+        {
+          "id": "G085-8H",
+          "numero": 8,
+          "direction": "across",
+          "ligne": 5,
+          "colonne": 11,
+          "reponse": "CE",
+          "grille": "CE",
+          "longueur": 2,
+          "definition": "........ voyage m'a coûté une fortune.",
+          "definitionOrigine": "........ voyage m'a couté un e fortune.",
+          "positionSource": {
+            "x": 19,
+            "y": 9
+          }
+        },
+        {
+          "id": "G085-9H",
+          "numero": 9,
+          "direction": "across",
+          "ligne": 7,
+          "colonne": 0,
+          "reponse": "CORPS",
+          "grille": "CORPS",
+          "longueur": 5,
+          "definition": "Le squelette soutient le ................ humain.",
+          "definitionOrigine": "On a retrouvé le ................ de la victime dans la rivière.",
+          "positionSource": {
+            "x": 8,
+            "y": 11
+          }
+        },
+        {
+          "id": "G085-12H",
+          "numero": 12,
+          "direction": "across",
+          "ligne": 7,
+          "colonne": 9,
+          "reponse": "MÛR",
+          "grille": "MUR",
+          "longueur": 3,
+          "definition": "Il a atteint l’âge …….....",
+          "definitionOrigine": "Il a atteint l’âge …….....",
+          "positionSource": {
+            "x": 17,
+            "y": 11
+          }
+        },
+        {
+          "id": "G085-14H",
+          "numero": 14,
+          "direction": "across",
+          "ligne": 9,
+          "colonne": 7,
+          "reponse": "AIR",
+          "grille": "AIR",
+          "longueur": 3,
+          "definition": "Donnez un peu d'......... dans la pièce.",
+          "definitionOrigine": "Donnez un peu d'......... dans la pièce.",
+          "positionSource": {
+            "x": 15,
+            "y": 13
+          }
+        },
+        {
+          "id": "G085-15H",
+          "numero": 15,
+          "direction": "across",
+          "ligne": 10,
+          "colonne": 1,
+          "reponse": "MÈTRE",
+          "grille": "METRE",
+          "longueur": 5,
+          "definition": "Le suspect est un homme d'un ............... quatre-vingts.",
+          "definitionOrigine": "Le suspect est un homme d'un ............... quatre-vingts.",
+          "positionSource": {
+            "x": 9,
+            "y": 14
+          }
+        },
+        {
+          "id": "G085-17H",
+          "numero": 17,
+          "direction": "across",
+          "ligne": 10,
+          "colonne": 9,
+          "reponse": "ERRE",
+          "grille": "ERRE",
+          "longueur": 4,
+          "definition": "Ce pauvre homme ........ dans le village.",
+          "definitionOrigine": "Ce pauvre type ........ dans le village.",
+          "positionSource": {
+            "x": 17,
+            "y": 14
+          }
+        },
+        {
+          "id": "G085-18H",
+          "numero": 18,
+          "direction": "across",
+          "ligne": 12,
+          "colonne": 1,
+          "reponse": "PEUX",
+          "grille": "PEUX",
+          "longueur": 4,
+          "definition": "Je ne ......... pas le porter toute seule.",
+          "definitionOrigine": "Je ne ......... pas le porter toute seule.",
+          "positionSource": {
+            "x": 9,
+            "y": 16
+          }
+        },
+        {
+          "id": "G085-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 7,
+          "reponse": "BALADE",
+          "grille": "BALADE",
+          "longueur": 6,
+          "definition": "Toute la famille était en ............... sur les bords du lac.",
+          "definitionOrigine": "Toute la famille etait en ............... sur les bords du lac.",
+          "positionSource": {
+            "x": 15,
+            "y": 4
+          }
+        },
+        {
+          "id": "G085-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 10,
+          "reponse": "LA",
+          "grille": "LA",
+          "longueur": 2,
+          "definition": "Cette femme, je ne ............. connais pas.",
+          "definitionOrigine": "cette femme, je ne ............. connais pas.",
+          "positionSource": {
+            "x": 18,
+            "y": 4
+          }
+        },
+        {
+          "id": "G085-3V",
+          "numero": 3,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 12,
+          "reponse": "METTRE",
+          "grille": "METTRE",
+          "longueur": 6,
+          "definition": "Je n'arrive pas à ............... la main sur lui.",
+          "definitionOrigine": "Je n'arrive pas à ............... la main sur lui.",
+          "positionSource": {
+            "x": 20,
+            "y": 4
+          }
+        },
+        {
+          "id": "G085-5V",
+          "numero": 5,
+          "direction": "down",
+          "ligne": 1,
+          "colonne": 9,
+          "reponse": "LÀ",
+          "grille": "LA",
+          "longueur": 2,
+          "definition": "Est-ce que je peux lui parler? Non il n'est pas ........",
+          "definitionOrigine": "Est-ce que je peux lui parler? Non il n'est pas ........",
+          "positionSource": {
+            "x": 17,
+            "y": 5
+          }
+        },
+        {
+          "id": "G085-6V",
+          "numero": 6,
+          "direction": "down",
+          "ligne": 3,
+          "colonne": 5,
+          "reponse": "ONT",
+          "grille": "ONT",
+          "longueur": 3,
+          "definition": "Ils ........ perdu la bataille.",
+          "definitionOrigine": "Ils ........ perdu la bataille.",
+          "positionSource": {
+            "x": 13,
+            "y": 7
+          }
+        },
+        {
+          "id": "G085-7V",
+          "numero": 7,
+          "direction": "down",
+          "ligne": 5,
+          "colonne": 2,
+          "reponse": "MUR",
+          "grille": "MUR",
+          "longueur": 3,
+          "definition": "Le ......... de Berlin a été détruit en 1989.",
+          "definitionOrigine": "Le ......... de Berlin à été détruit en 1989.",
+          "positionSource": {
+            "x": 10,
+            "y": 9
+          }
+        },
+        {
+          "id": "G085-8V",
+          "numero": 8,
+          "direction": "down",
+          "ligne": 5,
+          "colonne": 11,
+          "reponse": "COR",
+          "grille": "COR",
+          "longueur": 3,
+          "definition": "Le ........ est un instrument de musique.",
+          "definitionOrigine": "le ........ est  un instrument de musique.",
+          "positionSource": {
+            "x": 19,
+            "y": 9
+          }
+        },
+        {
+          "id": "G085-10V",
+          "numero": 10,
+          "direction": "down",
+          "ligne": 7,
+          "colonne": 1,
+          "reponse": "ON",
+          "grille": "ON",
+          "longueur": 2,
+          "definition": "...... frappe à la porte.",
+          "definitionOrigine": "...... frappe à la porte.",
+          "positionSource": {
+            "x": 9,
+            "y": 11
+          }
+        },
+        {
+          "id": "G085-11V",
+          "numero": 11,
+          "direction": "down",
+          "ligne": 7,
+          "colonne": 3,
+          "reponse": "PEUT",
+          "grille": "PEUT",
+          "longueur": 4,
+          "definition": "On ....... faire la vaisselle ensemble?",
+          "definitionOrigine": "On ....... faire la vaisselle ensemble?",
+          "positionSource": {
+            "x": 11,
+            "y": 11
+          }
+        },
+        {
+          "id": "G085-12V",
+          "numero": 12,
+          "direction": "down",
+          "ligne": 7,
+          "colonne": 9,
+          "reponse": "MÛRE",
+          "grille": "MURE",
+          "longueur": 4,
+          "definition": "Après .......... réflexion, j'ai refusé.",
+          "definitionOrigine": "Après  .......... réflexion, j'ai refusé.",
+          "positionSource": {
+            "x": 17,
+            "y": 11
+          }
+        },
+        {
+          "id": "G085-13V",
+          "numero": 13,
+          "direction": "down",
+          "ligne": 9,
+          "colonne": 5,
+          "reponse": "SE",
+          "grille": "SE",
+          "longueur": 2,
+          "definition": "Il .... fie entièrement à ces gens-là.",
+          "definitionOrigine": "Il .... fie entièrement à ces gens-là.",
+          "positionSource": {
+            "x": 13,
+            "y": 13
+          }
+        },
+        {
+          "id": "G085-14V",
+          "numero": 14,
+          "direction": "down",
+          "ligne": 9,
+          "colonne": 7,
+          "reponse": "AIRE",
+          "grille": "AIRE",
+          "longueur": 4,
+          "definition": "L'........ d'un rectangle est le produit de sa longueur par sa largeur.",
+          "definitionOrigine": "Cet homme a étendu son ........ dans la pièce.",
+          "positionSource": {
+            "x": 15,
+            "y": 13
+          }
+        },
+        {
+          "id": "G085-16V",
+          "numero": 16,
+          "direction": "down",
+          "ligne": 10,
+          "colonne": 2,
+          "reponse": "ÈRE",
+          "grille": "ERE",
+          "longueur": 3,
+          "definition": "L'......... chrétienne débute à la naissance du Christ.",
+          "definitionOrigine": "L' ......... chretienne débute à la naissance du Christ.",
+          "positionSource": {
+            "x": 10,
+            "y": 14
+          }
+        },
+        {
+          "id": "G085-18V",
+          "numero": 18,
+          "direction": "down",
+          "ligne": 12,
+          "colonne": 1,
+          "reponse": "PEU",
+          "grille": "PEU",
+          "longueur": 3,
+          "definition": "Donne-moi un ........ de pain.",
+          "definitionOrigine": "Donne-moi un ........ de pain.",
+          "positionSource": {
+            "x": 9,
+            "y": 16
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C5",
+          "mot": "G085-8H",
+          "reponse": "CE",
+          "type": "fautes",
+          "avant": "m'a couté un e fortune",
+          "apres": "m'a coûté une fortune",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C6",
+          "mot": "G085-7V",
+          "reponse": "MUR",
+          "type": "faute",
+          "avant": "Berlin à été",
+          "apres": "Berlin a été",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C7",
+          "mot": "G085-16V",
+          "reponse": "ÈRE",
+          "type": "faute",
+          "avant": "L' ......... chretienne",
+          "apres": "L'......... chrétienne",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C8",
+          "mot": "G085-1V",
+          "reponse": "BALADE",
+          "type": "faute",
+          "avant": "famille etait en",
+          "apres": "famille était en",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C9",
+          "mot": "G085-8V",
+          "reponse": "COR",
+          "type": "forme",
+          "avant": "le ........ est  un",
+          "apres": "Le ........ est un",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C9",
+          "mot": "G085-2V",
+          "reponse": "LA",
+          "type": "forme",
+          "avant": "cette femme,",
+          "apres": "Cette femme,",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C10",
+          "mot": "G085-14V",
+          "reponse": "AIRE",
+          "type": "ambiguë",
+          "avant": "Cet homme a étendu son ........ dans la pièce.",
+          "apres": "L'........ d'un rectangle est le produit de sa longueur par sa largeur.",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C11",
+          "mot": "G085-17H",
+          "reponse": "ERRE",
+          "type": "niveau de langue",
+          "avant": "pauvre type",
+          "apres": "pauvre homme",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C12",
+          "mot": "G085-9H",
+          "reponse": "CORPS",
+          "type": "contenu (facultative)",
+          "avant": "On a retrouvé le ................ de la victime dans la rivière.",
+          "apres": "Le squelette soutient le ................ humain.",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        }
+      ],
+      "normalisations": [
+        {
+          "mot": "G085-12V",
+          "regle": "espaces multiples ou en bordure"
+        }
+      ]
+    },
+    {
+      "id": "G140",
+      "titre": "MOTS DE LA MEME FAMILLE 1",
+      "titreOrigine": "MOTS DE LA MEME FAMILLE 1",
+      "matiere": "Français",
+      "niveau": "CM1-CM2",
+      "niveauStatut": "confirmé par Isaac le 2026-11-09",
+      "classe": null,
+      "sous_systeme": null,
+      "langue": "fr",
+      "theme": "Vocabulaire : familles de mots",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": "CE1 : familles de mots (lexique des listes : niveau CM) (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)",
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\MOTS DE LA MEME FAMILLE\\MOTS DE LA MEME FAMILLE 1.ecw",
+        "copies": [
+          "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\MOTS DE LA MEME FAMILLE\\MOTS DE LA MEME FAMILLE 1.ecw",
+          "J:\\DOC DIBIE\\NMI DOC\\MOTS DE LA MEME FAMILLE\\MOTS DE LA MEME FAMILLE 1.ecw"
+        ],
+        "sha256": "e07c28466d35eaf5c0057cf8b9a7dc228024cb968f52d6e440d20399169032e2",
+        "octets": 1771,
+        "logiciel": "EclipseCrossword 1.3.63",
+        "tailleDeclaree": {
+          "largeur": 15,
+          "hauteur": 15
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 11,
+      "hauteur": 15,
+      "lignes": [
+        "..PLAT.....",
+        ".....E..P..",
+        "...VERT.L.C",
+        ".....R..A.O",
+        "..LAVER.N.U",
+        "....O...T.V",
+        "..CUISINE.E",
+        "..H.R..O..R",
+        "..A....MONT",
+        "LONG.J...A.",
+        "I.T..A...G.",
+        "G....ROUGE.",
+        "N....D.....",
+        "E....I.....",
+        ".....N....."
+      ],
+      "mots": [
+        {
+          "id": "G140-1H",
+          "numero": 1,
+          "direction": "across",
+          "ligne": 0,
+          "colonne": 2,
+          "reponse": "PLAT",
+          "grille": "PLAT",
+          "longueur": 4,
+          "definition": "plateau, platitude, plate, platement, aplatir, aplatissement",
+          "definitionOrigine": "plateau, platitude, plate, platement, aplatir, aplatissement",
+          "positionSource": {
+            "x": 5,
+            "y": 1
+          }
+        },
+        {
+          "id": "G140-4H",
+          "numero": 4,
+          "direction": "across",
+          "ligne": 2,
+          "colonne": 3,
+          "reponse": "VERT",
+          "grille": "VERT",
+          "longueur": 4,
+          "definition": "verdure, verdeur, verdir, verdâtre, verdoyer",
+          "definitionOrigine": "verdure, verdeur, verdir, verdâtre, verdoyer",
+          "positionSource": {
+            "x": 6,
+            "y": 3
+          }
+        },
+        {
+          "id": "G140-6H",
+          "numero": 6,
+          "direction": "across",
+          "ligne": 4,
+          "colonne": 2,
+          "reponse": "LAVER",
+          "grille": "LAVER",
+          "longueur": 5,
+          "definition": "lavable, laveur, laverie, lavement, délaver, lavoir",
+          "definitionOrigine": "avable, laveur, laverie, lavement, délaver, lavoir",
+          "positionSource": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "id": "G140-8H",
+          "numero": 8,
+          "direction": "across",
+          "ligne": 6,
+          "colonne": 2,
+          "reponse": "CUISINE",
+          "grille": "CUISINE",
+          "longueur": 7,
+          "definition": "cuisiner, cuisinier, cuisinière, cuisiné",
+          "definitionOrigine": "cuisiner, cuisinier, cuisinière, cuisiné, cuire, recuire, cuisant, cuisson",
+          "positionSource": {
+            "x": 5,
+            "y": 7
+          }
+        },
+        {
+          "id": "G140-10H",
+          "numero": 10,
+          "direction": "across",
+          "ligne": 8,
+          "colonne": 7,
+          "reponse": "MONT",
+          "grille": "MONT",
+          "longueur": 4,
+          "definition": "montagneux, montagne, montagnard, monter, montée, surmonter, monticule",
+          "definitionOrigine": "montagneux, montagne, montagnard, monter, montée, surmonter, monticule",
+          "positionSource": {
+            "x": 10,
+            "y": 9
+          }
+        },
+        {
+          "id": "G140-12H",
+          "numero": 12,
+          "direction": "across",
+          "ligne": 9,
+          "colonne": 0,
+          "reponse": "LONG",
+          "grille": "LONG",
+          "longueur": 4,
+          "definition": "longer, allonger, longueur, allongé, longitude, longuement, longtemps, longévité",
+          "definitionOrigine": "onger, allonger, longueur, allongé, longitude, longuement, longtemps, longévité",
+          "positionSource": {
+            "x": 3,
+            "y": 10
+          }
+        },
+        {
+          "id": "G140-14H",
+          "numero": 14,
+          "direction": "across",
+          "ligne": 11,
+          "colonne": 5,
+          "reponse": "ROUGE",
+          "grille": "ROUGE",
+          "longueur": 5,
+          "definition": "rougir, rougeur, rougissement, rougeoyant, rougeâtre",
+          "definitionOrigine": "rougir, rougeur, rougissement, rougeoyant, rougeâtre",
+          "positionSource": {
+            "x": 8,
+            "y": 12
+          }
+        },
+        {
+          "id": "G140-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 5,
+          "reponse": "TERRE",
+          "grille": "TERRE",
+          "longueur": 5,
+          "definition": "terrien, terrestre, atterrir, terrain, terrier, enterrer, déterrer, terreau",
+          "definitionOrigine": "terrien, terrestre, atterrir, terrain, terrier, enterrer, déterrer, terreau",
+          "positionSource": {
+            "x": 8,
+            "y": 1
+          }
+        },
+        {
+          "id": "G140-3V",
+          "numero": 3,
+          "direction": "down",
+          "ligne": 1,
+          "colonne": 8,
+          "reponse": "PLANTE",
+          "grille": "PLANTE",
+          "longueur": 6,
+          "definition": "planter, plantation, plant, planteur, replanter",
+          "definitionOrigine": "planter, plantation, plant, planteur, replanter",
+          "positionSource": {
+            "x": 11,
+            "y": 2
+          }
+        },
+        {
+          "id": "G140-5V",
+          "numero": 5,
+          "direction": "down",
+          "ligne": 2,
+          "colonne": 10,
+          "reponse": "COUVERT",
+          "grille": "COUVERT",
+          "longueur": 7,
+          "definition": "couvercle, couverture, couvrir, recouvrir, découvrir, découverte, couvreur",
+          "definitionOrigine": "couvercle, couverture, couvrir, recouvrir, découvrir, découverte, couvreur",
+          "positionSource": {
+            "x": 13,
+            "y": 3
+          }
+        },
+        {
+          "id": "G140-7V",
+          "numero": 7,
+          "direction": "down",
+          "ligne": 4,
+          "colonne": 4,
+          "reponse": "VOIR",
+          "grille": "VOIR",
+          "longueur": 4,
+          "definition": "vision, vue, visible, visuel, apercevoir, entrevoir, viser, prévoyant",
+          "definitionOrigine": "vision, vue, visible, visuel, apercevoir, entrevoir, viser, prévoyant",
+          "positionSource": {
+            "x": 7,
+            "y": 5
+          }
+        },
+        {
+          "id": "G140-8V",
+          "numero": 8,
+          "direction": "down",
+          "ligne": 6,
+          "colonne": 2,
+          "reponse": "CHANT",
+          "grille": "CHANT",
+          "longueur": 5,
+          "definition": "chanson, chansonnette, chanteur, chanteuse, chanter, chantonner",
+          "definitionOrigine": "chanson, chansonnette, chanteur, chanteuse, chanter, chantonner",
+          "positionSource": {
+            "x": 5,
+            "y": 7
+          }
+        },
+        {
+          "id": "G140-9V",
+          "numero": 9,
+          "direction": "down",
+          "ligne": 6,
+          "colonne": 7,
+          "reponse": "NOM",
+          "grille": "NOM",
+          "longueur": 3,
+          "definition": "nommer, prénom, surnom, nominal, nomination, renommée, surnommer",
+          "definitionOrigine": "nommer, prénom, surnom, nominal, nomination, renommée, surnommer",
+          "positionSource": {
+            "x": 10,
+            "y": 7
+          }
+        },
+        {
+          "id": "G140-11V",
+          "numero": 11,
+          "direction": "down",
+          "ligne": 8,
+          "colonne": 9,
+          "reponse": "NAGE",
+          "grille": "NAGE",
+          "longueur": 4,
+          "definition": "nager, nageoire, natation, nageur",
+          "definitionOrigine": "nager, nageoire, natation, nageur",
+          "positionSource": {
+            "x": 12,
+            "y": 9
+          }
+        },
+        {
+          "id": "G140-12V",
+          "numero": 12,
+          "direction": "down",
+          "ligne": 9,
+          "colonne": 0,
+          "reponse": "LIGNE",
+          "grille": "LIGNE",
+          "longueur": 5,
+          "definition": "aligner, surligner, lignée, interligne, lignage",
+          "definitionOrigine": "aligner, surligner, lignée, interligne, lignage",
+          "positionSource": {
+            "x": 3,
+            "y": 10
+          }
+        },
+        {
+          "id": "G140-13V",
+          "numero": 13,
+          "direction": "down",
+          "ligne": 9,
+          "colonne": 5,
+          "reponse": "JARDIN",
+          "grille": "JARDIN",
+          "longueur": 6,
+          "definition": "jardinier, jardinière, jardinage, jardiner, jardinet, jardiniste",
+          "definitionOrigine": "jardinier, jardinière, jardinage, jardiner, jardinet, jardiniste",
+          "positionSource": {
+            "x": 8,
+            "y": 10
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C13",
+          "mot": "G140-6H",
+          "reponse": "LAVER",
+          "type": "mot tronqué",
+          "avant": "avable, laveur",
+          "apres": "lavable, laveur",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C14",
+          "mot": "G140-12H",
+          "reponse": "LONG",
+          "type": "mot tronqué",
+          "avant": "onger, allonger",
+          "apres": "longer, allonger",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C15",
+          "mot": "G140-8H",
+          "reponse": "CUISINE",
+          "type": "ambiguë",
+          "avant": "cuisiner, cuisinier, cuisinière, cuisiné, cuire, recuire, cuisant, cuisson",
+          "apres": "cuisiner, cuisinier, cuisinière, cuisiné",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)",
+          "remarque": "à confirmer par un enseignant (selection-lot0 §3)"
+        }
+      ],
+      "normalisations": []
+    },
+    {
+      "id": "G183",
+      "titre": "Symptômes et sensations",
+      "titreOrigine": "Symptômes et sensations",
+      "matiere": "Sciences (santé) / vocabulaire",
+      "niveau": "CM1-CM2",
+      "niveauStatut": "confirmé par Isaac le 2026-11-09",
+      "classe": null,
+      "sous_systeme": null,
+      "langue": "fr",
+      "theme": "Symptômes et sensations",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": "CE1 : champ lexical « santé » (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)",
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2025",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\LES CHAMPS LEXICAUX\\LIVRE CHAMPS LEXICAUX\\MALADIE\\Symptômes et sensations.ecw",
+        "copies": [
+          "J:\\LES CHAMPS LEXICAUX\\LIVRE CHAMPS LEXICAUX\\MALADIE\\Symptômes et sensations.ecw"
+        ],
+        "sha256": "b2208914d21b00a614ae7881217129883478a795a77edb39caef2c755e47857e",
+        "octets": 1291,
+        "logiciel": "EclipseCrossword 1.3.63",
+        "tailleDeclaree": {
+          "largeur": 12,
+          "hauteur": 13
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 12,
+      "hauteur": 13,
+      "lignes": [
+        "......D...B.",
+        ".FRISSONS.A.",
+        "......U...L.",
+        "...F..L...L.",
+        "DEMANGEAISON",
+        "...T..U...N.",
+        "..FIEVRE..N.",
+        "N..G......E.",
+        "A..U......M.",
+        "U.VERTIGE.E.",
+        "S....O....N.",
+        "ETERNUEMENT.",
+        "E....X......"
+      ],
+      "mots": [
+        {
+          "id": "G183-3H",
+          "numero": 3,
+          "direction": "across",
+          "ligne": 1,
+          "colonne": 1,
+          "reponse": "FRISSONS",
+          "grille": "FRISSONS",
+          "longueur": 8,
+          "definition": "Sensation de froid qui fait trembler, souvent quand on a de la fièvre.",
+          "definitionOrigine": "Sensation de froid qui fait trembler, souvent quand on a de la fièvre.",
+          "positionSource": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "id": "G183-5H",
+          "numero": 5,
+          "direction": "across",
+          "ligne": 4,
+          "colonne": 0,
+          "reponse": "DÉMANGEAISON",
+          "grille": "DEMANGEAISON",
+          "longueur": 12,
+          "definition": "Quand ça gratte et qu’on a envie de se gratter.",
+          "definitionOrigine": "Quand ça gratte et qu’on a envie de se gratter.",
+          "positionSource": {
+            "x": 1,
+            "y": 5
+          }
+        },
+        {
+          "id": "G183-6H",
+          "numero": 6,
+          "direction": "across",
+          "ligne": 6,
+          "colonne": 2,
+          "reponse": "FIÈVRE",
+          "grille": "FIEVRE",
+          "longueur": 6,
+          "definition": "Quand le corps est trop chaud parce qu’il se défend contre une maladie.",
+          "definitionOrigine": "Quand le corps est trop chaud parce qu’il se défend contre une maladie.",
+          "positionSource": {
+            "x": 3,
+            "y": 7
+          }
+        },
+        {
+          "id": "G183-8H",
+          "numero": 8,
+          "direction": "across",
+          "ligne": 9,
+          "colonne": 2,
+          "reponse": "VERTIGE",
+          "grille": "VERTIGE",
+          "longueur": 7,
+          "definition": "Quand on a l’impression que tout tourne autour de soi.",
+          "definitionOrigine": "Quand on a l’impression que tout tourne autour de soi.",
+          "positionSource": {
+            "x": 3,
+            "y": 10
+          }
+        },
+        {
+          "id": "G183-10H",
+          "numero": 10,
+          "direction": "across",
+          "ligne": 11,
+          "colonne": 0,
+          "reponse": "ÉTERNUEMENT",
+          "grille": "ETERNUEMENT",
+          "longueur": 11,
+          "definition": "Petit “atchoum” qui sort du nez quand il est irrité.",
+          "definitionOrigine": "Petit “atchoum” qui sort du nez quand il est irrité.",
+          "positionSource": {
+            "x": 1,
+            "y": 12
+          }
+        },
+        {
+          "id": "G183-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 6,
+          "reponse": "DOULEUR",
+          "grille": "DOULEUR",
+          "longueur": 7,
+          "definition": "Ce qu’on ressent quand quelque chose fait mal.",
+          "definitionOrigine": "Ce qu’on ressent quand quelque chose fait mal.",
+          "positionSource": {
+            "x": 7,
+            "y": 1
+          }
+        },
+        {
+          "id": "G183-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 10,
+          "reponse": "BALLONNEMENT",
+          "grille": "BALLONNEMENT",
+          "longueur": 12,
+          "definition": "Quand le ventre est gonflé et fait mal.",
+          "definitionOrigine": "Quand le ventre est gonflé et fait mal.",
+          "positionSource": {
+            "x": 11,
+            "y": 1
+          }
+        },
+        {
+          "id": "G183-4V",
+          "numero": 4,
+          "direction": "down",
+          "ligne": 3,
+          "colonne": 3,
+          "reponse": "FATIGUE",
+          "grille": "FATIGUE",
+          "longueur": 7,
+          "definition": "Quand on manque de force et qu’on a besoin de repos.",
+          "definitionOrigine": "Quand on est très fatigué et qu’on a besoin de repos.",
+          "positionSource": {
+            "x": 4,
+            "y": 4
+          }
+        },
+        {
+          "id": "G183-7V",
+          "numero": 7,
+          "direction": "down",
+          "ligne": 7,
+          "colonne": 0,
+          "reponse": "NAUSÉE",
+          "grille": "NAUSEE",
+          "longueur": 6,
+          "definition": "Sensation désagréable qui donne envie de vomir.",
+          "definitionOrigine": "Sensation désagréable qui donne envie de vomir.",
+          "positionSource": {
+            "x": 1,
+            "y": 8
+          }
+        },
+        {
+          "id": "G183-9V",
+          "numero": 9,
+          "direction": "down",
+          "ligne": 9,
+          "colonne": 5,
+          "reponse": "TOUX",
+          "grille": "TOUX",
+          "longueur": 4,
+          "definition": "Bruit que l’on fait avec la bouche quand on veut chasser quelque chose des poumons.",
+          "definitionOrigine": "Bruit que l’on fait avec la bouche quand on veut chasser quelque chose des poumons.",
+          "positionSource": {
+            "x": 6,
+            "y": 10
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C16",
+          "mot": "G183-4V",
+          "reponse": "FATIGUE",
+          "type": "réponse dans la définition",
+          "avant": "Quand on est très fatigué et qu",
+          "apres": "Quand on manque de force et qu",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)",
+          "remarque": "fragment arrêté avant l'apostrophe : le document de sélection écrit « qu'on », le fichier « qu’on »"
+        }
+      ],
+      "normalisations": []
+    },
+    {
+      "id": "G180",
+      "titre": "Soins et médicaments",
+      "titreOrigine": "Soins et médicaments",
+      "matiere": "Sciences (santé) / vocabulaire",
+      "niveau": "CE1-CE2",
+      "niveauStatut": "confirmé par Isaac le 2026-11-09",
+      "classe": null,
+      "sous_systeme": null,
+      "langue": "fr",
+      "theme": "Soins et médicaments",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": "CE1 : champ lexical « santé » (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)",
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2025",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\LES CHAMPS LEXICAUX\\LIVRE CHAMPS LEXICAUX\\MALADIE\\Soins et médicaments.ecw",
+        "copies": [
+          "J:\\LES CHAMPS LEXICAUX\\LIVRE CHAMPS LEXICAUX\\MALADIE\\Soins et médicaments.ecw"
+        ],
+        "sha256": "6f409ec4c3f68be66442fc13befd70f144221c36fbc56286ce6a591cb43bb7b1",
+        "octets": 1179,
+        "logiciel": "EclipseCrossword 1.3.63",
+        "tailleDeclaree": {
+          "largeur": 12,
+          "hauteur": 13
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 12,
+      "hauteur": 13,
+      "lignes": [
+        "..MEDICAMENT",
+        "...........H",
+        "...VACCIN..E",
+        "P......N...R",
+        "A......J...M",
+        "N..C...E...O",
+        "SIROP..C.P.M",
+        "E..M...T.O.E",
+        "M..P...I.M.T",
+        "E..R...O.M.R",
+        "N..I.BANDAGE",
+        "T..M.....D..",
+        "..BEQUILLES."
+      ],
+      "mots": [
+        {
+          "id": "G180-1H",
+          "numero": 1,
+          "direction": "across",
+          "ligne": 0,
+          "colonne": 2,
+          "reponse": "MÉDICAMENT",
+          "grille": "MEDICAMENT",
+          "longueur": 10,
+          "definition": "Produit qui aide le corps à guérir.",
+          "definitionOrigine": "Produit qui aide le corps à guérir.",
+          "positionSource": {
+            "x": 3,
+            "y": 1
+          }
+        },
+        {
+          "id": "G180-3H",
+          "numero": 3,
+          "direction": "across",
+          "ligne": 2,
+          "colonne": 3,
+          "reponse": "VACCIN",
+          "grille": "VACCIN",
+          "longueur": 6,
+          "definition": "Produit qui protège contre certaines maladies.",
+          "definitionOrigine": "Produit qui protège contre certaines maladies.",
+          "positionSource": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "id": "G180-7H",
+          "numero": 7,
+          "direction": "across",
+          "ligne": 6,
+          "colonne": 0,
+          "reponse": "SIROP",
+          "grille": "SIROP",
+          "longueur": 5,
+          "definition": "Médicament liquide, souvent sucré, qu’on boit.",
+          "definitionOrigine": "Médicament liquide, souvent sucré, qu’on boit.",
+          "positionSource": {
+            "x": 1,
+            "y": 7
+          }
+        },
+        {
+          "id": "G180-9H",
+          "numero": 9,
+          "direction": "across",
+          "ligne": 10,
+          "colonne": 5,
+          "reponse": "BANDAGE",
+          "grille": "BANDAGE",
+          "longueur": 7,
+          "definition": "Bande qu’on enroule autour d’un bras ou d’une jambe blessée.",
+          "definitionOrigine": "Bande qu’on enroule autour d’un bras ou d’une jambe blessée.",
+          "positionSource": {
+            "x": 6,
+            "y": 11
+          }
+        },
+        {
+          "id": "G180-10H",
+          "numero": 10,
+          "direction": "across",
+          "ligne": 12,
+          "colonne": 2,
+          "reponse": "BÉQUILLES",
+          "grille": "BEQUILLES",
+          "longueur": 9,
+          "definition": "Bâtons spéciaux pour marcher quand on a mal à la jambe.",
+          "definitionOrigine": "Bâtons spéciaux pour marcher quand on a mal à la jambe.",
+          "positionSource": {
+            "x": 3,
+            "y": 13
+          }
+        },
+        {
+          "id": "G180-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 11,
+          "reponse": "THERMOMÈTRE",
+          "grille": "THERMOMETRE",
+          "longueur": 11,
+          "definition": "Petit objet qui mesure la température du corps.",
+          "definitionOrigine": "Petit objet qui mesure la température du corps.",
+          "positionSource": {
+            "x": 12,
+            "y": 1
+          }
+        },
+        {
+          "id": "G180-4V",
+          "numero": 4,
+          "direction": "down",
+          "ligne": 2,
+          "colonne": 7,
+          "reponse": "INJECTION",
+          "grille": "INJECTION",
+          "longueur": 9,
+          "definition": "Médicament donné avec une piqûre.",
+          "definitionOrigine": "Médicament donné avec une piqûre.",
+          "positionSource": {
+            "x": 8,
+            "y": 3
+          }
+        },
+        {
+          "id": "G180-5V",
+          "numero": 5,
+          "direction": "down",
+          "ligne": 3,
+          "colonne": 0,
+          "reponse": "PANSEMENT",
+          "grille": "PANSEMENT",
+          "longueur": 9,
+          "definition": "Petit tissu collant qu’on met sur une blessure.",
+          "definitionOrigine": "Petit tissu collant qu’on met sur une blessure.",
+          "positionSource": {
+            "x": 1,
+            "y": 4
+          }
+        },
+        {
+          "id": "G180-6V",
+          "numero": 6,
+          "direction": "down",
+          "ligne": 5,
+          "colonne": 3,
+          "reponse": "COMPRIMÉ",
+          "grille": "COMPRIME",
+          "longueur": 8,
+          "definition": "Petit rond dur qu’on avale pour se soigner.",
+          "definitionOrigine": "Petit rond dur qu’on avale pour se soigner.",
+          "positionSource": {
+            "x": 4,
+            "y": 6
+          }
+        },
+        {
+          "id": "G180-8V",
+          "numero": 8,
+          "direction": "down",
+          "ligne": 6,
+          "colonne": 9,
+          "reponse": "POMMADE",
+          "grille": "POMMADE",
+          "longueur": 7,
+          "definition": "Crème qu’on met sur la peau pour guérir.",
+          "definitionOrigine": "Crème qu’on met sur la peau pour guérir.",
+          "positionSource": {
+            "x": 10,
+            "y": 7
+          }
+        }
+      ],
+      "corrections": [],
+      "normalisations": []
+    },
+    {
+      "id": "G153",
+      "titre": "past tense of irregular verbs",
+      "titreOrigine": "past tense of irregular verbs",
+      "matiere": "Anglais",
+      "niveau": "CM1-CM2",
+      "niveauStatut": "confirmé par Isaac le 2026-11-09",
+      "classe": "CM1",
+      "sous_systeme": "francophone",
+      "langue": "en",
+      "theme": "Grammaire : simple past des verbes irréguliers",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": "anglais en francophone : simple past des verbes irréguliers (CM1) ; anglophone : irregular verbs (Level II) (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)",
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DOC USB\\Lecteur USB\\Lecteur USB\\TRANSFERT 2\\english verbs\\past tense of irregular verbs.ecw",
+        "copies": [
+          "J:\\DOC USB\\Lecteur USB\\Lecteur USB\\TRANSFERT 2\\english verbs\\past tense of irregular verbs.ecw",
+          "J:\\DOC USB\\Lecteur USB\\TRANSFERT 2\\english verbs\\past tense of irregular verbs.ecw"
+        ],
+        "sha256": "e9b58a845575dd797fcead2689b464f9ea3cbbdaafb7d1a8be61204098af03c3",
+        "octets": 933,
+        "logiciel": "EclipseCrossword 1.3.63",
+        "tailleDeclaree": {
+          "largeur": 15,
+          "hauteur": 15
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 12,
+      "hauteur": 15,
+      "lignes": [
+        ".....R......",
+        ".FED.A......",
+        ".O.RAN......",
+        ".U.A.G...S..",
+        ".N.N....BLEW",
+        ".D.KEPT..E.O",
+        "......H..P.U",
+        ".....CREPT.N",
+        "......E....D",
+        "..S..SWAM...",
+        "..W..A......",
+        ".BEGAN.W....",
+        "..P..GREW...",
+        "MET....P....",
+        "......STANK."
+      ],
+      "mots": [
+        {
+          "id": "G153-2H",
+          "numero": 2,
+          "direction": "across",
+          "ligne": 1,
+          "colonne": 1,
+          "reponse": "FED",
+          "grille": "FED",
+          "longueur": 3,
+          "definition": "feed",
+          "definitionOrigine": "feed",
+          "positionSource": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "id": "G153-4H",
+          "numero": 4,
+          "direction": "across",
+          "ligne": 2,
+          "colonne": 3,
+          "reponse": "RAN",
+          "grille": "RAN",
+          "longueur": 3,
+          "definition": "run",
+          "definitionOrigine": "run",
+          "positionSource": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "id": "G153-6H",
+          "numero": 6,
+          "direction": "across",
+          "ligne": 4,
+          "colonne": 8,
+          "reponse": "BLEW",
+          "grille": "BLEW",
+          "longueur": 4,
+          "definition": "blow",
+          "definitionOrigine": "blow",
+          "positionSource": {
+            "x": 9,
+            "y": 5
+          }
+        },
+        {
+          "id": "G153-8H",
+          "numero": 8,
+          "direction": "across",
+          "ligne": 5,
+          "colonne": 3,
+          "reponse": "KEPT",
+          "grille": "KEPT",
+          "longueur": 4,
+          "definition": "keep",
+          "definitionOrigine": "keep",
+          "positionSource": {
+            "x": 4,
+            "y": 6
+          }
+        },
+        {
+          "id": "G153-10H",
+          "numero": 10,
+          "direction": "across",
+          "ligne": 7,
+          "colonne": 5,
+          "reponse": "CREPT",
+          "grille": "CREPT",
+          "longueur": 5,
+          "definition": "creep",
+          "definitionOrigine": "creep",
+          "positionSource": {
+            "x": 6,
+            "y": 8
+          }
+        },
+        {
+          "id": "G153-12H",
+          "numero": 12,
+          "direction": "across",
+          "ligne": 9,
+          "colonne": 5,
+          "reponse": "SWAM",
+          "grille": "SWAM",
+          "longueur": 4,
+          "definition": "swim",
+          "definitionOrigine": "swim",
+          "positionSource": {
+            "x": 6,
+            "y": 10
+          }
+        },
+        {
+          "id": "G153-13H",
+          "numero": 13,
+          "direction": "across",
+          "ligne": 11,
+          "colonne": 1,
+          "reponse": "BEGAN",
+          "grille": "BEGAN",
+          "longueur": 5,
+          "definition": "begin",
+          "definitionOrigine": "begin",
+          "positionSource": {
+            "x": 2,
+            "y": 12
+          }
+        },
+        {
+          "id": "G153-15H",
+          "numero": 15,
+          "direction": "across",
+          "ligne": 12,
+          "colonne": 5,
+          "reponse": "GREW",
+          "grille": "GREW",
+          "longueur": 4,
+          "definition": "grow",
+          "definitionOrigine": "grow",
+          "positionSource": {
+            "x": 6,
+            "y": 13
+          }
+        },
+        {
+          "id": "G153-16H",
+          "numero": 16,
+          "direction": "across",
+          "ligne": 13,
+          "colonne": 0,
+          "reponse": "MET",
+          "grille": "MET",
+          "longueur": 3,
+          "definition": "meet",
+          "definitionOrigine": "meet",
+          "positionSource": {
+            "x": 1,
+            "y": 14
+          }
+        },
+        {
+          "id": "G153-17H",
+          "numero": 17,
+          "direction": "across",
+          "ligne": 14,
+          "colonne": 6,
+          "reponse": "STANK",
+          "grille": "STANK",
+          "longueur": 5,
+          "definition": "stink",
+          "definitionOrigine": "stink",
+          "positionSource": {
+            "x": 7,
+            "y": 15
+          }
+        },
+        {
+          "id": "G153-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 5,
+          "reponse": "RANG",
+          "grille": "RANG",
+          "longueur": 4,
+          "definition": "ring",
+          "definitionOrigine": "ring",
+          "positionSource": {
+            "x": 6,
+            "y": 1
+          }
+        },
+        {
+          "id": "G153-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 1,
+          "colonne": 1,
+          "reponse": "FOUND",
+          "grille": "FOUND",
+          "longueur": 5,
+          "definition": "find",
+          "definitionOrigine": "find",
+          "positionSource": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "id": "G153-3V",
+          "numero": 3,
+          "direction": "down",
+          "ligne": 1,
+          "colonne": 3,
+          "reponse": "DRANK",
+          "grille": "DRANK",
+          "longueur": 5,
+          "definition": "drink",
+          "definitionOrigine": "drink",
+          "positionSource": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "id": "G153-5V",
+          "numero": 5,
+          "direction": "down",
+          "ligne": 3,
+          "colonne": 9,
+          "reponse": "SLEPT",
+          "grille": "SLEPT",
+          "longueur": 5,
+          "definition": "sleep",
+          "definitionOrigine": "sleep",
+          "positionSource": {
+            "x": 10,
+            "y": 4
+          }
+        },
+        {
+          "id": "G153-7V",
+          "numero": 7,
+          "direction": "down",
+          "ligne": 4,
+          "colonne": 11,
+          "reponse": "WOUND",
+          "grille": "WOUND",
+          "longueur": 5,
+          "definition": "wind (a clock)",
+          "definitionOrigine": "wind",
+          "positionSource": {
+            "x": 12,
+            "y": 5
+          }
+        },
+        {
+          "id": "G153-9V",
+          "numero": 9,
+          "direction": "down",
+          "ligne": 5,
+          "colonne": 6,
+          "reponse": "THREW",
+          "grille": "THREW",
+          "longueur": 5,
+          "definition": "throw",
+          "definitionOrigine": "trhow",
+          "positionSource": {
+            "x": 7,
+            "y": 6
+          }
+        },
+        {
+          "id": "G153-11V",
+          "numero": 11,
+          "direction": "down",
+          "ligne": 9,
+          "colonne": 2,
+          "reponse": "SWEPT",
+          "grille": "SWEPT",
+          "longueur": 5,
+          "definition": "sweep",
+          "definitionOrigine": "sweep",
+          "positionSource": {
+            "x": 3,
+            "y": 10
+          }
+        },
+        {
+          "id": "G153-12V",
+          "numero": 12,
+          "direction": "down",
+          "ligne": 9,
+          "colonne": 5,
+          "reponse": "SANG",
+          "grille": "SANG",
+          "longueur": 4,
+          "definition": "sing",
+          "definitionOrigine": "sing",
+          "positionSource": {
+            "x": 6,
+            "y": 10
+          }
+        },
+        {
+          "id": "G153-14V",
+          "numero": 14,
+          "direction": "down",
+          "ligne": 11,
+          "colonne": 7,
+          "reponse": "WEPT",
+          "grille": "WEPT",
+          "longueur": 4,
+          "definition": "weep",
+          "definitionOrigine": "weep",
+          "positionSource": {
+            "x": 8,
+            "y": 12
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C17",
+          "mot": "G153-9V",
+          "reponse": "THREW",
+          "type": "faute",
+          "avant": "trhow",
+          "apres": "throw",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C18",
+          "mot": "G153-7V",
+          "reponse": "WOUND",
+          "type": "ambiguë",
+          "avant": "wind",
+          "apres": "wind (a clock)",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        }
+      ],
+      "normalisations": []
+    },
+    {
+      "id": "G168",
+      "titre": "plural MCQ 2",
+      "titreOrigine": "plural MCQ  2",
+      "matiere": "Anglais",
+      "niveau": "CE1-CE2",
+      "niveauStatut": "confirmé par Isaac le 2026-11-09",
+      "classe": null,
+      "sous_systeme": null,
+      "langue": "en",
+      "theme": "Orthographe : pluriels",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": "anglais en francophone : pluriels s/es/ies (CE1) ; anglophone : plurals (Level I) (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)",
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier",
+        "remarque": "extension de « Ces grilles sont de moi » aux plural MCQ : DÉDUITE par JARVIS, à confirmer par Isaac (selection-lot0 §6)"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DIBIE_SOURCES_A_ANALYSER\\08_DIBIE_ANGLAIS\\PLURAL\\plural MCQ  2.ecw",
+        "copies": [
+          "J:\\DIBIE_SOURCES_A_ANALYSER\\08_DIBIE_ANGLAIS\\PLURAL\\plural MCQ  2.ecw",
+          "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\Dibiè ANGLAIS\\PLURAL\\plural MCQ  2.ecw",
+          "J:\\Dibiè ANGLAIS\\PLURAL\\plural MCQ  2.ecw"
+        ],
+        "sha256": "9a30f84c03e24ec52ed3b571f750210a491e17d6149e17b475d11ebdbcbaf8f6",
+        "octets": 1974,
+        "logiciel": "EclipseCrossword 1.2.61",
+        "tailleDeclaree": {
+          "largeur": 15,
+          "hauteur": 15
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 11,
+      "hauteur": 12,
+      "lignes": [
+        "G..........",
+        "U...C......",
+        "E...H.P....",
+        "SAUCEPANS..",
+        "S...F.S...C",
+        "E...S.TEETH",
+        "S.....R...U",
+        "...COPIES.R",
+        "......E.A.C",
+        "LORRIES.F.H",
+        "........E.E",
+        "..THIEVES.S"
+      ],
+      "mots": [
+        {
+          "id": "G168-4H",
+          "numero": 4,
+          "direction": "across",
+          "ligne": 3,
+          "colonne": 0,
+          "reponse": "SAUCEPANS",
+          "grille": "SAUCEPANS",
+          "longueur": 9,
+          "definition": "She had left him five ___________ in the sink to wash up. What is the plural form of saucepan? A) saucepanes B) saucepans C) saucepanns",
+          "definitionOrigine": "She had left him five ___________ in the sink to wash up.  What is the plural form of saucepan?  A) saucepanes  B) saucepans  C) saucepanns",
+          "positionSource": {
+            "x": 4,
+            "y": 5
+          }
+        },
+        {
+          "id": "G168-6H",
+          "numero": 6,
+          "direction": "across",
+          "ligne": 5,
+          "colonne": 6,
+          "reponse": "TEETH",
+          "grille": "TEETH",
+          "longueur": 5,
+          "definition": "He put the two ______ under his pillow. Choose the plural spelling of tooth. A) tooths B) teeths C) teeth",
+          "definitionOrigine": "He put the two ______ under his pillow.  Choose the plural spelling of tooth.  A) tooths  B) teeths  C) teeth",
+          "positionSource": {
+            "x": 10,
+            "y": 7
+          }
+        },
+        {
+          "id": "G168-7H",
+          "numero": 7,
+          "direction": "across",
+          "ligne": 7,
+          "colonne": 3,
+          "reponse": "COPIES",
+          "grille": "COPIES",
+          "longueur": 6,
+          "definition": "He wanted twenty _______ of the photograph! Choose the correct plural spelling of copy. A) copy B) copies C) copyies",
+          "definitionOrigine": "He wanted twenty _______ of the photograph!  Choose the correct plural spelling of copy.  A) copy  B) copies  C) copyies",
+          "positionSource": {
+            "x": 7,
+            "y": 9
+          }
+        },
+        {
+          "id": "G168-9H",
+          "numero": 9,
+          "direction": "across",
+          "ligne": 9,
+          "colonne": 0,
+          "reponse": "LORRIES",
+          "grille": "LORRIES",
+          "longueur": 7,
+          "definition": "I was stuck behind three ______ all of the way here. What is the plural spelling of lorry? A) lorry B) lorries C) lorreys",
+          "definitionOrigine": "I was stuck behind three ______ all of the way here.  What is the plural spelling of lorry?  A) lorry  B) lorries  C) lorreys",
+          "positionSource": {
+            "x": 4,
+            "y": 11
+          }
+        },
+        {
+          "id": "G168-10H",
+          "numero": 10,
+          "direction": "across",
+          "ligne": 11,
+          "colonne": 2,
+          "reponse": "THIEVES",
+          "grille": "THIEVES",
+          "longueur": 7,
+          "definition": "Two of the _______ were identified leaving the scene. What is the correct plural form of thief? A) thiefs B) thieffs C) thieves",
+          "definitionOrigine": "Two of the _______ were identified leaving the scene.  What is the correct plural form of thief?  A) thiefs  B) thieffs  C) thieves",
+          "positionSource": {
+            "x": 6,
+            "y": 13
+          }
+        },
+        {
+          "id": "G168-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 0,
+          "reponse": "GUESSES",
+          "grille": "GUESSES",
+          "longueur": 7,
+          "definition": "You can have three _______ at the answer. Pick the correct plural spelling of guess. A) guess B) guesses C) gueses",
+          "definitionOrigine": "You can have three _______ at the answer.  Pick the correct plural spelling of guess.  A) guess  B) guesses  C) gueses",
+          "positionSource": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "id": "G168-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 1,
+          "colonne": 4,
+          "reponse": "CHEFS",
+          "grille": "CHEFS",
+          "longueur": 5,
+          "definition": "The hotel has three ______ working in the kitchen. What is the plural spelling of chef? A) chefs B) cheves C) chefes",
+          "definitionOrigine": "The hotel has three ______ working in the kitchen.  What is the plural spelling of chef?  A) chefs  B) cheves  C) chefes",
+          "positionSource": {
+            "x": 8,
+            "y": 3
+          }
+        },
+        {
+          "id": "G168-3V",
+          "numero": 3,
+          "direction": "down",
+          "ligne": 2,
+          "colonne": 6,
+          "reponse": "PASTRIES",
+          "grille": "PASTRIES",
+          "longueur": 8,
+          "definition": "They ate six Danish ________ between them. Which is the correct plural spelling of pastry? A) pastry B) pastreys C) pastries",
+          "definitionOrigine": "They ate six Danish ________ between them.  Which is the correct plural spelling of pastry?  A) pastry  B) pastreys  C) pastries",
+          "positionSource": {
+            "x": 10,
+            "y": 4
+          }
+        },
+        {
+          "id": "G168-5V",
+          "numero": 5,
+          "direction": "down",
+          "ligne": 4,
+          "colonne": 10,
+          "reponse": "CHURCHES",
+          "grille": "CHURCHES",
+          "longueur": 8,
+          "definition": "They went to three different _________ before they found the wedding. Choose the correct plural spelling of church. A) churchs B) churchies C) churches",
+          "definitionOrigine": "They went to three different _________ before they found the wedding.  Choose the correct plural spelling of church.  A) churchs  B) churchies  C) churches",
+          "positionSource": {
+            "x": 14,
+            "y": 6
+          }
+        },
+        {
+          "id": "G168-8V",
+          "numero": 8,
+          "direction": "down",
+          "ligne": 7,
+          "colonne": 8,
+          "reponse": "SAFES",
+          "grille": "SAFES",
+          "longueur": 5,
+          "definition": "The two bank _____ were open when the police arrived. What is the plural spelling of safe? A) saves B) safes C) safies",
+          "definitionOrigine": "The two bank _____ were open when the police arrived.  What is the plural spelling of safe?  A) saves  B) safes  C) safies",
+          "positionSource": {
+            "x": 12,
+            "y": 9
+          }
+        }
+      ],
+      "corrections": [],
+      "normalisations": [
+        {
+          "mot": "G168-4H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G168-6H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G168-7H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G168-9H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G168-10H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G168-1V",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G168-2V",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G168-3V",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G168-5V",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G168-8V",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": null,
+          "champ": "titre",
+          "regle": "espaces multiples ou en bordure"
+        }
+      ]
+    },
+    {
+      "id": "G017",
+      "titre": "addition subtraction word problem 1",
+      "titreOrigine": "addition subtraction word problem 1",
+      "matiere": "Mathématiques",
+      "niveau": "CE1-CE2",
+      "niveauStatut": "proposé par l'educator, à confirmer par Isaac",
+      "classe": null,
+      "sous_systeme": null,
+      "langue": "en",
+      "theme": "Problèmes d'addition et de soustraction (résultats jusqu'à 19)",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": null,
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\pack mots croisés\\addition subtraction word problem 1.ecw",
+        "copies": [
+          "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\pack mots croisés\\addition subtraction word problem 1.ecw",
+          "J:\\DOC DIBIE\\WORD MATHS PROBLEMS\\addition subtraction word problem 1.ecw"
+        ],
+        "sha256": "eaee6b61ad52eff3d5d70bcde6f8549e336bed92c2e6405fcb283823b4d61a4e",
+        "octets": 1746,
+        "logiciel": "EclipseCrossword 1.2.61",
+        "tailleDeclaree": {
+          "largeur": 10,
+          "hauteur": 10
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 10,
+      "hauteur": 10,
+      "lignes": [
+        ".....S....",
+        "FOURTEEN..",
+        "O....V...N",
+        "U.SEVEN..I",
+        "R..I.N...N",
+        "...G.THREE",
+        ".F.H.E...T",
+        "SIXTEEN..E",
+        ".V...N...E",
+        "TEN......N"
+      ],
+      "mots": [
+        {
+          "id": "G017-2H",
+          "numero": 2,
+          "direction": "across",
+          "ligne": 1,
+          "colonne": 0,
+          "reponse": "FOURTEEN",
+          "grille": "FOURTEEN",
+          "longueur": 8,
+          "definition": "Mandy and Steve bought 9 purple lilies and 5 white daisies. How many flowers did they buy in all?",
+          "definitionOrigine": "Mandy and Steve bought 9 purple lilies and 5 white daisies. How many flowers did they buy in all?",
+          "positionSource": {
+            "x": 1,
+            "y": 2
+          }
+        },
+        {
+          "id": "G017-4H",
+          "numero": 4,
+          "direction": "across",
+          "ligne": 3,
+          "colonne": 2,
+          "reponse": "SEVEN",
+          "grille": "SEVEN",
+          "longueur": 5,
+          "definition": "Ricky went to an exhibition. He bought four white boards and three black boards. How many boards did Ricky buy?",
+          "definitionOrigine": "Ricky went to an exhibition. He bought four white boards and three black boards. How many boards did Ricky buy?",
+          "positionSource": {
+            "x": 3,
+            "y": 4
+          }
+        },
+        {
+          "id": "G017-6H",
+          "numero": 6,
+          "direction": "across",
+          "ligne": 5,
+          "colonne": 5,
+          "reponse": "THREE",
+          "grille": "THREE",
+          "longueur": 5,
+          "definition": "Julie has five ribbons; if she gives two ribbons to her friend then how many ribbons does Julie have left?",
+          "definitionOrigine": "Julie has five ribbons; if she gives two ribbons to her friend then how many ribbons does Julie have left?",
+          "positionSource": {
+            "x": 6,
+            "y": 6
+          }
+        },
+        {
+          "id": "G017-8H",
+          "numero": 8,
+          "direction": "across",
+          "ligne": 7,
+          "colonne": 0,
+          "reponse": "SIXTEEN",
+          "grille": "SIXTEEN",
+          "longueur": 7,
+          "definition": "Andre and Joseph got 8 books from their father. Later, they got 8 more books from their mother. How many books did they get from their parents in all?",
+          "definitionOrigine": "Andre and Joseph got 8 books from their father. Later, they got 8 more books  from their mother. How many books from parents did they get in all?",
+          "positionSource": {
+            "x": 1,
+            "y": 8
+          }
+        },
+        {
+          "id": "G017-9H",
+          "numero": 9,
+          "direction": "across",
+          "ligne": 9,
+          "colonne": 0,
+          "reponse": "TEN",
+          "grille": "TEN",
+          "longueur": 3,
+          "definition": "Paula’s homework assignment has 6 math questions and 4 science questions. How many questions are there in all?",
+          "definitionOrigine": "Paula’s homework assignment has 6 math questions and 4 science questions. How many questions are there in all?",
+          "positionSource": {
+            "x": 1,
+            "y": 10
+          }
+        },
+        {
+          "id": "G017-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 5,
+          "reponse": "SEVENTEEN",
+          "grille": "SEVENTEEN",
+          "longueur": 9,
+          "definition": "James bought 10 toys at the mall. Jasmine bought 7 toys at the same mall. How many toys did they buy in all?",
+          "definitionOrigine": "James bought 10 toys at the mall. Jasmine bought 7 toys at the same mall. How many toys did they buy in all?",
+          "positionSource": {
+            "x": 6,
+            "y": 1
+          }
+        },
+        {
+          "id": "G017-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 1,
+          "colonne": 0,
+          "reponse": "FOUR",
+          "grille": "FOUR",
+          "longueur": 4,
+          "definition": "There are two black cars and two white cars in the garage. Find the number of cars in the garage.",
+          "definitionOrigine": "There are two black cars and two white cars in the garage. Find the number of cars in the garage.",
+          "positionSource": {
+            "x": 1,
+            "y": 2
+          }
+        },
+        {
+          "id": "G017-3V",
+          "numero": 3,
+          "direction": "down",
+          "ligne": 2,
+          "colonne": 9,
+          "reponse": "NINETEEN",
+          "grille": "NINETEEN",
+          "longueur": 8,
+          "definition": "A zoo has 11 black deer and 8 brown deer. How many deer are there in all?",
+          "definitionOrigine": "A zoo has 11 black deer and 8 brown deer. How many deer are there in all?",
+          "positionSource": {
+            "x": 10,
+            "y": 3
+          }
+        },
+        {
+          "id": "G017-5V",
+          "numero": 5,
+          "direction": "down",
+          "ligne": 3,
+          "colonne": 3,
+          "reponse": "EIGHT",
+          "grille": "EIGHT",
+          "longueur": 5,
+          "definition": "Jack has five elder sisters and three younger sisters. How many sisters does Jack have?",
+          "definitionOrigine": "Jack has five elder sisters and three younger sisters. Find the number of sisters Jack has?",
+          "positionSource": {
+            "x": 4,
+            "y": 4
+          }
+        },
+        {
+          "id": "G017-7V",
+          "numero": 7,
+          "direction": "down",
+          "ligne": 6,
+          "colonne": 1,
+          "reponse": "FIVE",
+          "grille": "FIVE",
+          "longueur": 4,
+          "definition": "There are eight buses in a school. If three are sent to pick up children, how many are left?",
+          "definitionOrigine": "There are eight buses in a school. If three are sent to pick up children, how many are left?",
+          "positionSource": {
+            "x": 2,
+            "y": 7
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C25",
+          "mot": "G017-5V",
+          "reponse": "EIGHT",
+          "type": "tournure",
+          "avant": "Find the number of sisters Jack has?",
+          "apres": "How many sisters does Jack have?",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C26",
+          "mot": "G017-8H",
+          "reponse": "SIXTEEN",
+          "type": "tournure",
+          "avant": "How many books from parents did they get in all?",
+          "apres": "How many books did they get from their parents in all?",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        }
+      ],
+      "normalisations": [
+        {
+          "mot": "G017-8H",
+          "regle": "espaces multiples ou en bordure"
+        }
+      ]
+    },
+    {
+      "id": "G018",
+      "titre": "addition subtraction word problem 2",
+      "titreOrigine": "addition subtraction word problem 2",
+      "matiere": "Mathématiques",
+      "niveau": "CE1-CE2",
+      "niveauStatut": "proposé par l'educator, à confirmer par Isaac",
+      "classe": null,
+      "sous_systeme": null,
+      "langue": "en",
+      "theme": "Problèmes d'addition et de soustraction (résultats jusqu'à 19)",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": null,
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\pack mots croisés\\addition subtraction word problem 2.ecw",
+        "copies": [
+          "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\pack mots croisés\\addition subtraction word problem 2.ecw",
+          "J:\\DOC DIBIE\\WORD MATHS PROBLEMS\\addition subtraction word problem 2.ecw"
+        ],
+        "sha256": "3d3e231bd060c9b9176c4c9cfaa679bc86867a10cb445e7879dbae246f3d60f4",
+        "octets": 1747,
+        "logiciel": "EclipseCrossword 1.2.61",
+        "tailleDeclaree": {
+          "largeur": 15,
+          "hauteur": 15
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 8,
+      "hauteur": 12,
+      "lignes": [
+        "....TWO.",
+        "....W...",
+        "ELEVEN..",
+        "I...L...",
+        "G...V...",
+        "H..TEN.F",
+        "T..H...I",
+        "E..R...F",
+        "E..EIGHT",
+        "NINE...E",
+        ".......E",
+        "NINETEEN"
+      ],
+      "mots": [
+        {
+          "id": "G018-1H",
+          "numero": 1,
+          "direction": "across",
+          "ligne": 0,
+          "colonne": 4,
+          "reponse": "TWO",
+          "grille": "TWO",
+          "longueur": 3,
+          "definition": "There are ten buses in a school. If eight are sent to pick up children, how many are left?",
+          "definitionOrigine": "There are ten buses in a school. If eight are sent to pick up  children, how many are left?",
+          "positionSource": {
+            "x": 7,
+            "y": 1
+          }
+        },
+        {
+          "id": "G018-2H",
+          "numero": 2,
+          "direction": "across",
+          "ligne": 2,
+          "colonne": 0,
+          "reponse": "ELEVEN",
+          "grille": "ELEVEN",
+          "longueur": 6,
+          "definition": "Joy and Jeff bought 4 purple lilies and 7 white daisies. How many flowers did they buy in all?",
+          "definitionOrigine": "Joy and Jeff bought 4 purple lilies and 7 white daisies. How  many flowers did they buy in all?",
+          "positionSource": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "id": "G018-3H",
+          "numero": 3,
+          "direction": "across",
+          "ligne": 5,
+          "colonne": 3,
+          "reponse": "TEN",
+          "grille": "TEN",
+          "longueur": 3,
+          "definition": "Lilly’s homework assignment has 4 math questions and 6 science questions. How many questions are there in all?",
+          "definitionOrigine": "Lilly’s homework assignment has 4 math questions and 6 science  questions. How many questions are there in all?",
+          "positionSource": {
+            "x": 6,
+            "y": 6
+          }
+        },
+        {
+          "id": "G018-5H",
+          "numero": 5,
+          "direction": "across",
+          "ligne": 8,
+          "colonne": 3,
+          "reponse": "EIGHT",
+          "grille": "EIGHT",
+          "longueur": 5,
+          "definition": "Peter went to an exhibition. He bought four white boards and four black boards. How many boards did Peter buy?",
+          "definitionOrigine": "Peter went to an exhibition. He bought four white boards and  four black boards. How many boards did Peter buy?",
+          "positionSource": {
+            "x": 6,
+            "y": 9
+          }
+        },
+        {
+          "id": "G018-6H",
+          "numero": 6,
+          "direction": "across",
+          "ligne": 9,
+          "colonne": 0,
+          "reponse": "NINE",
+          "grille": "NINE",
+          "longueur": 4,
+          "definition": "Peterson has four elder sisters and five younger sisters. How many sisters does Peterson have?",
+          "definitionOrigine": "Peterson has four elder sisters and five younger sisters. Find  the number of sisters Peterson has?",
+          "positionSource": {
+            "x": 3,
+            "y": 10
+          }
+        },
+        {
+          "id": "G018-7H",
+          "numero": 7,
+          "direction": "across",
+          "ligne": 11,
+          "colonne": 0,
+          "reponse": "NINETEEN",
+          "grille": "NINETEEN",
+          "longueur": 8,
+          "definition": "A zoo has 9 black deer and 10 brown deer. How many deer are there in all?",
+          "definitionOrigine": "A zoo has 9 black deer and 10 brown deer. How many deer are  there in all?",
+          "positionSource": {
+            "x": 3,
+            "y": 12
+          }
+        },
+        {
+          "id": "G018-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 4,
+          "reponse": "TWELVE",
+          "grille": "TWELVE",
+          "longueur": 6,
+          "definition": "Mac and Marc scored 8 goals in the first game. Later, they scored 4 more in the next game. How many goals did they score in all?",
+          "definitionOrigine": "Mac and Marc scored 8 goals in the first game. Later, they  scored 4 more in the next game. How many goals did they score in all?",
+          "positionSource": {
+            "x": 7,
+            "y": 1
+          }
+        },
+        {
+          "id": "G018-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 2,
+          "colonne": 0,
+          "reponse": "EIGHTEEN",
+          "grille": "EIGHTEEN",
+          "longueur": 8,
+          "definition": "There are seven black cars and eleven white cars in the garage. Find the number of cars in the garage.",
+          "definitionOrigine": "There are five black cars and eleven white cars in the garage. Find  the number of cars in the garage.",
+          "positionSource": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "id": "G018-3V",
+          "numero": 3,
+          "direction": "down",
+          "ligne": 5,
+          "colonne": 3,
+          "reponse": "THREE",
+          "grille": "THREE",
+          "longueur": 5,
+          "definition": "Alisha had four ribbons. If she gave one ribbon to her friend, how many ribbons does Alisha have left?",
+          "definitionOrigine": "Alisha had four ribbons. If she gave one ribbon to her friend,  how many ribbons does Alisha have left?",
+          "positionSource": {
+            "x": 6,
+            "y": 6
+          }
+        },
+        {
+          "id": "G018-4V",
+          "numero": 4,
+          "direction": "down",
+          "ligne": 5,
+          "colonne": 7,
+          "reponse": "FIFTEEN",
+          "grille": "FIFTEEN",
+          "longueur": 7,
+          "definition": "Bob bought 6 unicorns at the mall. Candice bought 9 unicorns at a garage sale. How many unicorns did they buy in all?",
+          "definitionOrigine": "Bob bought 6 unicorns at the mall. Candice bought 9 unicorns at  a garage sale. How many unicorns did they buy in all?",
+          "positionSource": {
+            "x": 10,
+            "y": 6
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C27",
+          "mot": "G018-2V",
+          "reponse": "EIGHTEEN",
+          "type": "calcul faux (corrigé par le texte seul)",
+          "avant": "There are five black cars and eleven white cars",
+          "apres": "There are seven black cars and eleven white cars",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C28",
+          "mot": "G018-6H",
+          "reponse": "NINE",
+          "type": "tournure",
+          "avant": "Find  the number of sisters Peterson has?",
+          "apres": "How many sisters does Peterson have?",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        }
+      ],
+      "normalisations": [
+        {
+          "mot": "G018-1H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G018-2H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G018-3H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G018-5H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G018-7H",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G018-1V",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G018-2V",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G018-3V",
+          "regle": "espaces multiples ou en bordure"
+        },
+        {
+          "mot": "G018-4V",
+          "regle": "espaces multiples ou en bordure"
+        }
+      ]
+    },
+    {
+      "id": "G019",
+      "titre": "addition subtraction word problem 3",
+      "titreOrigine": "addition subtraction word problem 3",
+      "matiere": "Mathématiques",
+      "niveau": "CE1-CE2",
+      "niveauStatut": "proposé par l'educator, à confirmer par Isaac",
+      "classe": null,
+      "sous_systeme": null,
+      "langue": "en",
+      "theme": "Problèmes d'addition et de soustraction (résultats jusqu'à 20)",
+      "competence": null,
+      "objectif": null,
+      "difficulte": null,
+      "type_activite": "mots croisés",
+      "ligne_programme": null,
+      "auteur": "KWA ISAAC",
+      "copyright": "© 2022",
+      "droits": {
+        "statut": "déclarés par Isaac",
+        "date": "2026-11-09",
+        "reference": "selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier"
+      },
+      "statut": "BROUILLON",
+      "source": {
+        "chemin": "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\pack mots croisés\\addition subtraction word problem 3.ecw",
+        "copies": [
+          "J:\\DOC DIBIE\\INFORMATIQUE\\NEW DOC DIBIE\\doc KWA\\NMI DOC\\pack mots croisés\\addition subtraction word problem 3.ecw",
+          "J:\\DOC DIBIE\\WORD MATHS PROBLEMS\\addition subtraction word problem 3.ecw"
+        ],
+        "sha256": "8e10e78aede18b8df91fac72bec0bca3ba5c3713d8597b2cb92bc54d518e433a",
+        "octets": 1731,
+        "logiciel": "EclipseCrossword 1.2.61",
+        "tailleDeclaree": {
+          "largeur": 10,
+          "hauteur": 11
+        },
+        "dateImport": "2026-11-09"
+      },
+      "largeur": 9,
+      "hauteur": 10,
+      "lignes": [
+        "..F.SEVEN",
+        "TWO.E....",
+        "..U.V..T.",
+        "..R.EIGHT",
+        "T.TEN..I.",
+        "W.E.T..R.",
+        "ELEVEN.T.",
+        "N.N.E..E.",
+        "T...NINE.",
+        "Y......N."
+      ],
+      "mots": [
+        {
+          "id": "G019-2H",
+          "numero": 2,
+          "direction": "across",
+          "ligne": 0,
+          "colonne": 4,
+          "reponse": "SEVEN",
+          "grille": "SEVEN",
+          "longueur": 5,
+          "definition": "There are three black cars and four white cars in the garage. Find the number of cars in the garage.",
+          "definitionOrigine": "There are three black cars and three white cars in the garage. Find the number of cars in the garage.",
+          "positionSource": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "id": "G019-3H",
+          "numero": 3,
+          "direction": "across",
+          "ligne": 1,
+          "colonne": 0,
+          "reponse": "TWO",
+          "grille": "TWO",
+          "longueur": 3,
+          "definition": "There are four buses in a school. If two are sent to pick up children, how many are left?",
+          "definitionOrigine": "There are four buses in a school. If two are sent to pick up children, how many are left?",
+          "positionSource": {
+            "x": 2,
+            "y": 3
+          }
+        },
+        {
+          "id": "G019-5H",
+          "numero": 5,
+          "direction": "across",
+          "ligne": 3,
+          "colonne": 4,
+          "reponse": "EIGHT",
+          "grille": "EIGHT",
+          "longueur": 5,
+          "definition": "Jenny has nine ribbons. If she gives one ribbon to her friend, how many ribbons does Jenny have left?",
+          "definitionOrigine": "Jenny has nine ribbons. If she gives one ribbon to her friend, how many ribbons does Jenny have left?",
+          "positionSource": {
+            "x": 6,
+            "y": 5
+          }
+        },
+        {
+          "id": "G019-7H",
+          "numero": 7,
+          "direction": "across",
+          "ligne": 4,
+          "colonne": 2,
+          "reponse": "TEN",
+          "grille": "TEN",
+          "longueur": 3,
+          "definition": "David and Davis got 1 visitor from Douala. Later, they got 9 more visitors from Buea. How many visitors did they get in all?",
+          "definitionOrigine": "David and Davis got 1 visitor from Douala. Later, they got 9 more visitord from Buea. How many visitors  did they get in all?",
+          "positionSource": {
+            "x": 4,
+            "y": 6
+          }
+        },
+        {
+          "id": "G019-8H",
+          "numero": 8,
+          "direction": "across",
+          "ligne": 6,
+          "colonne": 0,
+          "reponse": "ELEVEN",
+          "grille": "ELEVEN",
+          "longueur": 6,
+          "definition": "Garry has eight elder sisters and three younger sisters. How many sisters does Garry have?",
+          "definitionOrigine": "Garry has eight elder sisters and three younger sisters. Find the number of sisters Garry has?",
+          "positionSource": {
+            "x": 2,
+            "y": 8
+          }
+        },
+        {
+          "id": "G019-9H",
+          "numero": 9,
+          "direction": "across",
+          "ligne": 8,
+          "colonne": 4,
+          "reponse": "NINE",
+          "grille": "NINE",
+          "longueur": 4,
+          "definition": "Candy’s homework assignment has 2 math questions and 7 science questions. How many questions are there in all?",
+          "definitionOrigine": "Candy’s homework assignment has 2 math questions and 7 science questions. How many questions are there in all?",
+          "positionSource": {
+            "x": 6,
+            "y": 10
+          }
+        },
+        {
+          "id": "G019-1V",
+          "numero": 1,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 2,
+          "reponse": "FOURTEEN",
+          "grille": "FOURTEEN",
+          "longueur": 8,
+          "definition": "Jordon and Jerry bought 9 purple lilies and 5 white daisies. How many flowers did they buy in all?",
+          "definitionOrigine": "Jordon and Jerry bought 9 purple lilies and 5 white daisies. How many flowers did they buy in all?",
+          "positionSource": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "id": "G019-2V",
+          "numero": 2,
+          "direction": "down",
+          "ligne": 0,
+          "colonne": 4,
+          "reponse": "SEVENTEEN",
+          "grille": "SEVENTEEN",
+          "longueur": 9,
+          "definition": "Robby bought 8 sweets at the mall. Mike bought 9 sweets at the weekly market. How many sweets did they buy in all?",
+          "definitionOrigine": "Robby bought 8 sweets at the mall. Mike bought 9 sweets at a the weekly market. How many sweets did they buy in all?",
+          "positionSource": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "id": "G019-4V",
+          "numero": 4,
+          "direction": "down",
+          "ligne": 2,
+          "colonne": 7,
+          "reponse": "THIRTEEN",
+          "grille": "THIRTEEN",
+          "longueur": 8,
+          "definition": "Ngono went to an exhibition. He bought six white boards and seven black boards. How many boards did Ngono buy?",
+          "definitionOrigine": "Ngono went to an exhibition. He bought six white boards and seven black boards. How many boards did Ngono buy?",
+          "positionSource": {
+            "x": 9,
+            "y": 4
+          }
+        },
+        {
+          "id": "G019-6V",
+          "numero": 6,
+          "direction": "down",
+          "ligne": 4,
+          "colonne": 0,
+          "reponse": "TWENTY",
+          "grille": "TWENTY",
+          "longueur": 6,
+          "definition": "A zoo has 8 black deer and 12 brown deer. How many deer are there in all?",
+          "definitionOrigine": "A zoo has 8 black deer and 12 brown deer. How many deer are there in all?",
+          "positionSource": {
+            "x": 2,
+            "y": 6
+          }
+        }
+      ],
+      "corrections": [
+        {
+          "id": "C29",
+          "mot": "G019-2H",
+          "reponse": "SEVEN",
+          "type": "calcul faux (corrigé par le texte seul)",
+          "avant": "three black cars and three white cars",
+          "apres": "three black cars and four white cars",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C30",
+          "mot": "G019-7H",
+          "reponse": "TEN",
+          "type": "faute",
+          "avant": "visitord",
+          "apres": "visitors",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C31",
+          "mot": "G019-2V",
+          "reponse": "SEVENTEEN",
+          "type": "faute",
+          "avant": "at a the weekly market",
+          "apres": "at the weekly market",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        },
+        {
+          "id": "C32",
+          "mot": "G019-8H",
+          "reponse": "ELEVEN",
+          "type": "tournure",
+          "avant": "Find the number of sisters Garry has?",
+          "apres": "How many sisters does Garry have?",
+          "decision": "acceptée par Isaac le 2026-11-09 (« Oui, tout »)"
+        }
+      ],
+      "normalisations": [
+        {
+          "mot": "G019-7H",
+          "regle": "espaces multiples ou en bordure"
+        }
+      ]
+    }
+  ]
+}
