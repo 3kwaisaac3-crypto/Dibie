@@ -57,8 +57,10 @@
 
 .eclipse-board {
   display: grid;
-  grid-template-columns: repeat(15, 40px);
-  grid-template-rows: repeat(15, 40px);
+  /* Colonnes et lignes posées par EclipseGrid (--eclipse-cols, --eclipse-rows) :
+     15 aux mots croisés ; variables aux Grilles du maître (phase 6, lot B) */
+  grid-template-columns: repeat(var(--eclipse-cols, 15), 40px);
+  grid-template-rows: repeat(var(--eclipse-rows, 15), 40px);
   gap: 0;
   background-color: #000;
   padding: 2px;
@@ -117,6 +119,8 @@
   padding: 1px 2px;
   line-height: 1;
   background: transparent;
+  /* Le numéro ne doit pas capter le toucher : il laisse passer le clic vers la case. */
+  pointer-events: none;
 }
 
 /* INPUT */
@@ -235,8 +239,8 @@
   }
 
   .eclipse-board {
-    grid-template-columns: repeat(15, 35px);
-    grid-template-rows: repeat(15, 35px);
+    grid-template-columns: repeat(var(--eclipse-cols, 15), 35px);
+    grid-template-rows: repeat(var(--eclipse-rows, 15), 35px);
   }
 
   .eclipse-cell {
@@ -264,17 +268,17 @@
     gap: 10px;
   }
 
-  /* 15 colonnes dans la largeur de l'écran (anomalie A-01, décision du
+  /* Toutes les colonnes (15 aux mots croisés) dans la largeur de l'écran (anomalie A-01, décision du
      2026-10-30). --eclipse-marges : marges horizontales des cadres autour de
      la grille ; 12px : padding et bordure de la grille. */
   .eclipse-grid {
     --eclipse-marges: 160px;
-    --eclipse-case: min(26px, calc((100vw - var(--eclipse-marges) - 12px) / 15));
+    --eclipse-case: min(26px, calc((100vw - var(--eclipse-marges) - 12px) / var(--eclipse-cols, 15)));
   }
 
   .eclipse-board {
-    grid-template-columns: repeat(15, var(--eclipse-case));
-    grid-template-rows: repeat(15, var(--eclipse-case));
+    grid-template-columns: repeat(var(--eclipse-cols, 15), var(--eclipse-case));
+    grid-template-rows: repeat(var(--eclipse-rows, 15), var(--eclipse-case));
     flex-shrink: 0;
   }
 

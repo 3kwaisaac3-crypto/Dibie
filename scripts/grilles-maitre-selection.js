@@ -21,6 +21,14 @@ const DROITS = {
   date: '2026-11-09',
   reference: 'selection-lot0-v0.1.md §6, Q1 (« Ces grilles sont de moi ») ; en-tête Author du fichier'
 }
+// Validation des 12 grilles par Isaac, auteur (statut « VALIDÉE PAR ISAAC »,
+// cadrage de la phase 6, §4.1 et P12), après la relecture du lot B
+const VALIDATION = {
+  par: 'Isaac',
+  date: '2026-11-09',
+  mention: 'validé par Isaac',
+  reference: '« Je valide les 12 » (décision d\'Isaac du 2026-11-09)'
+}
 const NIVEAU_CONFIRME = 'confirmé par Isaac le 2026-11-09'
 const NIVEAU_PROPOSE = 'proposé par l\'educator, à confirmer par Isaac'
 const PROGRAMME = ' (programmes-primaire-cameroun-v0.2.md, non confirmé par un enseignant)'
@@ -198,6 +206,7 @@ export const SELECTION = [
   }
 ].map(fiche => ({
   ...fiche,
-  statut: 'BROUILLON',
+  statut: 'VALIDÉE PAR ISAAC',
+  validation: VALIDATION,
   droits: fiche.droitsRemarque ? { ...DROITS, remarque: fiche.droitsRemarque } : DROITS
 }))
