@@ -89,6 +89,17 @@ Deux candidats qui partagent une clé sont « en conflit ».
 
 Langue de l'interface au lancement : `mot_fr` / `def_fr` ou `mot_en` / `def_en` (comme L4). Un même numéro peut donner des quiz différents en français et en anglais ; les sujets grisés dépendent de la langue.
 
+### 6.4 Mesure sur le vocabulaire (2026-11-17)
+
+Sujets jouables (série garantie pour toute graine, `quizSubjects`) :
+
+| Langue | CE1-CE2 (6 questions, 3 propositions) | CM1-CM2 (8 questions, 4 propositions) |
+|---|---|---|
+| Français | 31/33 | 29/51 |
+| Anglais | 31/33 | 28/51 |
+
+Pour comparaison, L4 (4 et 5 paires) : 31/33 et 32/51 en français, 31/33 et 32/51 en anglais. En CM1-CM2, la série de 8 questions demande 8 définitions distinctes : quelques sujets courts restent grisés.
+
 ## 7. Choix provisoires (à valider par Isaac, puis par un enseignant)
 
 | # | Choix | Détail |
