@@ -17,6 +17,7 @@ import MysteryGame from './pages/MysteryGame'
 import PyramidGame from './pages/PyramidGame'
 import PairsGame from './pages/PairsGame'
 import DefinitionGame from './pages/DefinitionGame'
+import QuizGame from './pages/QuizGame'
 import MemoryGame from './pages/MemoryGame'
 import TablesMemoryGame from './pages/TablesMemoryGame'
 import CrossNumberGame from './pages/CrossNumberGame'
@@ -24,7 +25,7 @@ import MasterGridGame from './pages/MasterGridGame'
 
 import './App.css'
 
-const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'mysteryGame', 'pyramidGame', 'pairsGame', 'definitionGame', 'memoryGame', 'tablesMemoryGame', 'crossNumberGame', 'masterGridGame']
+const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'mysteryGame', 'pyramidGame', 'pairsGame', 'definitionGame', 'quizGame', 'memoryGame', 'tablesMemoryGame', 'crossNumberGame', 'masterGridGame']
 const ADULT_PAGES = ['roleSelect', 'teacherDashboard', 'parentDashboard', 'adminDashboard']
 
 export default function App() {
@@ -67,7 +68,7 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [page])
 
-  if (!vocabLoaded && (page === 'crosswordGame' || page === 'wordSearchGame' || page === 'anagramGame' || page === 'mysteryGame' || page === 'pairsGame' || page === 'definitionGame' || page === 'memoryGame')) {
+  if (!vocabLoaded && (page === 'crosswordGame' || page === 'wordSearchGame' || page === 'anagramGame' || page === 'mysteryGame' || page === 'pairsGame' || page === 'definitionGame' || page === 'quizGame' || page === 'memoryGame')) {
     return <div style={{padding: '20px', textAlign: 'center'}}>⏳ Chargement jeu...</div>
   }
 
@@ -91,6 +92,7 @@ export default function App() {
       {page === 'mysteryGame' && vocabLoaded && <MysteryGame />}
       {page === 'pairsGame' && vocabLoaded && <PairsGame />}
       {page === 'definitionGame' && vocabLoaded && <DefinitionGame />}
+      {page === 'quizGame' && vocabLoaded && <QuizGame />}
       {page === 'memoryGame' && vocabLoaded && <MemoryGame />}
       {/* Pyramides : nombres générés, sans vocabulaire à attendre */}
       {page === 'pyramidGame' && <PyramidGame />}
