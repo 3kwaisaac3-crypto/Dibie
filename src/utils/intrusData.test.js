@@ -83,3 +83,19 @@ test('langue absente : erreur', () => {
   assert.ok(intrusItemErrors(item, 'en').length > 0)
   assert.deepEqual(intrusItemErrors(item, 'fr'), [])
 })
+
+// Relecture finale (2026-11-17) : contenus corrigés avant validation
+const byId = (id) => collection.items.find(i => i.id === id)
+test('I-CM-26 FR : un seul critère sépare les mots (pluriel en -aux), pas animal / objet', () => {
+  assert.deepEqual(byId('I-CM-26').fr.elements, ['CHEVAL', 'ANIMAL', 'JOURNAL', 'LIVRE'])
+  assert.equal(byId('I-CM-26').fr.intrus, 'LIVRE')
+})
+test('raisons fausses qui ne sont pas défendables (I-CM-03, I-CM-04)', () => {
+  const defendables = ['Le requin est le plus gros des quatre.', 'The shark is the biggest of the four.',
+    'L\'araignée est plus grosse que les trois autres.', 'The spider is bigger than the other three.']
+  for (const id of ['I-CM-03', 'I-CM-04']) {
+    for (const lang of LANGUAGES) {
+      for (const r of byId(id)[lang].raisonsFausses) assert.ok(!defendables.includes(r), `${id} (${lang}) : ${r}`)
+    }
+  }
+})

@@ -993,7 +993,7 @@
         "raison": "Les trois autres sont des mammifères : ils nourrissent leurs petits avec leur lait. Le requin est un poisson.",
         "raisonsFausses": [
           "Le requin vit dans l'eau, les trois autres vivent sur la terre.",
-          "Le requin est le plus gros des quatre."
+          "Le requin est un oiseau."
         ]
       },
       "en": {
@@ -1007,7 +1007,7 @@
         "raison": "The other three are mammals: they feed their babies with milk. A shark is a fish.",
         "raisonsFausses": [
           "The shark lives in water; the other three live on land.",
-          "The shark is the biggest of the four."
+          "The shark is a bird."
         ]
       }
     },
@@ -1028,7 +1028,7 @@
         "intrus": "ARAIGNÉE",
         "raison": "Les trois autres sont des insectes : ils ont 6 pattes. L'araignée a 8 pattes.",
         "raisonsFausses": [
-          "L'araignée est plus grosse que les trois autres.",
+          "L'araignée a des ailes.",
           "L'araignée ne vit jamais dans les maisons."
         ]
       },
@@ -1042,7 +1042,7 @@
         "intrus": "spider",
         "raison": "The other three are insects: they have 6 legs. A spider has 8 legs.",
         "raisonsFausses": [
-          "The spider is bigger than the other three.",
+          "The spider has wings.",
           "The spider never lives in houses."
         ]
       }
@@ -1809,19 +1809,19 @@
       "matiere": "Français (grammaire) / Anglais",
       "critere": "Grammaire",
       "statut": "BROUILLON",
-      "reserve": "**Version EN propre** (pluriel irrégulier). FR : les trois mots finissent par « -al » et chat est le plus court (indices de forme qui coïncident avec l'intrus).",
+      "reserve": "**Version EN propre** (pluriel irrégulier). FR modifié le 2026-11-17 à la relecture : CHAT remplacé par LIVRE (avec CHAT, JOURNAL était le seul mot qui n'est pas un animal : deuxième intrus défendable). Les trois mots en -aux finissent par « -al » (indice de forme qui coïncide avec le critère).",
       "fr": {
         "elements": [
           "CHEVAL",
           "ANIMAL",
           "JOURNAL",
-          "CHAT"
+          "LIVRE"
         ],
-        "intrus": "CHAT",
-        "raison": "Cheval, animal et journal font leur pluriel en -aux (chevaux, animaux, journaux). Chat fait chats.",
+        "intrus": "LIVRE",
+        "raison": "Cheval, animal et journal font leur pluriel en -aux (chevaux, animaux, journaux). Livre fait livres.",
         "raisonsFausses": [
-          "Chat fait son pluriel en -aux (chataux).",
-          "Chat est le seul mot qui désigne un animal."
+          "Livre fait son pluriel en -aux (livraux).",
+          "Livre est le seul mot qui désigne un objet."
         ]
       },
       "en": {
