@@ -33,6 +33,13 @@ import '../styles/QuizGame.css'
 // fois en fin de série, sans points. Écran de choix repris de L4
 // (src/pages/DefinitionGame.jsx). Pas de quiz en SIL-CP (C1).
 
+// Double toucher sur « Suivant » : pendant ce délai après le passage à la
+// question suivante, les touchers sur les propositions et sur « Nouvelle
+// partie » / « Retour » sont ignorés (le second toucher d'un double toucher
+// tombe sinon sur la nouvelle mise en page : réponse sans lecture, partie
+// quittée). Durée d'un double toucher courant, CHOIX PROVISOIRE.
+const NEXT_TAP_GUARD_MS = 500
+
 export default function QuizGame() {
   const { user, language, setCurrentPage } = useAppStore()
   const t = (fr, en) => (language === 'fr' ? fr : en)
@@ -56,6 +63,10 @@ export default function QuizGame() {
     quizRef.current = next
     setQuizState(next)
   }
+
+  // Heure du dernier passage à la question suivante (NEXT_TAP_GUARD_MS)
+  const advancedAtRef = useRef(0)
+  const tapGuarded = () => Date.now() - advancedAtRef.current < NEXT_TAP_GUARD_MS
 
   const busyRef = useRef(false)
   // Série dont le score est déjà enregistré : un seul saveScore par série (C4)
@@ -172,6 +183,7 @@ export default function QuizGame() {
 
   // Un seul essai : une réponse déjà donnée laisse l'état inchangé
   const handleAnswer = (optionId) => {
+    if (tapGuarded()) return
     const state = quizRef.current
     const next = answerQuestion(game, state, optionId)
     if (next === state) return
@@ -188,6 +200,7 @@ export default function QuizGame() {
     const state = quizRef.current
     const next = nextQuestion(game, state)
     if (next === state) return
+    advancedAtRef.current = Date.now()
     setQuiz(next)
     if (!isFinished(next)) return
     // Score enregistré une seule fois, à la fin de la série (reprise comprise)
@@ -442,17 +455,17 @@ export default function QuizGame() {
           {feedback}
         </p>
 
-        {answer && (
-          <button className="anagram-select__start quiz-next" onClick={handleNext}>
-            {t('Suivant', 'Next')}
-          </button>
-        )}
+        {/* Toujours affiché (désactivé avant la réponse) : la rangée du bas
+            ne remonte pas sous le doigt après « Suivant » */}
+        <button className="anagram-select__start quiz-next" onClick={handleNext} disabled={answer === null}>
+          {t('Suivant', 'Next')}
+        </button>
 
         <div className="anagram-game__footer">
-          <button className="anagram-game__btn anagram-game__btn--secondary" onClick={handleNewGame}>
+          <button className="anagram-game__btn anagram-game__btn--secondary" onClick={() => { if (!tapGuarded()) handleNewGame() }}>
             {t('Nouvelle partie', 'New game')}
           </button>
-          <button className="anagram-game__btn anagram-game__btn--secondary anagram-game__back" onClick={handleBackToSelect}>
+          <button className="anagram-game__btn anagram-game__btn--secondary anagram-game__back" onClick={() => { if (!tapGuarded()) handleBackToSelect() }}>
             {t('Retour', 'Back')}
           </button>
         </div>

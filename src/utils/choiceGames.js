@@ -168,6 +168,16 @@ function pickOptions(answer, pool, optionCount, random) {
 
 const toOption = (c) => ({ id: c.id, text: c.word })
 
+// Ordre de la reprise (C3, « propositions remélangées ») : mélangé selon la
+// graine ; s'il est identique au premier ordre, décalé d'un cran (comme
+// rightOrder dans pairsGame.js), pour que l'élève relise au lieu de toucher la
+// place retenue.
+function retryOrder(order, random) {
+  const retry = shuffled(order, random)
+  if (retry.length > 1 && retry.every((c, i) => c === order[i])) retry.push(retry.shift())
+  return retry
+}
+
 // Quiz « définition → mot » : entrées d'un sujet et d'un niveau, graine, langue
 // de l'interface au lancement. Renvoie { seed, level, language, questions },
 // ou null si le sujet n'est pas jouable. RangeError si graine invalide ou
@@ -192,12 +202,12 @@ export function createDefinitionQuiz(entries, level, seed, language = 'fr') {
     answers.push(c)
   }
   const questions = answers.map(answer => {
-    const chosen = pickOptions(answer, pool, settings.optionCount, random)
+    const order = shuffled(pickOptions(answer, pool, settings.optionCount, random), random)
     return {
       id: answer.id,
       prompt: answer.definition,
-      options: shuffled(chosen, random).map(toOption),
-      retryOptions: shuffled(chosen, random).map(toOption),
+      options: order.map(toOption),
+      retryOptions: retryOrder(order, random).map(toOption),
       answerId: answer.id,
       feedback: { word: answer.word, definition: answer.definition }
     }

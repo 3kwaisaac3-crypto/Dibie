@@ -29,6 +29,16 @@ async function lancer(page, { niveau, sujet, numero, langue = 'fr' }) {
   await expect(page.locator('.quiz-board')).toBeVisible()
 }
 
+// Touche une cible jusqu'à obtenir l'effet attendu : juste après « Suivant »,
+// les touchers sont ignorés pendant un court délai (double toucher, docs/quiz.md)
+async function toucher(cible, effet) {
+  await expect(async () => {
+    await cible.click()
+    await effet()
+  }).toPass()
+}
+const repondu = (page) => () => expect(page.locator('.quiz-feedback')).toHaveText(/.+/, { timeout: 300 })
+
 const option = (page, texte) => page.locator('.quiz-option', { hasText: new RegExp(`^${echapper(texte)}$`) })
 
 // Vérifie la question affichée, puis touche une proposition (bonne ou fausse)
@@ -36,7 +46,7 @@ async function repondre(page, question, options, { juste = true } = {}) {
   await expect(page.locator('.quiz-question')).toHaveText(question.prompt)
   await expect(page.locator('.quiz-option')).toHaveText(options.map(o => o.text))
   const choisie = juste ? options.find(o => o.id === question.answerId) : options.find(o => o.id !== question.answerId)
-  await option(page, choisie.text).click()
+  await toucher(option(page, choisie.text), repondu(page))
   return choisie
 }
 
@@ -53,7 +63,7 @@ test('Partie complète en français (CE1-CE2), toutes justes : pas de reprise, s
   await expect(page.locator('.anagram-game__seed')).toHaveText(`Partie n° ${numero} · ${libelleSujet(sujet, 'fr')}`)
   for (const [i, q] of attendu.questions.entries()) {
     await expect(page.locator('.quiz-progress')).toHaveText(`Question ${i + 1} / 6`)
-    await expect(page.locator('.quiz-next')).toHaveCount(0)
+    await expect(page.locator('.quiz-next')).toBeDisabled()
     await repondre(page, q, q.options)
     await expect(page.locator('.quiz-feedback')).toHaveText('Bravo !')
     await suivant(page)
@@ -118,6 +128,38 @@ test('Double toucher : une seule réponse comptée, propositions désactivées',
   }
   await expect(page.locator('.anagram-finished__score')).toHaveText('60')
   expect(await lireScores(page)).toHaveLength(1)
+  expect(erreurs).toEqual([])
+})
+
+test('Double toucher sur « Suivant » : la question suivante reste sans réponse, la série continue', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Quiz suivant', niveau: 'CE1-CE2' })
+  const sujet = premierSujetJouable('CE1-CE2')
+  // Chaque question, avec une mauvaise réponse (correction longue, puis mise
+  // en page qui change), sur plusieurs numéros
+  for (const numero of [1, 2, 3]) {
+    const attendu = quiz('CE1-CE2', sujet, numero)
+    await lancer(page, { niveau: 'CE1-CE2', sujet, numero })
+    for (const [i, q] of attendu.questions.slice(0, -1).entries()) {
+      await repondre(page, q, q.options, { juste: false })
+      const boite = await page.locator('.quiz-next').boundingBox()
+      await page.locator('.quiz-next').click()
+      await expect(page.locator('.quiz-progress')).toHaveText(`Question ${i + 2} / 6`)
+      // Second toucher aussitôt, au même endroit (points répartis sur toute la
+      // largeur et la hauteur de « Suivant ») : sans effet
+      const points = [0.15, 0.5, 0.85].flatMap(fx => [0.25, 0.75].map(fy => ({
+        x: boite.x + boite.width * fx, y: boite.y + boite.height * fy
+      })))
+      for (const { x, y } of points) await page.mouse.click(x, y)
+      await expect(page.locator('.quiz-board'), `question ${i + 2}, n° ${numero}`).toBeVisible()
+      await expect(page.locator('.quiz-progress')).toHaveText(`Question ${i + 2} / 6`)
+      await expect(page.locator('.quiz-feedback')).toHaveText('')
+      await expect(page.locator('.quiz-option:disabled')).toHaveCount(0)
+    }
+    // Retour à l'écran de choix, puis au tableau de bord
+    await toucher(page.getByRole('button', { name: 'Retour' }), () => expect(page.locator('.anagram-select__back')).toBeVisible({ timeout: 300 }))
+    await page.locator('.anagram-select__back').click()
+  }
   expect(erreurs).toEqual([])
 })
 
@@ -199,7 +241,7 @@ for (const largeur of [375, 320]) {
       })))
       expect(mesures.every(m => !m.deborde)).toBe(true)
       expect(mesures.every(m => m.hauteur >= 44)).toBe(true)
-      await option(page, q.feedback.word).click()
+      await toucher(option(page, q.feedback.word), repondu(page))
       await suivant(page, fr)
     }
     await expect(page.locator('.anagram-finished__score')).toBeVisible()

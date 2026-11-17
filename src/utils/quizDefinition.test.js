@@ -80,6 +80,15 @@ test('forme d’une question : prompt = définition, options en majuscules, rép
   }
 })
 
+test('reprise : propositions toujours dans un autre ordre que la première fois', () => {
+  for (let seed = 0; seed < 200; seed++) {
+    const quiz = createDefinitionQuiz(petit, 'CE1-CE2', seed)
+    for (const q of quiz.questions) {
+      assert.notDeepEqual(q.retryOptions.map(o => o.id), q.options.map(o => o.id), `graine ${seed} : même ordre en reprise`)
+    }
+  }
+})
+
 test('sujet trop petit : non jouable, pas de quiz', () => {
   const trois = petit.slice(4, 7)
   const [info] = quizSubjects(trois, 'CE1-CE2')
