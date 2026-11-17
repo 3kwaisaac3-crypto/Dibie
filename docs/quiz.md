@@ -1,6 +1,6 @@
 # Quiz (moteur D) : note de conception du lot A
 
-**Statut** : conception validée par Isaac le 2026-11-17 (« Écris ainsi ») ; choix C1 à C5 provisoires, à valider par Isaac après essai, puis par un enseignant.
+**Statut** : conception validée par Isaac le 2026-11-17 (« Écris ainsi ») ; choix C1 à C8 validés par Isaac le 2026-11-17 (C3 modifié : deux essais), à valider par un enseignant.
 **Branche** : `feature/quiz-moteur-d`.
 **Références** : `catalogue-jeux-v0.2.md` §0.4 (moteur D), fiche L8 ; `docs/plan-migration.md` §4 (phase 7) et §5.2 ; `docs/paires.md` §13 à §18 (L4, dont ce lot réutilise les règles).
 
@@ -59,9 +59,9 @@ Fonctions pures, sans connaissance du vocabulaire. Une **question** est :
 
 Le moteur fournit :
 - l'**état d'une série** : question en cours, réponses données, phase (série principale ou reprise) ;
-- `answer(state, optionId)` : enregistre la réponse (un seul essai par question, C3) ;
+- `answerQuestion(game, state, optionId)` : enregistre un essai ; **deux essais** par question (C3), une proposition déjà essayée est refusée ; la question est résolue par une bonne réponse ou par la deuxième erreur (`currentAnswer`, `triedOptionIds`) ;
 - le passage à la question suivante ; à la fin de la série principale, les **questions ratées reviennent une fois**, dans le même ordre, avec leurs propositions remélangées selon la graine ; les réponses de la reprise ne rapportent pas de points ;
-- `isFinished`, `correctCount` (premier essai seulement), `quizScore` (10 points par bonne réponse du premier coup, C4).
+- `isFinished`, `isRetryPhase`, `firstTryCount`, `secondTryCount`, `correctCount` (série principale), `quizScore` (10 points au premier essai, 5 au second, C4) ; en reprise, deux essais encore, sans points.
 
 Le mélange de l'ordre des propositions utilise la graine de la partie ; si l'ordre mélangé place la bonne réponse toujours au même rang dans toute la série, ce n'est pas corrigé (tirage aléatoire honnête) — **choix laissé au developer** s'il souhaite équilibrer les rangs.
 
@@ -81,7 +81,7 @@ Deux candidats qui partagent une clé sont « en conflit ».
 ### 6.2 Règles de tirage
 
 1. **Propositions d'une question** : la bonne réponse et des mauvaises réponses du **même niveau et du même sujet**, toutes **sans conflit** entre elles ni avec la bonne réponse. Aucune proposition n'est donc un synonyme connu, un mot cité par la définition, ni un mot de même définition.
-2. **Questions de la série** : des bonnes réponses toutes différentes, aux **définitions toutes différentes** (clé « d: ») ; deux questions peuvent avoir des réponses synonymes (chacune est exclue des propositions de l'autre par la règle 1).
+2. **Questions de la série** : des bonnes réponses toutes différentes, aux **définitions toutes différentes** (clé « d: ») et aux **mots affichés tous différents** (C8 : deux entrées SWAP aux définitions presque identiques ne font jamais deux questions de la même série) ; deux questions peuvent avoir des réponses synonymes, de mots différents (chacune est exclue des propositions de l'autre par la règle 1). Borne sûre : nombre de groupes de candidats reliés par une définition ou un mot affiché communs.
 3. **Garantie** : un sujet est jouable seulement si la série est complète **pour toute graine** (borne sûre, comme `guaranteedPairCount`) : assez de candidats aux définitions distinctes pour le nombre de questions, et assez de groupes sans conflit pour le nombre de propositions (des candidats de groupes différents ne sont jamais en conflit). L'algorithme exact est laissé au developer, avec cette garantie testée sur de longues séries de graines.
 4. Tri préalable par id avant le tirage : le résultat ne dépend que du contenu et de la graine.
 
@@ -100,15 +100,18 @@ Sujets jouables (série garantie pour toute graine, `quizSubjects`) :
 
 Pour comparaison, L4 (4 et 5 paires) : 31/33 et 32/51 en français, 31/33 et 32/51 en anglais. En CM1-CM2, la série de 8 questions demande 8 définitions distinctes : quelques sujets courts restent grisés.
 
-## 7. Choix provisoires (à valider par Isaac, puis par un enseignant)
+## 7. Choix validés par Isaac le 2026-11-17 (à valider par un enseignant)
 
 | # | Choix | Détail |
 |---|---|---|
 | C1 | Niveaux et propositions | Pas de SIL-CP (lecture de phrases) : la carte est visible, la page s'ouvre en CE1-CE2 avec le message de L4 (« Ce jeu commence au CE1-CE2 : il faut lire des phrases. Tu peux essayer avec un adulte. ») ; **3 propositions en CE1-CE2, 4 en CM1-CM2** (hypothèse de la fiche L8) |
 | C2 | Longueur de série | **6 questions en CE1-CE2, 8 en CM1-CM2** (fiche L8 : 5 à 10) ; sujet grisé (« pas assez de mots ») si la série n'est pas garantie |
-| C3 | Réponse | **Un seul essai** ; bonne réponse : « Bravo ! » ; mauvaise réponse : la proposition choisie est marquée fausse, la bonne réponse est montrée avec sa définition (« MOT : définition »), puis bouton « Suivant » ; questions ratées reproposées une fois en fin de série (fiche L8, `educator.md` §28) |
-| C4 | Score et enregistrement | 10 points par bonne réponse du **premier** essai ; pas d'étoiles ni de badge ; `gameType` = `quizDefinition` ; `saveScore` une seule fois à la fin de la série (reprise comprise), détails `{ seed, language, subject, questionCount, correctCount }` |
+| C3 | Réponse | **Deux essais** (décision d'Isaac, à la place d'un seul essai) ; première erreur : la proposition est barrée et désactivée, « Essaie encore : il te reste un essai. » ; bonne réponse : « Bravo ! », ou « Bravo, au deuxième essai ! » ; deuxième erreur : la bonne réponse est montrée avec sa définition (« La réponse : MOT : définition »), puis bouton « Suivant » ; questions ratées (deux erreurs) reproposées une fois en fin de série, deux essais, sans points ; une question réussie au second essai ne revient pas (fiche L8, `educator.md` §28) |
+| C4 | Score et enregistrement | **10 points au premier essai, 5 au second**, 0 après deux erreurs et en reprise ; pas d'étoiles ni de badge ; `gameType` = `quizDefinition` ; `saveScore` une seule fois à la fin de la série (reprise comprise), détails `{ seed, language, subject, questionCount, correctCount, firstTryCount, secondTryCount }` ; `saveUserProgress` une fois par question résolue en série principale |
 | C5 | Affichage | La définition sert de question (casse normale) ; les propositions sont des boutons en **majuscules** (`displayText`), dans un ordre fixé par le numéro ; cibles d'au moins 44 px, utilisable à 320 px de large |
+| C6 | Double toucher | « Suivant » toujours affiché (désactivé avant la résolution) ; pendant 500 ms après « Suivant » (`NEXT_TAP_GUARD_MS`), les touchers sur les propositions et sur « Nouvelle partie » / « Retour » sont ignorés |
+| C7 | Nom de la carte | « Quiz des définitions » / « Definition quiz » |
+| C8 | Même mot deux fois | Un même mot affiché n'est jamais la réponse de deux questions d'une série (règle dans le code, §6.2 règle 2) ; nombre de sujets jouables inchangé (§6.4) |
 
 Choix de l'écran repris de L4 sans nouvelle décision : niveau, puis matière, puis sujet ; numéro de partie affiché et modifiable comme dans les autres jeux ; retour au tableau de bord depuis l'écran de choix et l'écran de fin ; écran de fin avec score et récapitulatif.
 
@@ -135,9 +138,9 @@ Unitaires (`node --test`) :
 - mauvaises réponses du même sujet et du même niveau ;
 - aucune définition contenant sa réponse ;
 - même graine, même quiz ; graine invalide refusée ;
-- définitions toutes différentes dans une série ;
+- définitions toutes différentes et mots réponses tous différents dans une série ;
 - tout sujet déclaré jouable donne une série complète sur une longue suite de graines, en français et en anglais, aux deux niveaux ;
-- moteur : un seul essai, score au premier essai seulement, reprise des questions ratées une fois, fin de série.
+- moteur : deux essais, proposition déjà essayée refusée, 10 puis 5 points, reprise des questions ratées une fois (deux essais, sans points), fin de série.
 
 Bout en bout (Playwright) : partie complète en CE1-CE2 et en CM1-CM2 ; message SIL-CP ; reprise d'une question ratée ; affichage à 375 et 320 px sans débordement.
 

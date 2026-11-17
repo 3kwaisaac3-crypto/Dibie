@@ -6,10 +6,14 @@ import {
   currentQuestion,
   currentOptions,
   currentAnswer,
+  triedOptionIds,
   answerQuestion,
   nextQuestion,
   isFinished,
+  isRetryPhase,
   correctCount,
+  firstTryCount,
+  secondTryCount,
   missedIds,
   quizScore,
   quizSettings,
@@ -29,15 +33,16 @@ import '../styles/QuizGame.css'
 // Quiz « définition → mot » (fiche L8 du catalogue v0.2 ; phase 7, lot A,
 // moteur D : src/utils/choiceGames.js ; docs/quiz.md). L'élève lit une
 // définition et touche le mot qui lui correspond, parmi 3 (CE1-CE2) ou 4
-// (CM1-CM2) propositions. Un seul essai ; les questions ratées reviennent une
-// fois en fin de série, sans points. Écran de choix repris de L4
+// (CM1-CM2) propositions. Deux essais : 10 points au premier, 5 au second
+// (C3, C4) ; après deux erreurs, la réponse est montrée et la question revient
+// une fois en fin de série, sans points. Écran de choix repris de L4
 // (src/pages/DefinitionGame.jsx). Pas de quiz en SIL-CP (C1).
 
 // Double toucher sur « Suivant » : pendant ce délai après le passage à la
 // question suivante, les touchers sur les propositions et sur « Nouvelle
 // partie » / « Retour » sont ignorés (le second toucher d'un double toucher
 // tombe sinon sur la nouvelle mise en page : réponse sans lecture, partie
-// quittée). Durée d'un double toucher courant, CHOIX PROVISOIRE.
+// quittée). Durée d’un double toucher courant (C6, validé par Isaac le 2026-11-17).
 const NEXT_TAP_GUARD_MS = 500
 
 export default function QuizGame() {
@@ -181,15 +186,17 @@ export default function QuizGame() {
     setCurrentPage('studentDashboard')
   }
 
-  // Un seul essai : une réponse déjà donnée laisse l'état inchangé
+  // Deux essais : une question résolue ou une proposition déjà essayée laisse
+  // l'état inchangé. Progrès enregistré une fois par question, quand elle est
+  // résolue (juste à l'un des deux essais, ou ratée), en série principale.
   const handleAnswer = (optionId) => {
     if (tapGuarded()) return
     const state = quizRef.current
     const next = answerQuestion(game, state, optionId)
     if (next === state) return
     setQuiz(next)
-    if (state.phase === 'main') {
-      const answer = currentAnswer(next)
+    const answer = currentAnswer(next)
+    if (answer && !isRetryPhase(state)) {
       saveUserProgress(user?.id, answer.questionId, answer.correct, null, {
         gameType: GAME_TYPE_QUIZ_DEFINITION, itemId: answer.questionId
       })
@@ -211,7 +218,9 @@ export default function QuizGame() {
         language: game.language,
         subject,
         questionCount: game.questions.length,
-        correctCount: correctCount(next)
+        correctCount: correctCount(next),
+        firstTryCount: firstTryCount(next),
+        secondTryCount: secondTryCount(next)
       }).catch(e => console.error('Erreur:', e))
     }
     setGameState('finished')
@@ -356,15 +365,16 @@ export default function QuizGame() {
   const seedLine = `${t('Partie n°', 'Game no.')} ${game.seed} · ${libelleSujet(subject, language)}`
 
   if (gameState === 'finished') {
-    const correct = correctCount(quiz)
+    const first = firstTryCount(quiz)
+    const second = secondTryCount(quiz)
     const missed = missedIds(quiz)
     return (
       <div className="anagram-finished pairs-select">
         <div className="anagram-finished__container">
           <h1>🎉 {t('Partie terminée !', 'Game over!')}</h1>
           <p>
-            {t(`${correct} bonne(s) réponse(s) du premier coup sur ${game.questions.length}.`,
-              `${correct} right answer(s) on the first try out of ${game.questions.length}.`)}
+            {t(`Sur ${game.questions.length} questions : ${first} du premier coup, ${second} au deuxième essai.`,
+              `Out of ${game.questions.length} questions: ${first} on the first try, ${second} on the second try.`)}
           </p>
           <p className="anagram-finished__score">{quizScore(quiz)}</p>
           <ul className="quiz-recap">
@@ -400,22 +410,28 @@ export default function QuizGame() {
   if (!question) return null
   const options = currentOptions(game, quiz)
   const answer = currentAnswer(quiz)
-  const retry = quiz.phase === 'retry'
+  const tried = triedOptionIds(quiz)
+  const retry = isRetryPhase(quiz)
   const total = retry ? quiz.retryIds.length : game.questions.length
 
+  // Bonne réponse en vert une fois la question résolue ; propositions essayées
+  // à tort barrées en rouge (et désactivées)
   const optionClass = (o) => {
-    if (!answer) return 'quiz-option'
-    if (o.id === question.answerId) return 'quiz-option quiz-option--correct'
-    if (o.id === answer.optionId) return 'quiz-option quiz-option--wrong'
+    if (answer && o.id === question.answerId) return 'quiz-option quiz-option--correct'
+    if (tried.includes(o.id)) return 'quiz-option quiz-option--wrong'
     return 'quiz-option'
   }
 
   let feedback = ''
-  if (answer) {
-    feedback = answer.correct
+  if (answer && answer.correct) {
+    feedback = answer.attempt === 1
       ? t('Bravo !', 'Well done!')
-      : t(`La réponse : ${question.feedback.word} : ${question.feedback.definition}`,
-        `The answer: ${question.feedback.word}: ${question.feedback.definition}`)
+      : t('Bravo, au deuxième essai !', 'Well done, on the second try!')
+  } else if (answer) {
+    feedback = t(`La réponse : ${question.feedback.word} : ${question.feedback.definition}`,
+      `The answer: ${question.feedback.word}: ${question.feedback.definition}`)
+  } else if (tried.length > 0) {
+    feedback = t('Essaie encore : il te reste un essai.', 'Try again: you have one more try.')
   }
 
   return (
@@ -443,7 +459,7 @@ export default function QuizGame() {
                 className={optionClass(o)}
                 lang={game.language}
                 onClick={() => handleAnswer(o.id)}
-                disabled={answer !== null}
+                disabled={answer !== null || tried.includes(o.id)}
               >
                 {o.text}
               </button>

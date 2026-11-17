@@ -50,6 +50,18 @@ async function repondre(page, question, options, { juste = true } = {}) {
   return choisie
 }
 
+// C3 : deux essais. Rate une question : deux mauvaises propositions, puis la
+// bonne réponse est montrée
+const ESSAIE_ENCORE = 'Essaie encore : il te reste un essai.'
+const laReponse = (q) => `La réponse : ${q.feedback.word} : ${q.feedback.definition}`
+async function rater(page, question, options) {
+  await expect(page.locator('.quiz-question')).toHaveText(question.prompt)
+  const [premiere, seconde] = options.filter(o => o.id !== question.answerId)
+  await toucher(option(page, premiere.text), () => expect(page.locator('.quiz-feedback')).toHaveText(ESSAIE_ENCORE, { timeout: 300 }))
+  await toucher(option(page, seconde.text), () => expect(page.locator('.quiz-feedback')).toHaveText(laReponse(question), { timeout: 300 }))
+  return [premiere, seconde]
+}
+
 const suivant = (page, fr = true) => page.getByRole('button', { name: fr ? 'Suivant' : 'Next' }).click()
 
 test('Partie complète en français (CE1-CE2), toutes justes : pas de reprise, score enregistré une seule fois', async ({ page }) => {
@@ -73,13 +85,41 @@ test('Partie complète en français (CE1-CE2), toutes justes : pas de reprise, s
   await expect(page.locator('.quiz-recap li')).toHaveCount(6)
   const scores = await lireScores(page)
   expect(scores).toHaveLength(1)
-  expect(scores[0]).toMatchObject({ score: 60, niveau: 'CE1-CE2', language: 'fr', subject: sujet, seed: numero, questionCount: 6, correctCount: 6 })
+  expect(scores[0]).toMatchObject({ score: 60, niveau: 'CE1-CE2', language: 'fr', subject: sujet, seed: numero, questionCount: 6, correctCount: 6, firstTryCount: 6, secondTryCount: 0 })
   await page.getByRole('button', { name: 'Retour' }).click()
   await expect(page.getByRole('button', { name: /Quiz des définitions/ })).toBeVisible()
   expect(erreurs).toEqual([])
 })
 
-test('Question ratée (CM1-CM2) : bonne réponse montrée, reprise en fin de série sans points', async ({ page }) => {
+test('Bonne réponse au second essai (CE1-CE2) : 5 points, pas de reprise', async ({ page }) => {
+  const erreurs = suivreErreurs(page)
+  await connecterEleve(page, { pseudo: 'Quiz second', niveau: 'CE1-CE2' })
+  const numero = 31
+  const sujet = premierSujetJouable('CE1-CE2')
+  const attendu = quiz('CE1-CE2', sujet, numero)
+  await lancer(page, { niveau: 'CE1-CE2', sujet, numero })
+  const [premiere, ...autres] = attendu.questions
+  const fausse = await repondre(page, premiere, premiere.options, { juste: false })
+  await expect(page.locator('.quiz-feedback')).toHaveText(ESSAIE_ENCORE)
+  await expect(option(page, fausse.text)).toHaveClass(/quiz-option--wrong/)
+  await expect(option(page, fausse.text)).toBeDisabled()
+  await expect(page.locator('.quiz-next')).toBeDisabled()
+  await toucher(option(page, premiere.feedback.word), () => expect(page.locator('.quiz-feedback')).toHaveText('Bravo, au deuxième essai !', { timeout: 300 }))
+  await expect(option(page, premiere.feedback.word)).toHaveClass(/quiz-option--correct/)
+  await suivant(page)
+  for (const q of autres) {
+    await repondre(page, q, q.options)
+    await suivant(page)
+  }
+  await expect(page.locator('.quiz-retry')).toHaveCount(0)
+  await expect(page.locator('.anagram-finished__score')).toHaveText('55')
+  const scores = await lireScores(page)
+  expect(scores).toHaveLength(1)
+  expect(scores[0]).toMatchObject({ score: 55, correctCount: 6, firstTryCount: 5, secondTryCount: 1 })
+  expect(erreurs).toEqual([])
+})
+
+test('Question ratée (CM1-CM2) : deux erreurs, bonne réponse montrée, reprise en fin de série sans points', async ({ page }) => {
   const erreurs = suivreErreurs(page)
   await connecterEleve(page, { pseudo: 'Quiz reprise', niveau: 'CM1-CM2' })
   const numero = 77
@@ -88,10 +128,10 @@ test('Question ratée (CM1-CM2) : bonne réponse montrée, reprise en fin de sé
   expect(attendu.questions).toHaveLength(8)
   await lancer(page, { niveau: 'CM1-CM2', sujet, numero })
   const [premiere, ...autres] = attendu.questions
-  const fausse = await repondre(page, premiere, premiere.options, { juste: false })
-  await expect(option(page, fausse.text)).toHaveClass(/quiz-option--wrong/)
+  const fausses = await rater(page, premiere, premiere.options)
+  for (const f of fausses) await expect(option(page, f.text)).toHaveClass(/quiz-option--wrong/)
   await expect(option(page, premiere.feedback.word)).toHaveClass(/quiz-option--correct/)
-  await expect(page.locator('.quiz-feedback')).toHaveText(`La réponse : ${premiere.feedback.word} : ${premiere.feedback.definition}`)
+  await expect(page.locator('.quiz-option:enabled')).toHaveCount(0)
   await suivant(page)
   for (const q of autres) {
     await repondre(page, q, q.options)
@@ -105,7 +145,7 @@ test('Question ratée (CM1-CM2) : bonne réponse montrée, reprise en fin de sé
   await expect(page.locator('.quiz-recap__item--missed')).toHaveCount(1)
   const scores = await lireScores(page)
   expect(scores).toHaveLength(1)
-  expect(scores[0]).toMatchObject({ score: 70, questionCount: 8, correctCount: 7 })
+  expect(scores[0]).toMatchObject({ score: 70, questionCount: 8, correctCount: 7, firstTryCount: 7, secondTryCount: 0 })
   expect(erreurs).toEqual([])
 })
 
@@ -141,7 +181,7 @@ test('Double toucher sur « Suivant » : la question suivante reste sans répons
     const attendu = quiz('CE1-CE2', sujet, numero)
     await lancer(page, { niveau: 'CE1-CE2', sujet, numero })
     for (const [i, q] of attendu.questions.slice(0, -1).entries()) {
-      await repondre(page, q, q.options, { juste: false })
+      await rater(page, q, q.options)
       const boite = await page.locator('.quiz-next').boundingBox()
       await page.locator('.quiz-next').click()
       await expect(page.locator('.quiz-progress')).toHaveText(`Question ${i + 2} / 6`)

@@ -89,6 +89,22 @@ test('reprise : propositions toujours dans un autre ordre que la première fois'
   }
 })
 
+// C8 (Isaac, 2026-11-17) : un même mot n'est jamais la réponse de deux
+// questions d'une série (deux entrées SWAP aux définitions presque identiques)
+const doublons = [
+  ...petit,
+  entry('t11', 'GOMME', 'Rubber', 'Petit bloc souple qui enlève les traits de crayon.'),
+  entry('t12', 'CRAIE', 'Chalk stick', 'Petit bâton qui écrit en blanc sur l’ardoise.')
+]
+
+test('C8 : jamais deux fois le même mot réponse dans une série', () => {
+  for (let seed = 0; seed < 200; seed++) {
+    const quiz = createDefinitionQuiz(doublons, 'CE1-CE2', seed)
+    const words = quiz.questions.map(q => q.feedback.word)
+    assert.equal(new Set(words).size, words.length, `graine ${seed} : ${words.join(', ')}`)
+  }
+})
+
 test('sujet trop petit : non jouable, pas de quiz', () => {
   const trois = petit.slice(4, 7)
   const [info] = quizSubjects(trois, 'CE1-CE2')
@@ -118,6 +134,8 @@ for (const language of LANGUAGES) {
           assert.equal(quiz.questions.length, questionCount, where)
           const prompts = quiz.questions.map(q => q.prompt)
           assert.equal(new Set(prompts).size, questionCount, `${where} : définitions répétées`)
+          const words = quiz.questions.map(q => q.feedback.word)
+          assert.equal(new Set(words).size, questionCount, `${where} : même mot réponse deux fois (C8)`)
           for (const q of quiz.questions) {
             const ids = q.options.map(o => o.id)
             assert.equal(ids.length, optionCount, where)

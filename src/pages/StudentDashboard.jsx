@@ -33,7 +33,7 @@ export default function StudentDashboard() {
     // Lot C de la phase 4 : carte visible à tous les niveaux ; en SIL-CP, la page
     // s'ouvre en CE1-CE2 avec un message (pas de L4 en SIL-CP, P3 b), CHOIX PROVISOIRE
     { id: 'pairsDefinition', name: language === 'fr' ? 'Mot ↔ définition' : 'Word ↔ definition', icon: '📖', available: true, page: 'definitionGame' },
-    // Phase 7, lot A : quiz définition → mot (moteur D, docs/quiz.md) ; nom : CHOIX PROVISOIRE
+    // Phase 7, lot A : quiz définition → mot (moteur D, docs/quiz.md) ; nom validé par Isaac le 2026-11-17 (C7)
     { id: 'quizDefinition', name: language === 'fr' ? 'Quiz des définitions' : 'Definition quiz', icon: '❓', available: true, page: 'quizGame' },
     // Lot B de la phase 4 : deux cartes séparées (langue / maths), CHOIX PROVISOIRE (docs/paires.md)
     { id: 'memory', name: language === 'fr' ? 'Mémoire FR ↔ EN' : 'Memory FR ↔ EN', icon: '🃏', available: true, page: 'memoryGame' },

@@ -5,12 +5,14 @@
 //
 // Le moteur est générique : il reçoit une série de questions déjà préparées
 //   { id, prompt, options: [{ id, text }], retryOptions, answerId, feedback }
-// et suit l'état de la série : un seul essai par question (C3), puis, à la
-// fin de la série principale, les questions ratées reviennent une fois, avec
-// leurs propositions remélangées (retryOptions), sans points (C3, C4 ; fiche
-// L8, educator.md §28). Chaque jeu fournit sa préparation des questions :
-// quiz « définition → mot » (lot A, plus bas) ; l'intrus (L9) et les relations
-// entre les mots (L14) plus tard.
+// et suit l'état de la série (C3 et C4, validés par Isaac le 2026-11-17) :
+// deux essais par question, 10 points au premier, 5 au second ; après deux
+// erreurs, la question est ratée. À la fin de la série principale, les
+// questions ratées reviennent une fois, avec leurs propositions remélangées
+// (retryOptions), deux essais encore, sans points (fiche L8, educator.md §28).
+// Chaque jeu fournit sa préparation des questions : quiz « définition → mot »
+// (lot A, plus bas) ; l'intrus (L9) et les relations entre les mots (L14) plus
+// tard.
 //
 // L'état est immuable : chaque fonction renvoie un nouvel objet, ou le même
 // quand rien ne change (React n'affiche alors pas de rendu inutile).
@@ -19,17 +21,23 @@ import { createRandom } from './wordSearchGenerator.js'
 import { shuffled } from './anagramGame.js'
 import { definitionCandidates, guaranteedPairCount, isValidSeed } from './pairsGame.js'
 
-// C4 : 10 points par bonne réponse du premier essai ; pas d'étoiles
-export const POINTS_PER_QUESTION = 10
+// C3 et C4 : deux essais ; 10 points au premier, 5 au second ; pas d'étoiles
+export const ATTEMPTS_PER_QUESTION = 2
+export const POINTS_FIRST_TRY = 10
+export const POINTS_SECOND_TRY = 5
 
 const PHASE_MAIN = 'main'
 const PHASE_RETRY = 'retry'
 const PHASE_DONE = 'done'
 
-// État de départ d'une série
+// État de départ d'une série. answers : un élément par essai
+// { questionId, optionId, correct, attempt, phase, position }.
 export function createChoiceState(game) {
   return { phase: game.questions.length > 0 ? PHASE_MAIN : PHASE_DONE, position: 0, retryIds: [], answers: [] }
 }
+
+export const isRetryPhase = (state) => state.phase === PHASE_RETRY
+export const isFinished = (state) => state.phase === PHASE_DONE
 
 const questionById = (game, id) => game.questions.find(q => q.id === id) ?? null
 
@@ -47,36 +55,53 @@ export function currentOptions(game, state) {
   return state.phase === PHASE_RETRY ? question.retryOptions : question.options
 }
 
-// Réponse déjà donnée à la question en cours, dans la phase en cours
-export function currentAnswer(state) {
-  if (state.phase === PHASE_DONE) return null
+// Essais déjà donnés à la question en cours, dans la phase en cours
+function currentAttempts(state) {
+  if (state.phase === PHASE_DONE) return []
   const { phase, position } = state
-  return state.answers.find(a => a.phase === phase && a.position === position) ?? null
+  return state.answers.filter(a => a.phase === phase && a.position === position)
 }
 
-// Enregistre la réponse à la question en cours (un seul essai). Renvoie le même
-// objet si la question a déjà une réponse, si la série est finie, ou si
-// optionId n'est pas une proposition affichée.
+// Un essai résout la question s'il est juste ou s'il est le dernier permis
+const resolves = (a) => a.correct || a.attempt >= ATTEMPTS_PER_QUESTION
+
+// Essai qui a résolu la question en cours (juste, ou deuxième erreur), ou null
+// tant qu'un essai reste possible
+export function currentAnswer(state) {
+  return currentAttempts(state).find(resolves) ?? null
+}
+
+// Propositions déjà essayées pour la question en cours
+export const triedOptionIds = (state) => currentAttempts(state).map(a => a.optionId)
+
+// Enregistre un essai pour la question en cours. Renvoie le même objet si la
+// question est déjà résolue, si la série est finie, si optionId n'est pas une
+// proposition affichée ou s'il a déjà été essayé.
 export function answerQuestion(game, state, optionId) {
   const question = currentQuestion(game, state)
   if (!question || currentAnswer(state)) return state
   if (!currentOptions(game, state).some(o => o.id === optionId)) return state
+  const attempts = currentAttempts(state)
+  if (attempts.some(a => a.optionId === optionId)) return state
   const answer = {
     questionId: question.id,
     optionId,
     correct: optionId === question.answerId,
+    attempt: attempts.length + 1,
     phase: state.phase,
     position: state.position
   }
   return { ...state, answers: [...state.answers, answer] }
 }
 
-// Questions ratées de la série principale, dans l'ordre de la série
-export const missedIds = (state) =>
-  state.answers.filter(a => a.phase === PHASE_MAIN && !a.correct).map(a => a.questionId)
+// Résolutions de la série principale (un essai décisif par question)
+const mainResolutions = (state) => state.answers.filter(a => a.phase === PHASE_MAIN && resolves(a))
 
-// Passe à la question suivante (sans effet si la question en cours n'a pas de
-// réponse). Fin de la série principale : reprise des ratées, ou fin.
+// Questions ratées (deux erreurs) de la série principale, dans l'ordre de la série
+export const missedIds = (state) => mainResolutions(state).filter(a => !a.correct).map(a => a.questionId)
+
+// Passe à la question suivante (sans effet tant que la question en cours n'est
+// pas résolue). Fin de la série principale : reprise des ratées, ou fin.
 export function nextQuestion(game, state) {
   if (!currentAnswer(state)) return state
   const position = state.position + 1
@@ -89,12 +114,12 @@ export function nextQuestion(game, state) {
   return { ...state, phase: PHASE_DONE, position: 0 }
 }
 
-export const isFinished = (state) => state.phase === PHASE_DONE
+// Bonnes réponses de la série principale : au premier essai, au second, en tout
+export const firstTryCount = (state) => mainResolutions(state).filter(a => a.correct && a.attempt === 1).length
+export const secondTryCount = (state) => mainResolutions(state).filter(a => a.correct && a.attempt === 2).length
+export const correctCount = (state) => firstTryCount(state) + secondTryCount(state)
 
-// Bonnes réponses du premier essai (série principale seulement)
-export const correctCount = (state) => state.answers.filter(a => a.phase === PHASE_MAIN && a.correct).length
-
-export const quizScore = (state) => correctCount(state) * POINTS_PER_QUESTION
+export const quizScore = (state) => firstTryCount(state) * POINTS_FIRST_TRY + secondTryCount(state) * POINTS_SECOND_TRY
 
 // --- Quiz « définition → mot » (fiche L8 ; docs/quiz.md §6 et §7) ----------
 //
@@ -127,12 +152,22 @@ const DEFINITION_KEY_PREFIX = 'd:'
 const definitionKey = (candidate) => candidate.keys.find(k => k.startsWith(DEFINITION_KEY_PREFIX))
 const sharesKey = (a, b) => a.keys.some(k => b.keys.includes(k))
 
-// Borne sûre (pour toute graine) : questions = définitions distinctes ; groups
-// = groupes sans conflit, dont un candidat de chacun peut toujours être
-// proposé avec n'importe quelle bonne réponse
+// Clés des bonnes réponses d'une série : jamais deux fois la même définition
+// (§6.2 règle 2), ni deux fois le même mot affiché (C8, Isaac, 2026-11-17 :
+// deux entrées SWAP aux définitions presque identiques feraient la même
+// question). Des synonymes (mots différents) restent possibles.
+const ANSWER_WORD_KEY_PREFIX = 'a:'
+const answerKeys = (candidate) => [definitionKey(candidate), `${ANSWER_WORD_KEY_PREFIX}${candidate.word}`]
+
+// Borne sûre (pour toute graine) :
+// - questions = groupes de candidats reliés par une définition ou un mot
+//   affiché communs : le tirage des réponses en prend toujours au moins un par
+//   groupe (un candidat n'est refusé que si un autre de son groupe est pris) ;
+// - groups = groupes sans conflit, dont un candidat de chacun peut toujours
+//   être proposé avec n'importe quelle bonne réponse.
 function quizCapacity(candidates) {
   return {
-    questions: new Set(candidates.map(definitionKey)).size,
+    questions: guaranteedPairCount(candidates.map(c => ({ keys: answerKeys(c), restricted: false }))),
     groups: guaranteedPairCount(candidates)
   }
 }
@@ -193,12 +228,12 @@ export function createDefinitionQuiz(entries, level, seed, language = 'fr') {
   const sorted = candidates.slice().sort((a, b) => String(a.id).localeCompare(String(b.id)))
   const pool = shuffled(sorted, random)
   const answers = []
-  const usedDefinitions = new Set()
+  const usedAnswerKeys = new Set()
   for (const c of pool) {
     if (answers.length >= settings.questionCount) break
-    const key = definitionKey(c)
-    if (usedDefinitions.has(key)) continue
-    usedDefinitions.add(key)
+    const keys = answerKeys(c)
+    if (keys.some(k => usedAnswerKeys.has(k))) continue
+    keys.forEach(k => usedAnswerKeys.add(k))
     answers.push(c)
   }
   const questions = answers.map(answer => {
