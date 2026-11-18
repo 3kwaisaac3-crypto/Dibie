@@ -18,6 +18,7 @@ import PyramidGame from './pages/PyramidGame'
 import PairsGame from './pages/PairsGame'
 import DefinitionGame from './pages/DefinitionGame'
 import QuizGame from './pages/QuizGame'
+import IntrusGame from './pages/IntrusGame'
 import MemoryGame from './pages/MemoryGame'
 import TablesMemoryGame from './pages/TablesMemoryGame'
 import CrossNumberGame from './pages/CrossNumberGame'
@@ -26,7 +27,7 @@ import MasterGridGame from './pages/MasterGridGame'
 
 import './App.css'
 
-const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'mysteryGame', 'pyramidGame', 'pairsGame', 'definitionGame', 'quizGame', 'memoryGame', 'tablesMemoryGame', 'crossNumberGame', 'mentalMathGame', 'masterGridGame']
+const STUDENT_PAGES = ['studentDashboard', 'crosswordGame', 'wordSearchGame', 'anagramGame', 'mysteryGame', 'pyramidGame', 'pairsGame', 'definitionGame', 'quizGame', 'intrusGame', 'memoryGame', 'tablesMemoryGame', 'crossNumberGame', 'mentalMathGame', 'masterGridGame']
 const ADULT_PAGES = ['roleSelect', 'teacherDashboard', 'parentDashboard', 'adminDashboard']
 
 export default function App() {
@@ -94,6 +95,7 @@ export default function App() {
       {page === 'pairsGame' && vocabLoaded && <PairsGame />}
       {page === 'definitionGame' && vocabLoaded && <DefinitionGame />}
       {page === 'quizGame' && vocabLoaded && <QuizGame />}
+      {page === 'intrusGame' && <IntrusGame />}
       {page === 'memoryGame' && vocabLoaded && <MemoryGame />}
       {/* Pyramides : nombres générés, sans vocabulaire à attendre */}
       {page === 'pyramidGame' && <PyramidGame />}
