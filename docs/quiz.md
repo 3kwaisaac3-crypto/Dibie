@@ -150,4 +150,4 @@ Non-régression : `npm test` complet (dont les tests de référence des anagramm
 
 - **Deux bonnes réponses non détectées** : comme en L4 (`docs/paires.md` §18), une définition qui **convient** à un autre mot sans le citer (SOMME / TOTAL, ÉTAL / ÉTALAGE, AVENUE / BOULEVARD…) n'est pas repérée. En quiz, l'élève qui choisit l'autre mot perd un point alors qu'il a raison. Remède possible plus tard : liste manuelle de paires à ne jamais proposer ensemble, ou passe de contenu.
 - Pas d'explication rédigée : le retour montre la définition, pas une explication pédagogique.
-- Aucun essai sur un vrai téléphone ; nombre de propositions et longueur des séries à valider par un enseignant.
+- Essai sur un vrai téléphone fait par Isaac le 2026-11-17 : concluant (application servie depuis le PC sur le Wi-Fi local, sans le mode hors ligne, qui demande une connexion sécurisée). Nombre de propositions et longueur des séries à valider par un enseignant.
