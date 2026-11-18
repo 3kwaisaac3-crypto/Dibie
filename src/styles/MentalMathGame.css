@@ -1,0 +1,63 @@
+/* Calcul mental (phase 7, lot B ; docs/calcul-mental.md) : calcul en grand,
+   saisie, message et indice, pavé dessous. Couleurs reprises du quiz.
+   Utilisable à 320 px de large (grands nombres : 999 000). */
+
+.mm-board { text-align: center; }
+
+.mm-calc {
+  margin: 4px 0 8px;
+  color: #333;
+  font-size: clamp(1.5rem, 8vw, 2.2rem);
+  font-weight: bold;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.mm-entry {
+  min-height: 1.6em;
+  margin: 0 auto 8px;
+  max-width: 12ch;
+  padding: 4px 8px;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  background: #f3f4ff;
+  color: #333;
+  font-size: clamp(1.3rem, 7vw, 1.8rem);
+  font-weight: bold;
+}
+
+.mm-entry--found { background: #c8f2d0; border-color: #43a047; color: #1b5e20; }
+
+.mm-message {
+  min-height: 1.4em;
+  margin: 0 0 6px;
+  color: #333;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.mm-hint {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-left: 4px solid #764ba2;
+  border-radius: 4px;
+  background: #f7f3fb;
+  color: #333;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.mm-reveal { margin: 0 auto 8px; }
+
+.mm-next { margin-bottom: 10px; }
+
+.mm-recap {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  font-size: 1.05rem;
+}
+
+.mm-recap li { padding: 2px 0; overflow-wrap: anywhere; }
+
+.mm-families .mm-family { min-height: 44px; }
