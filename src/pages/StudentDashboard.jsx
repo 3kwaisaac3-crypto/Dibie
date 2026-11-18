@@ -45,6 +45,9 @@ export default function StudentDashboard() {
     // du profil joue (CP-CE2, Class 2-4), attend le lot C (CM, Class 5-6) ou n'a
     // pas ce jeu (SIL, Class 1, P2 a). Nom anglais : CHOIX PROVISOIRE
     { id: 'crossNumber', name: language === 'fr' ? 'Nombres croisés' : 'Number crossword', icon: '🔢', available: true, page: 'crossNumberGame' },
+    // Phase 7, lot B : calcul mental (M6, docs/calcul-mental.md), toutes les
+    // classes ; nom à valider (M10)
+    { id: 'mentalMath', name: language === 'fr' ? 'Calcul mental' : 'Mental maths', icon: '🧮', available: true, page: 'mentalMathGame' },
     // Phase 6, lot B : Grilles du maître (L16), élèves seuls (P9 a, D11) ; carte
     // visible à tous les niveaux, la page dit s'il n'y a pas encore de grille
     // pour le niveau du profil (SIL-CP). Nom anglais : CHOIX PROVISOIRE
