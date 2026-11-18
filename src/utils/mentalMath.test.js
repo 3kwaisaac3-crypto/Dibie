@@ -6,7 +6,7 @@ import {
   GAME_TYPE_MENTAL_MATH, SERIES_LENGTH, POINTS_PER_CALC, HINT_AFTER_ERRORS, REVEAL_AFTER_ERRORS, MIXED,
   classFamilies, familyCalcs, createMentalSeries, maxDigits,
   createMentalState, currentCalc, currentEntry, isResolved, showHint, canReveal,
-  submitAnswer, revealAnswer, nextCalc, mentalScore, foundCount, revealedCount, errorCount, calcHint
+  submitAnswer, revealAnswer, nextCalc, mentalScore, foundCount, revealedCount, errorCount, calcHint, calcText
 } from './mentalMath.js'
 
 test('constantes', () => {
@@ -138,4 +138,29 @@ test('indices : un texte non vide pour chaque calcul de chaque classe, dans les 
       }
     }
   }
+})
+
+// Relecture finale : un même texte affiché ne revient jamais dans une série,
+// même s'il vient de deux familles (2 × 5 en tables et en produits particuliers)
+test('mélange : jamais deux fois le même calcul affiché, toutes classes, 2 000 graines', () => {
+  for (const className of ['SIL', 'CP', 'CE1', 'CE2', 'CM1', 'CM2', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6']) {
+    for (let seed = 0; seed < 2000; seed++) {
+      const texts = createMentalSeries(className, MIXED, seed).calcs.map(c => calcText(c, 'fr'))
+      assert.equal(new Set(texts).size, texts.length, `${className}, graine ${seed} : ${texts.join(' | ')}`)
+    }
+  }
+})
+
+// Relecture finale : l'indice des tables ne contient jamais la réponse
+test('indice des tables : jamais la réponse dans les nombres listés', () => {
+  for (const className of ['SIL', 'CP', 'CE1', 'CE2', 'CM1', 'CM2', 'Class 3', 'Class 4', 'Class 5', 'Class 6']) {
+    for (const c of familyCalcs(className, 'F')) {
+      for (const lang of ['fr', 'en']) {
+        const listed = calcHint(c, lang).split(':')[1].match(/\d+/g).map(Number)
+        assert.ok(!listed.includes(c.answer), `${className} ${c.id} (${lang}) : ${calcHint(c, lang)}`)
+      }
+    }
+  }
+  assert.equal(calcHint(familyCalcs('CE1', 'F').find(c => c.a === 5 && c.b === 2), 'fr'), 'Compte de 5 en 5 : 5…')
+  assert.equal(calcHint(familyCalcs('CE1', 'F').find(c => c.a === 5 && c.b === 3), 'fr'), 'Compte de 5 en 5 : 5, 10…')
 })

@@ -170,11 +170,18 @@ export function createMentalSeries(className, family, seed) {
     // calcul de sa liste mélangée
     const order = shuffled(families, random)
     const pools = Object.fromEntries(order.map(f => [f, shuffled(familyCalcs(className, f), random)]))
+    // Un même texte peut venir de deux familles (« 2 × 5 » en tables et en
+    // produits particuliers) : il n'est pris qu'une fois (spec §4)
     calcs = []
+    const shownTexts = new Set()
     for (let turn = 0; calcs.length < SERIES_LENGTH; turn++) {
       if (order.every(x => pools[x].length === 0)) break
-      const next = pools[order[turn % order.length]].shift()
-      if (next) calcs.push(next)
+      const pool = pools[order[turn % order.length]]
+      let next = pool.shift()
+      while (next && shownTexts.has(calcText(next, 'fr'))) next = pool.shift()
+      if (!next) continue
+      shownTexts.add(calcText(next, 'fr'))
+      calcs.push(next)
     }
   } else {
     calcs = shuffled(familyCalcs(className, family), random).slice(0, SERIES_LENGTH)
@@ -280,6 +287,7 @@ const ZEROS = Object.freeze({
   1000: { fr: 'trois 0', en: 'three 0s' }
 })
 const HALF_BASE = Object.freeze({ 5: 10, 50: 100, 500: 1000 })
+const TABLE_HINT_STEPS = 3
 // En anglais, les milliers s'écrivent ici avec une virgule (« 1,000 ») dans
 // les phrases d'indice ; les calculs gardent l'espace (M9)
 const enNumber = (n) => String(n).replace(GROUP, ',')
@@ -301,7 +309,10 @@ export function calcHint(c, language) {
     case 'quadruple': return en ? 'Quadruple means double, then double again.' : 'Le quadruple, c’est le double du double.'
     case 'quarter': return en ? 'A quarter is half of a half.' : 'Le quart, c’est la moitié de la moitié.'
     case 'table': {
-      const first = [1, 2, 3].map(i => formatNumber(c.a * i)).join(', ')
+      // Jusqu'à trois multiples, tous plus petits que la réponse (sinon
+      // « 2 × 3 » aurait pour indice « 2, 4, 6 »)
+      const steps = Math.min(TABLE_HINT_STEPS, c.b - 1)
+      const first = Array.from({ length: steps }, (_, i) => formatNumber(c.a * (i + 1))).join(', ')
       return en ? `Count in ${a}s: ${first}…` : `Compte de ${a} en ${a} : ${first}…`
     }
     case 'timesPow10':

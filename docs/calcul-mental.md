@@ -120,7 +120,7 @@ Un indice par type de forme, avec les nombres du calcul. Ils aident à raisonner
 | `third` | Partage a en trois parts égales. | Share a into three equal parts. |
 | `quadruple` | Le quadruple, c'est le double du double. | Quadruple means double, then double again. |
 | `quarter` | Le quart, c'est la moitié de la moitié. | A quarter is half of a half. |
-| `table` | Compte de a en a : a, 2a, 3a… (les trois premiers nombres écrits) | Count in a's: a, 2a, 3a… |
+| `table` | Compte de a en a : a, 2a, 3a… (jusqu'à trois nombres, tous plus petits que la réponse : « 5 × 3 » donne « 5, 10… », correction de la relecture du 2026-11-18) | Count in a's: a, 2a, 3a… (same rule) |
 | `timesPow10` | Multiplier par 10, c'est écrire un 0 à droite (par 100 : deux 0 ; par 1 000 : trois 0). | Multiplying by 10 adds one 0 on the right (100: two 0s; 1,000: three 0s). |
 | `divPow10` | Diviser par 10, c'est enlever un 0 à droite (par 100 : deux 0 ; par 1 000 : trois 0). | Dividing by 10 removes one 0 on the right (100: two 0s; 1,000: three 0s). |
 | `timesK` (5, 50, 500) | Multiplie par 10 (100, 1 000), puis prends la moitié. | Multiply by 10 (100, 1,000), then take half. |
