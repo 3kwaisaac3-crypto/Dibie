@@ -31,7 +31,7 @@
 - [x] Dashboard Enseignant (score total et nombre de parties par profil)
 - [ ] Dashboard Parent (texte d'attente seulement, aucune donnée)
 - [x] Dashboard Admin (gestion vocab)
-- [x] Hors ligne après une visite en ligne (localStorage + Service Worker) ; vrai téléphone non essayé
+- [x] Hors ligne après une visite en ligne (localStorage + Service Worker) ; essai sur un vrai téléphone concluant (Isaac, 2026-11-27 : version de production servie depuis le PC sur le Wi-Fi local, Chrome Android avec le réglage « Insecure origins treated as secure », puis mode avion ; à refaire en HTTPS réel une fois déployé)
 - [x] Bilingue Français/Anglais
 - [x] Responsive (mobile/tablette/desktop)
 

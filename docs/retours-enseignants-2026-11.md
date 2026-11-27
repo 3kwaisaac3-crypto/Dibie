@@ -56,4 +56,7 @@
 - **Fiche, partie « Message codé »** : laissée vide.
 - **Fiche, proverbe P1 du jeu 6** : non coché.
 - **Fiche, remarque « CE1/CE2 » sur les tables de multiplication** : le sens n'est pas clair.
-- **Essai hors ligne sur un vrai téléphone** : la procédure est prête, mais aucun résultat n'est encore revenu.
+
+## 5. Essai hors ligne sur un vrai téléphone
+
+Fait par Isaac le 2026-11-27, avec la version de production de cette branche : **concluant**. L'application était servie depuis le PC sur le Wi-Fi local. Sur le téléphone, Chrome Android avait le réglage « Insecure origins treated as secure » activé pour l'adresse du PC : le service worker exige une adresse sécurisée. Après une visite en ligne, le téléphone a été mis en mode avion, et les jeux ont continué à marcher. À refaire en HTTPS réel une fois l'application déployée.
