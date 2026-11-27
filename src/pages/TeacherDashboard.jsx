@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAppStore } from '../stores/appStore'
 import { getAllUsersWithScores } from '../db/index'
+import { CONSEILS_ADULTES } from '../data/conseils-adultes'
 import '../styles/TeacherDashboard.css'
 
 export default function TeacherDashboard() {
@@ -37,6 +38,11 @@ export default function TeacherDashboard() {
       </div>
 
       <div className="teacher-dashboard__content">
+        <h2>{language === 'fr' ? 'Conseils' : 'Tips'}</h2>
+        <ul className="adult-tips">
+          {CONSEILS_ADULTES.map(c => <li key={c.id}>{language === 'fr' ? c.fr : c.en}</li>)}
+        </ul>
+
         <h2>{language === 'fr' ? 'Progression des élèves' : 'Student Progress'}</h2>
 
         {students.length === 0 ? (

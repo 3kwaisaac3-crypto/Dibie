@@ -133,15 +133,18 @@ export const quizScore = (state) => firstTryCount(state) * POINTS_FIRST_TRY + se
 
 export const GAME_TYPE_QUIZ_DEFINITION = 'quizDefinition'
 
-// C1 et C2 : pas de SIL-CP ; 6 questions et 3 propositions en CE1-CE2, 8 et 4
-// en CM1-CM2. [HYPOTHÈSE — À VÉRIFIER] par un enseignant.
+// C1 et C2 : 6 questions et 3 propositions en CE1-CE2, 8 et 4 en CM1-CM2
+// (validés par un enseignant le 24/11/2026). C1 révisé après cette relecture
+// (Isaac, 2026-11-26) : le quiz s'ouvre en SIL-CP, 3 questions et 3
+// propositions, à faire avec un parent.
 export const QUIZ_SETTINGS = Object.freeze({
+  'SIL-CP': Object.freeze({ questionCount: 3, optionCount: 3 }),
   'CE1-CE2': Object.freeze({ questionCount: 6, optionCount: 3 }),
   'CM1-CM2': Object.freeze({ questionCount: 8, optionCount: 4 })
 })
 export const QUIZ_LEVELS = Object.freeze(Object.keys(QUIZ_SETTINGS))
 
-// Réglages d'un niveau (RangeError si niveau absent, SIL-CP compris)
+// Réglages d'un niveau (RangeError si niveau absent)
 export function quizSettings(level) {
   const settings = QUIZ_SETTINGS[level]
   if (!settings) throw new RangeError(`Quiz : niveau non proposé (${level})`)

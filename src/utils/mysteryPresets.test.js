@@ -59,18 +59,20 @@ function playSteps(path) {
   return s
 }
 
-test('P1 — données : 44 parcours (20 du jeu 2, 24 du jeu 3) au format du §5, répartis comme dans le contenu validé', () => {
-  assert.equal(PARCOURS_MYSTERES.length, 44)
-  assert.equal(new Set(PARCOURS_MYSTERES.map(p => p.id)).size, 44, 'identifiants uniques')
+test('P1 — données : 43 parcours (19 du jeu 2, 24 du jeu 3) au format du §5, validés par les enseignants (A14 retiré)', () => {
+  assert.equal(PARCOURS_MYSTERES.length, 43)
+  assert.equal(new Set(PARCOURS_MYSTERES.map(p => p.id)).size, 43, 'identifiants uniques')
   const count = (game, language, level) => presetsFor(game, level, language).length
-  // Synthèse du §1 du contenu : jeu 2 anglais réduit (2, 3, 3), décision I1
+  // Synthèse du §1 du contenu : jeu 2 anglais réduit (2, 3, 3), décision I1 ;
+  // A14 (Monday, MON-EY) retiré après la relecture enseignant : (1, 3, 3)
   assert.deepEqual(LEVELS.map(l => count('syllables', 'fr', l)), [4, 4, 4])
-  assert.deepEqual(LEVELS.map(l => count('syllables', 'en', l)), [2, 3, 3])
+  assert.deepEqual(LEVELS.map(l => count('syllables', 'en', l)), [1, 3, 3])
+  assert.ok(!PARCOURS_MYSTERES.some(p => p.id === 'syllabes-en-sil-cp-02'), 'A14 retiré')
   assert.deepEqual(LEVELS.map(l => count('secretSentence', 'fr', l)), [4, 4, 4])
   assert.deepEqual(LEVELS.map(l => count('secretSentence', 'en', l)), [4, 4, 4])
   for (const p of PARCOURS_MYSTERES) {
     assert.ok(/^(syllabes|phrase-secrete)-(fr|en)-(sil-cp|ce1-ce2|cm1-cm2)-0\d$/.test(p.id), p.id)
-    assert.equal(p.status, 'draft', p.id)
+    assert.equal(p.status, 'validated', p.id)
     assert.ok(PRESET_STATUSES.includes(p.status))
     assert.ok(LANGUAGES.includes(p.language) && LEVELS.includes(p.level), p.id)
     assert.ok(p.steps.length >= 2, p.id)
@@ -178,7 +180,12 @@ test('P5 — décisions I10 (pas de lien avec un autre sens), I13 (sujet invers�
   assert.deepEqual([...sil.final.labels].sort(), ['Maman', 'lave', 'le', 'pagne'])
   assert.equal(sentenceLabel('SIL-CP', 'Maman'), 'Maman')
   assert.equal(sentenceLabel('CE1-CE2', 'mûre'), 'MÛRE')
-  assert.deepEqual(build('phrase-secrete-en-sil-cp-02').final.given, [], 'aucun mot donné')
+  // Relecture enseignant : la phrase ne commence pas par un mot à trouver ;
+  // Maman, Papa et Mum sont donnés d'office
+  assert.deepEqual(sil.final.given, ['Maman', 'le'])
+  assert.deepEqual(build('phrase-secrete-fr-sil-cp-04').final.given, ['Papa', 'le'])
+  assert.deepEqual(build('phrase-secrete-en-sil-cp-02').final.given, ['Mum'])
+  assert.ok(build('phrase-secrete-en-sil-cp-01').final.given.length > 0)
 })
 
 test('P6 — validation, jeu 2 : syllabe hors du mot (J2), syllabes qui ne forment pas le mot (J2), autre syllabe pour une anagramme (6.1.2), étiquettes dans l\'ordre (6.1.1)', () => {
@@ -321,7 +328,9 @@ test('P10 — moteur, jeu 3 : mots gagnés, variantes acceptées (I7), phrases r
 
 test('P11 — indices (I9), étoiles et points : 3 sans aide ; 2 avec un indice ou au 2e essai faux de la finale ; 1 si une solution est montrée ; 10 par anagramme + 10', () => {
   const p = build('phrase-secrete-fr-ce1-ce2-01')
-  assert.deepEqual(p.final.hints, ['La phrase commence par Le.', 'Le verbe est mange.'])
+  // Verbe entre guillemets (relecture enseignant, livret anglais 3.13)
+  assert.deepEqual(p.final.hints, ['La phrase commence par Le.', 'Le verbe est « mange ».'])
+  assert.deepEqual(build('phrase-secrete-en-sil-cp-03').final.hints, ['The sentence begins with The.', 'The verb is "can fly".'])
   assert.deepEqual(build('syllabes-fr-ce1-ce2-01').final.hints, ['Appareil qui permet de parler avec quelqu\'un qui est loin.', 'Le mot commence par TÉ.'])
   assert.equal(finalHintLimit(p), 2)
   const base = playSteps(p)

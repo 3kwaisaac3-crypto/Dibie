@@ -36,7 +36,7 @@ import '../styles/QuizGame.css'
 // (CM1-CM2) propositions. Deux essais : 10 points au premier, 5 au second
 // (C3, C4) ; après deux erreurs, la réponse est montrée et la question revient
 // une fois en fin de série, sans points. Écran de choix repris de L4
-// (src/pages/DefinitionGame.jsx). Pas de quiz en SIL-CP (C1).
+// (src/pages/DefinitionGame.jsx). En SIL-CP : 3 questions, avec un parent (C1 révisé).
 
 // Double toucher sur « Suivant » : pendant ce délai après le passage à la
 // question suivante, les touchers sur les propositions et sur « Nouvelle
@@ -49,8 +49,8 @@ export default function QuizGame() {
   const { user, language, setCurrentPage } = useAppStore()
   const t = (fr, en) => (language === 'fr' ? fr : en)
 
-  // Élève de SIL-CP : le jeu s'ouvre en CE1-CE2, avec un message (C1, comme L4)
-  const youngLearner = user?.level === 'SIL-CP'
+  // Élève de SIL-CP : le jeu s'ouvre en SIL-CP, avec un message qui demande
+  // l'aide d'un parent (C1 révisé, Isaac, 2026-11-26)
   const [level, setLevel] = useState(QUIZ_LEVELS.includes(user?.level) ? user.level : QUIZ_LEVELS[0])
   const [matiere, setMatiere] = useState(MATIERE_TOUTES)
   const [subject, setSubject] = useState('')
@@ -236,10 +236,10 @@ export default function QuizGame() {
             {t('Lis la définition, puis touche le mot qui lui correspond.',
               'Read the definition, then tap the matching word.')}
           </p>
-          {youngLearner && (
+          {level === 'SIL-CP' && (
             <p className="pairs-select__empty" role="status">
-              {t('Ce jeu commence au CE1-CE2 : il faut lire des phrases. Tu peux essayer avec un adulte.',
-                'This game starts in Class 3-4: you need to read sentences. You can try it with an adult.')}
+              {t('En SIL-CP, joue avec un parent : il te lit les définitions.',
+                'In Class 1-2, play with a parent: they read the definitions to you.')}
             </p>
           )}
 

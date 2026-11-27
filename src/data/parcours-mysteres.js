@@ -101,9 +101,9 @@ function phraseSecrete(solution, given, acceptees, hints) {
 }
 
 const syllabes = (id, language, level, steps, final) =>
-  ({ id, game: 'syllables', language, level, status: 'draft', steps, final })
+  ({ id, game: 'syllables', language, level, status: 'validated', steps, final })
 const phraseJeu = (id, language, level, steps, final) =>
-  ({ id, game: 'secretSentence', language, level, status: 'draft', steps, final })
+  ({ id, game: 'secretSentence', language, level, status: 'validated', steps, final })
 
 // --- Jeu 2 : Casse-tête des syllabes (20 parcours) ---
 
@@ -195,7 +195,7 @@ const JEU_2 = [
     // LECTEUR (vocab_0335, CM1-CM2) a les mêmes lettres : accepté (D9), il
     // donne la même syllabe LEC (règle 2 du §6.1 respectée)
     syllabe('LECTURE', 'LEC-TU-RE', 1, 'Action de lire un texte.', null, [reponse('LECTEUR', 'vocab_0335')]),
-    syllabe('TRICOT', 'TRI-COT', 1, 'Vêtement chaud fait de laine, comme un pull.'),
+    syllabe('TRICOT', 'TRI-COT', 1, 'Maillot léger que l\'on porte sur le haut du corps.'),
     syllabe('CINÉMA', 'CI-NÉ-MA', 1, 'Salle où l\'on regarde des films sur un grand écran.'),
     syllabe('LIBERTÉ', 'LI-BER-TÉ', 3, 'Possibilité d\'agir et de penser sans être empêché injustement.', 'vocab_1290')
   ], motMystere('ÉLECTRICITÉ', 'É-LEC-TRI-CI-TÉ', null, [
@@ -228,13 +228,6 @@ const JEU_2 = [
   ], motMystere('Sunday', 'SUN-DAY', null, [
     'The day of the week that comes after Saturday.',
     'The word begins with SUN.'
-  ])),
-  syllabes('syllabes-en-sil-cp-02', 'en', 'SIL-CP', [
-    syllabe('MONEY', 'MON-EY', 1, 'Coins and notes that we use to buy things.'),
-    syllabe('TODAY', 'TO-DAY', 2, 'Not yesterday, not tomorrow, but this very day.')
-  ], motMystere('Monday', 'MON-DAY', null, [
-    'The first school day of the week, after Sunday.',
-    'The word begins with MON.'
   ])),
 
   // Anglais, CE1-CE2 (Class 3-4) : 3 parcours
@@ -299,30 +292,28 @@ const JEU_3 = [
     mot('dort', 'Le soir, bébé ferme les yeux : il ___ dans son lit.')
   ], phraseSecrete('Le chat dort.', ['Le'], ['Le chat dort.'], [
     'La phrase commence par Le.',
-    'Le verbe est dort.'
+    'Le verbe est « dort ».'
   ])),
   phraseJeu('phrase-secrete-fr-sil-cp-02', 'fr', 'SIL-CP', [
-    mot('Maman', 'Nom que l\'enfant donne à sa mère.'),
     mot('lave', 'Avec de l\'eau et du savon, je ___ mes mains.'),
     mot('pagne', 'Tissu coloré que l\'on noue autour du corps.', 'vocab_0997')
-  ], phraseSecrete('Maman lave le pagne.', ['le'], ['Maman lave le pagne.'], [
+  ], phraseSecrete('Maman lave le pagne.', ['Maman', 'le'], ['Maman lave le pagne.'], [
     'La phrase commence par Maman.',
-    'Le verbe est lave.'
+    'Le verbe est « lave ».'
   ])),
   phraseJeu('phrase-secrete-fr-sil-cp-03', 'fr', 'SIL-CP', [
     mot('mange', 'J\'ai faim : je ___ mon repas.'),
     mot('riz', 'Petits grains blancs que l\'on fait cuire dans l\'eau.', 'vocab_0879')
   ], phraseSecrete('Awa mange du riz.', ['Awa', 'du'], ['Awa mange du riz.'], [
     'La phrase commence par Awa.',
-    'Le verbe est mange.'
+    'Le verbe est « mange ».'
   ])),
   phraseJeu('phrase-secrete-fr-sil-cp-04', 'fr', 'SIL-CP', [
-    mot('Papa', 'Nom que l\'enfant donne à son père.'),
     mot('coupe', 'Avec un couteau, maman ___ le pain.'),
     mot('bois', 'Matière qui vient des arbres ; on en fait des tables.', 'vocab_0890')
-  ], phraseSecrete('Papa coupe le bois.', ['le'], ['Papa coupe le bois.'], [
+  ], phraseSecrete('Papa coupe le bois.', ['Papa', 'le'], ['Papa coupe le bois.'], [
     'La phrase commence par Papa.',
-    'Le verbe est coupe.'
+    'Le verbe est « coupe ».'
   ])),
 
   // Français, CE1-CE2 (anagrammes de 4 à 7 lettres)
@@ -334,7 +325,7 @@ const JEU_3 = [
     mot('mûre', 'Se dit d\'un fruit qui a fini de pousser et qui est bon à cueillir.')
   ], phraseSecrete('Le petit garçon mange une banane mûre.', ['Le', 'une'], ['Le petit garçon mange une banane mûre.'], [
     'La phrase commence par Le.',
-    'Le verbe est mange.'
+    'Le verbe est « mange ».'
   ])),
   phraseJeu('phrase-secrete-fr-ce1-ce2-02', 'fr', 'CE1-CE2', [
     mot('tante', 'La sœur de ton père ou de ta mère.'),
@@ -344,7 +335,7 @@ const JEU_3 = [
     mot('gâteau', 'Pâtisserie sucrée que l\'on mange souvent pour un anniversaire.')
   ], phraseSecrete('Ma tante prépare un gros gâteau.', ['Ma', 'un'], ['Ma tante prépare un gros gâteau.'], [
     'La phrase commence par Ma.',
-    'Le verbe est prépare.'
+    'Le verbe est « prépare ».'
   ])),
   // Phrase 4 du contenu (« Dans la cour jouent les enfants. », sujet inversé)
   // retirée : refusée en CE1-CE2 (décision I13)
@@ -358,7 +349,7 @@ const JEU_3 = [
     'Les enfants, dans la cour, jouent.'
   ], [
     'La phrase commence par Les.',
-    'Le verbe est jouent.'
+    'Le verbe est « jouent ».'
   ])),
   phraseJeu('phrase-secrete-fr-ce1-ce2-04', 'fr', 'CE1-CE2', [
     mot('pêcheur', 'Personne qui attrape des poissons pour les vendre ou les manger.', 'vocab_0487'),
@@ -366,7 +357,7 @@ const JEU_3 = [
     mot('filet', 'Objet fait de fils et de trous, qui sert à attraper les poissons.')
   ], phraseSecrete('Le pêcheur répare son filet.', ['Le', 'son'], ['Le pêcheur répare son filet.'], [
     'La phrase commence par Le.',
-    'Le verbe est répare.'
+    'Le verbe est « répare ».'
   ])),
 
   // Français, CM1-CM2 (anagrammes de 4 à 10 lettres, décision I3)
@@ -384,7 +375,7 @@ const JEU_3 = [
     'Le menuisier, chaque jour, fabrique une table en bois.'
   ], [
     'La phrase commence par Chaque.',
-    'Le verbe est fabrique.'
+    'Le verbe est « fabrique ».'
   ])),
   phraseJeu('phrase-secrete-fr-cm1-cm2-02', 'fr', 'CM1-CM2', [
     mot('saison', 'Chacune des grandes périodes de l\'année qui ont leur propre temps, comme la période sèche.'),
@@ -399,7 +390,7 @@ const JEU_3 = [
     'Pendant la saison des pluies débordent les rivières.'
   ], [
     'La phrase commence par Pendant.',
-    'Le verbe est débordent.'
+    'Le verbe est « débordent ».'
   ])),
   phraseJeu('phrase-secrete-fr-cm1-cm2-03', 'fr', 'CM1-CM2', [
     mot('médecin', 'Personne qui a fait de longues études pour guérir les gens.'),
@@ -411,7 +402,7 @@ const JEU_3 = [
     'Le médecin soigne les malades du village.'
   ], [
     'La phrase commence par Le.',
-    'Le verbe est soigne.'
+    'Le verbe est « soigne ».'
   ])),
   phraseJeu('phrase-secrete-fr-cm1-cm2-04', 'fr', 'CM1-CM2', [
     mot('fête', 'Moment de joie, en famille ou entre amis, pour célébrer un événement.'),
@@ -426,7 +417,7 @@ const JEU_3 = [
     'La danseuse porte pendant la fête un costume coloré.'
   ], [
     'La phrase commence par Pendant.',
-    'Le verbe est porte.'
+    'Le verbe est « porte ».'
   ])),
 
   // Anglais, SIL-CP (Class 1-2, anagrammes de 3 à 5 lettres, première lettre placée)
@@ -435,29 +426,28 @@ const JEU_3 = [
     mot('hot', 'The opposite of cold.')
   ], phraseSecrete('The sun is hot.', ['The', 'is'], ['The sun is hot.'], [
     'The sentence begins with The.',
-    'The verb is is.'
+    'The verb is "is".'
   ])),
   phraseJeu('phrase-secrete-en-sil-cp-02', 'en', 'SIL-CP', [
-    mot('Mum', 'Another word for mother.'),
     mot('cooks', 'In the kitchen, Dad ___ the dinner.'),
     mot('rice', 'Small white grains that we boil in water.', 'vocab_0879')
-  ], phraseSecrete('Mum cooks rice.', [], ['Mum cooks rice.'], [
+  ], phraseSecrete('Mum cooks rice.', ['Mum'], ['Mum cooks rice.'], [
     'The sentence begins with Mum.',
-    'The verb is cooks.'
+    'The verb is "cooks".'
   ])),
   phraseJeu('phrase-secrete-en-sil-cp-03', 'en', 'SIL-CP', [
     mot('bird', 'An animal with feathers, wings and a beak.', 'vocab_0916'),
     mot('fly', 'What a plane does in the sky.')
   ], phraseSecrete('The bird can fly.', ['The', 'can'], ['The bird can fly.'], [
     'The sentence begins with The.',
-    'The verb is can fly.'
+    'The verb is "can fly".'
   ])),
   phraseJeu('phrase-secrete-en-sil-cp-04', 'en', 'SIL-CP', [
     mot('frog', 'A small green animal that lives near water and says "croak".'),
     mot('jumps', 'The rabbit ___ over the stick.')
   ], phraseSecrete('The frog jumps.', ['The'], ['The frog jumps.'], [
     'The sentence begins with The.',
-    'The verb is jumps.'
+    'The verb is "jumps".'
   ])),
 
   // Anglais, CE1-CE2 (Class 3-4, anagrammes de 4 à 7 lettres)
@@ -467,7 +457,7 @@ const JEU_3 = [
     mot('water', 'A clear liquid that comes out of the tap.')
   ], phraseSecrete('Awa drinks a glass of water.', ['Awa', 'a', 'of'], ['Awa drinks a glass of water.'], [
     'The sentence begins with Awa.',
-    'The verb is drinks.'
+    'The verb is "drinks".'
   ])),
   phraseJeu('phrase-secrete-en-ce1-ce2-02', 'en', 'CE1-CE2', [
     mot('carries', 'Mum ___ the baby on her back.'),
@@ -475,7 +465,7 @@ const JEU_3 = [
     mot('school', 'A place where children learn.', 'vocab_0596')
   ], phraseSecrete('Paul carries his heavy school bag.', ['Paul', 'his', 'bag'], ['Paul carries his heavy school bag.'], [
     'The sentence begins with Paul.',
-    'The verb is carries.'
+    'The verb is "carries".'
   ])),
   phraseJeu('phrase-secrete-en-ce1-ce2-03', 'en', 'CE1-CE2', [
     mot('wash', 'To clean with water and soap.', 'vocab_0686'),
@@ -483,11 +473,10 @@ const JEU_3 = [
     mot('eating', 'Having a meal: putting food in your mouth and swallowing it.')
   ], phraseSecrete('We wash our hands before eating.', ['We', 'our', 'before'], [
     'We wash our hands before eating.',
-    'Before eating, we wash our hands.',
-    'We, before eating, wash our hands.'
+    'Before eating, we wash our hands.'
   ], [
     'The sentence begins with We.',
-    'The verb is wash.'
+    'The verb is "wash".'
   ])),
   phraseJeu('phrase-secrete-en-ce1-ce2-04', 'en', 'CE1-CE2', [
     mot('Grandma', 'The mother of your mother or of your father.'),
@@ -496,7 +485,7 @@ const JEU_3 = [
     mot('story', 'A tale about people or animals, real or imagined.')
   ], phraseSecrete('Grandma tells us a funny story.', ['us', 'a'], ['Grandma tells us a funny story.'], [
     'The sentence begins with Grandma.',
-    'The verb is tells.'
+    'The verb is "tells".'
   ])),
 
   // Anglais, CM1-CM2 (Class 5-6, anagrammes de 4 à 10 lettres, décision I3)
@@ -507,11 +496,10 @@ const JEU_3 = [
     mot('overflow', 'To spill over the edges because there is too much water.')
   ], phraseSecrete('During the rainy season, many rivers overflow.', ['During', 'the', 'many'], [
     'During the rainy season, many rivers overflow.',
-    'Many rivers overflow during the rainy season.',
-    'Many rivers, during the rainy season, overflow.'
+    'Many rivers overflow during the rainy season.'
   ], [
     'The sentence begins with During.',
-    'The verb is overflow.'
+    'The verb is "overflow".'
   ])),
   phraseJeu('phrase-secrete-en-cm1-cm2-02', 'en', 'CM1-CM2', [
     mot('musicians', 'People who make music with instruments or with their voices.'),
@@ -522,11 +510,10 @@ const JEU_3 = [
     mot('festival', 'A big event lasting several days with concerts and shows.', 'vocab_1277')
   ], phraseSecrete('The musicians play the balafon during the festival.', ['The', 'the', 'the', 'during'], [
     'The musicians play the balafon during the festival.',
-    'During the festival, the musicians play the balafon.',
-    'The musicians, during the festival, play the balafon.'
+    'During the festival, the musicians play the balafon.'
   ], [
     'The sentence begins with The.',
-    'The verb is play.'
+    'The verb is "play".'
   ])),
   phraseJeu('phrase-secrete-en-cm1-cm2-03', 'en', 'CM1-CM2', [
     mot('Sleeping', 'Resting at night with your eyes closed.'),
@@ -534,11 +521,11 @@ const JEU_3 = [
     mot('helps', 'When Ali carries the heavy box with his father, he ___ him.'),
     mot('protect', 'A helmet can ___ your head when you ride a bike.', 'vocab_1241'),
     mot('malaria', 'A serious illness passed on by the bite of an infected insect.')
-  ], phraseSecrete('Sleeping under a mosquito net helps protect us from malaria.', ['under', 'a', 'net', 'us', 'from'], [
-    'Sleeping under a mosquito net helps protect us from malaria.'
+  ], phraseSecrete('Sleeping under a treated mosquito net helps protect us from malaria.', ['under', 'a', 'treated', 'net', 'us', 'from'], [
+    'Sleeping under a treated mosquito net helps protect us from malaria.'
   ], [
     'The sentence begins with Sleeping.',
-    'The verb is helps.'
+    'The verb is "helps".'
   ])),
   phraseJeu('phrase-secrete-en-cm1-cm2-04', 'en', 'CM1-CM2', [
     mot('sweep', 'To clean the floor with a broom.'),
@@ -547,11 +534,10 @@ const JEU_3 = [
     mot('afternoon', 'The part of the day between midday and evening.')
   ], phraseSecrete('We sweep our classroom every Friday afternoon.', ['We', 'our', 'every'], [
     'We sweep our classroom every Friday afternoon.',
-    'Every Friday afternoon, we sweep our classroom.',
-    'We, every Friday afternoon, sweep our classroom.'
+    'Every Friday afternoon, we sweep our classroom.'
   ], [
     'The sentence begins with We.',
-    'The verb is sweep.'
+    'The verb is "sweep".'
   ]))
 ]
 

@@ -175,7 +175,9 @@ test('Accents : les cases sont sans accents, la réponse affichée les garde (G0
 // 3 types et la graine 12345, calculée sur main (603393b) avant le lot B
 // (même valeur après : crosswordLayout.js n'est pas modifié par le lot B).
 // Si ce test échoue, les mots croisés générés ont changé.
-const CROSSWORD_FINGERPRINT = 'b7a7f07e6c26d8e4ea438eb22233f511455492ca24f8e53e34da71373dbafe18'
+// Recalculée le 2026-11-27 : NDOLÉ (vocab_0529), doublon de NDOLÈ, n'est plus
+// actif (relecture enseignant) ; même nombre de parties (321), code inchangé.
+const CROSSWORD_FINGERPRINT = '4ecec2bba5486c2cb9f0ad46f027e32339d2c48d72e658190a36c02d4a0826bb'
 const CROSSWORD_GAMES = 321
 
 test('Non-régression : les mots croisés générés sont identiques à ceux d\'avant le lot B', () => {

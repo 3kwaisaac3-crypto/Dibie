@@ -21,13 +21,14 @@ const entry = (id, fr, en, defFr, defEn, extra = {}) => ({
   id, mot_fr: fr, mot_en: en, def_fr: defFr, def_en: defEn ?? `def ${id}`, niveau_fr: 'CE1-CE2', sujet: 'Test', actif: true, ...extra
 })
 
-test('réglages : 6 questions / 3 propositions en CE1-CE2, 8 / 4 en CM1-CM2, pas de SIL-CP', () => {
+test('réglages : 3 questions / 3 propositions en SIL-CP (C1 révisé), 6 / 3 en CE1-CE2, 8 / 4 en CM1-CM2', () => {
   assert.equal(GAME_TYPE_QUIZ_DEFINITION, 'quizDefinition')
-  assert.deepEqual(QUIZ_LEVELS, ['CE1-CE2', 'CM1-CM2'])
+  assert.deepEqual(QUIZ_LEVELS, ['SIL-CP', 'CE1-CE2', 'CM1-CM2'])
+  assert.deepEqual(quizSettings('SIL-CP'), { questionCount: 3, optionCount: 3 })
   assert.deepEqual(quizSettings('CE1-CE2'), { questionCount: 6, optionCount: 3 })
   assert.deepEqual(quizSettings('CM1-CM2'), { questionCount: 8, optionCount: 4 })
   assert.deepEqual(QUIZ_SETTINGS['CM1-CM2'], { questionCount: 8, optionCount: 4 })
-  assert.throws(() => quizSettings('SIL-CP'), RangeError)
+  assert.throws(() => quizSettings('CM3'), RangeError)
   assert.ok(Object.isFrozen(QUIZ_SETTINGS))
 })
 
@@ -63,7 +64,7 @@ test('petit vocabulaire : synonymes jamais proposés ensemble, questions toutes 
 test('même graine, même quiz ; graine invalide refusée ; niveau non proposé refusé', () => {
   assert.deepEqual(createDefinitionQuiz(petit, 'CE1-CE2', 123), createDefinitionQuiz(petit, 'CE1-CE2', 123))
   assert.throws(() => createDefinitionQuiz(petit, 'CE1-CE2', -1), RangeError)
-  assert.throws(() => createDefinitionQuiz(petit, 'SIL-CP', 1), RangeError)
+  assert.throws(() => createDefinitionQuiz(petit, 'CM3', 1), RangeError)
 })
 
 test('forme d’une question : prompt = définition, options en majuscules, réponse et retour', () => {

@@ -70,17 +70,17 @@ function playSteps(path) {
   return s
 }
 
-test('R1 — données : 18 parcours du jeu 6 (3 par niveau et par langue), statut draft, types et nombres d\'étapes du contenu, 2 indices, pas de syllabe en anglais', () => {
+test('R1 — données : 18 parcours du jeu 6 (3 par niveau et par langue), statut validé, types et nombres d\'étapes du contenu, 2 indices, pas de syllabe en anglais', () => {
   assert.equal(GRANDE_ENIGME.length, 18)
   assert.equal(new Set(GRANDE_ENIGME.map(p => p.id)).size, 18)
   assert.equal(ALL_PRESETS.length, PARCOURS_MYSTERES.length + 18)
-  assert.equal(PARCOURS_MYSTERES.length, 44, 'jeux 2 et 3 inchangés')
+  assert.equal(PARCOURS_MYSTERES.length, 43, 'jeux 2 et 3 (A14 retiré)')
   for (const level of LEVELS) for (const language of LANGUAGES) assert.equal(presetsFor('grandRiddle', level, language).length, 3)
   for (const [id, type, solution, count] of SYNTHESE) {
     const r = raw(id)
     assert.ok(r, id)
     assert.equal(r.game, 'grandRiddle')
-    assert.equal(r.status, 'draft', id)
+    assert.equal(r.status, 'validated', id)
     assert.equal(r.final.kind, type, id)
     assert.equal(normalizeWord(r.final.solution), solution, id)
     assert.equal(r.steps.length, count, id)

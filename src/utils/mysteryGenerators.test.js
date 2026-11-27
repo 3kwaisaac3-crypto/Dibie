@@ -153,7 +153,7 @@ test('G5 — liste fixe des thèmes (validée par Isaac le 2026-11-03) : 22 thè
     const subjects = new Set(vocabulary.filter(v => v.niveau_fr === level && v.actif !== false).map(v => v.sujet))
     for (const th of list) {
       assert.match(th.id, /^[a-z-]+$/)
-      assert.equal(th.status, 'isaac-validated')
+      assert.equal(th.status, 'validated')
       assert.ok(THEME_STATUSES.includes(th.status))
       assert.ok(th.label.fr && th.label.en)
       for (const s of th.sujets) assert.ok(subjects.has(s), `${level} ${th.id} : sujet absent du vocabulaire : ${s}`)

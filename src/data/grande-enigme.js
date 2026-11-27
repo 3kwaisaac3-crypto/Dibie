@@ -60,8 +60,11 @@ const indice = (text, factRef = null) => ({ type: 'clue', text, factRef })
 const etape = (display, definition, element, id = null) =>
   ({ word: normalizeWord(display), display, definition, answers: [reponse(display, id)], element })
 
+// Livrets de validation enseignant (FR, 19/11/2026 ; anglais, 25/11/2026) :
+// les 18 parcours sont validés. B15 (DRUM), laissé sans réponse dans le livret
+// anglais, a été accepté par Isaac le 2026-11-27.
 const enigme = (id, language, level, steps, final) =>
-  ({ id, game: 'grandRiddle', language, level, status: 'draft', steps, final })
+  ({ id, game: 'grandRiddle', language, level, status: 'validated', steps, final })
 
 export const GRANDE_ENIGME = Object.freeze([
   // --- Français, SIL-CP (mots d'étape de 3 à 5 lettres, première lettre placée) ---

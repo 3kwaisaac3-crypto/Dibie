@@ -1,5 +1,6 @@
 import React from 'react'
 import { useAppStore } from '../stores/appStore'
+import { CONSEILS_ADULTES } from '../data/conseils-adultes'
 
 export default function ParentDashboard() {
   const { language, setRole, setCurrentPage, logout } = useAppStore()
@@ -30,6 +31,10 @@ export default function ParentDashboard() {
             ? 'Cette section affichera les scores, le temps passé et les notions maîtrisées de votre enfant.'
             : 'This section will show your child\'s scores, time spent, and mastered topics.'}
         </p>
+        <h2 style={{ marginTop: '20px' }}>{language === 'fr' ? 'Conseils' : 'Tips'}</h2>
+        <ul className="adult-tips">
+          {CONSEILS_ADULTES.map(c => <li key={c.id}>{language === 'fr' ? c.fr : c.en}</li>)}
+        </ul>
       </div>
     </div>
   )

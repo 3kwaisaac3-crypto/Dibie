@@ -225,15 +225,18 @@ test('Partie en anglais (CE1-CE2) : définitions et mots anglais', async ({ page
   expect(erreurs).toEqual([])
 })
 
-test('Élève de SIL-CP : carte visible, message, pas de niveau SIL-CP, sujets grisés', async ({ page }) => {
+test('Élève de SIL-CP : le quiz s\'ouvre en SIL-CP, message « avec un parent », 3 questions (C1 révisé)', async ({ page }) => {
   const erreurs = suivreErreurs(page)
   await connecterEleve(page, { pseudo: 'Petit quiz', niveau: 'SIL-CP' })
   await page.getByRole('button', { name: /Quiz des définitions/ }).click()
-  await expect(page.locator('.pairs-select__empty')).toHaveText('Ce jeu commence au CE1-CE2 : il faut lire des phrases. Tu peux essayer avec un adulte.')
+  await expect(page.locator('.pairs-select__empty')).toHaveText('En SIL-CP, joue avec un parent : il te lit les définitions.')
   const niveaux = page.locator('[aria-labelledby="quiz-level-label"] .anagram-select__btn')
   await expect(niveaux).toHaveCount(QUIZ_LEVELS.length)
-  await expect(niveaux).toHaveText([/^CE1-CE2/, /^CM1-CM2/])
+  await expect(niveaux).toHaveText([/^SIL-CP/, /^CE1-CE2/, /^CM1-CM2/])
   await expect(niveaux.first()).toHaveAttribute('aria-pressed', 'true')
+  // Le message ne concerne que le niveau SIL-CP
+  await niveaux.nth(1).click()
+  await expect(page.locator('.pairs-select__empty')).toHaveCount(0)
   const grises = quizSubjects(entreesDuNiveau('CE1-CE2'), 'CE1-CE2', 'fr').filter(s => !s.playable)
   expect(grises.length).toBeGreaterThan(0)
   for (const { subject } of grises) {

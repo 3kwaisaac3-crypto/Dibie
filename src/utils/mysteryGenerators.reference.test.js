@@ -8,6 +8,11 @@
 // empreintes GR1 et parcours GR2 « CM1-CM2 en n° 0 » recalculés. Code inchangé :
 // avec le vocabulaire de main (1dcb203), les anciennes valeurs passaient encore
 // (docs/paires.md §16).
+// Mise à jour du 2026-11-27 (relecture enseignant) : NDOLÉ (vocab_0529),
+// doublon de NDOLÈ, n'est plus actif, et les thèmes du jeu 4 passent au
+// statut validated : GR1 et GR2 « CE1-CE2 fr n° 12345 » recalculés. Code
+// inchangé : avec le vocabulaire de main et l'ancien statut des thèmes, les
+// anciennes valeurs passaient encore (docs/retours-enseignants-2026-11.md).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -36,8 +41,8 @@ function fingerprint() {
 
 test('GR1 — jeux 1 et 4 inchangés par le lot 2 (empreintes figées avant la mise en commun du code)', () => {
   assert.deepEqual(fingerprint(), {
-    word: '450d2b7c2e1147d41802812772294865b08342720ef6fdc76beecb334bbca5fe',
-    theme: '9f3eeb0fc1afbddc67f2141c0fd5432df676dcfcd9d15144ad3a4bc1ce4ccc8a'
+    word: 'f1ef8f01d175718b5b882b880e908d9d43aef456af5bab64be1edf683bb4e30a',
+    theme: 'f344fea05d374de4395292e3b5b0f75277990f171f696763e404fd3a4b1fb261'
   })
 })
 
@@ -47,8 +52,8 @@ test('GR1 — jeux 1 et 4 inchangés par le lot 2 (empreintes figées avant la m
 const CODED_REFERENCE = [
   ['SIL-CP', 'en', 777, 'ALARM', 'ALARM', [22, 15, 22, 4, 3], { rule: 'last' }, ['A', 'L', 'R', 'M'],
     [['vocab_0919', 'WALL', 'WLAL', 'L', 3, 15], ['vocab_0807', 'OKRA', 'OARK', 'A', 3, 22], ['vocab_0841', 'ARM', 'AMR', 'M', 2, 3], ['vocab_0883', 'FLOUR', 'FOULR', 'R', 4, 4]]],
-  ['CE1-CE2', 'fr', 12345, 'DANSE', 'DANSE', [1, 8, 16, 17, 11], { rule: 'last' }, ['N', 'A', 'E', 'D', 'S'],
-    [['vocab_0636', 'FENETRE', 'REFTENE', 'E', 6, 11], ['vocab_1485', 'LOURD', 'URDLO', 'D', 4, 1], ['vocab_0538', 'SAVON', 'NVAOS', 'N', 4, 16], ['vocab_0552', 'MARACAS', 'AASMCAR', 'S', 6, 17], ['vocab_0554', 'KORA', 'OAKR', 'A', 3, 8]]],
+  ['CE1-CE2', 'fr', 12345, 'ETAL', 'ÉTAL', [10, 8, 17, 21], { rule: 'last' }, ['A', 'T', 'E', 'L'],
+    [['vocab_0645', 'AMPOULE', 'UPOLMAE', 'E', 6, 10], ['vocab_0655', 'VENT', 'TNVE', 'T', 3, 8], ['vocab_0436', 'EMAIL', 'ILAEM', 'L', 4, 21], ['vocab_0533', 'MKVANGA', 'NAGAMVK', 'A', 6, 17]]],
   ['CM1-CM2', 'fr', 2026, 'RETENUE', 'RETENUE', [20, 3, 12, 3, 24, 26, 3], { rule: 'position', position: 3 }, ['U', 'R', 'E', 'N', 'T'],
     [['vocab_0141', 'HAUTEUR', 'AHRUETU', 'U', 2, 26], ['vocab_0173', 'PERIMETRE', 'TRMEIEERP', 'R', 2, 20], ['vocab_0045', 'ENTIER', 'IENERT', 'T', 2, 12], ['vocab_0180', 'PENTAGONE', 'TNENAOPGE', 'N', 2, 24], ['vocab_0288', 'AMELIORER', 'EORERALIM', 'E', 2, 3]]],
   ['CM1-CM2', 'en', 0, 'VOLUME', 'VOLUME', [10, 13, 8, 21, 20, 17], { rule: 'marked' }, ['M', 'E', 'V', 'L', 'O', 'U'],
