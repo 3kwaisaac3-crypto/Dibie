@@ -1,0 +1,20 @@
+/* L'intrus (phase 7, lot C ; docs/intrus.md) : s'appuie sur QuizGame.css.
+   Les raisons (question « pourquoi ? » du CM) sont des phrases : une seule
+   colonne, texte aligné à gauche, casse normale. */
+
+.quiz-options.intrus-reasons { grid-template-columns: 1fr; }
+
+.intrus-reasons .quiz-option {
+  font-weight: normal;
+  text-align: left;
+}
+
+.intrus-reason {
+  min-height: 1.4em;
+  margin: 0 0 12px;
+  color: #333;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.intrus-reason:empty { margin: 0; min-height: 0; }

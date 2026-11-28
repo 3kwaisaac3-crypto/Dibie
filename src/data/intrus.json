@@ -1,0 +1,1987 @@
+{
+  "format": "dibie-intrus",
+  "version": 1,
+  "source": "DIBIE/contenus/intrus-lot0-v0.1.md (JARVIS, 2026-11-11), converti le 2026-11-17",
+  "items": [
+    {
+      "id": "I-CE-01",
+      "niveau": "CE1-CE2",
+      "matiere": "Vie quotidienne (aliments)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas un fruit.",
+        "elements": [
+          "BANANE",
+          "MANGUE",
+          "CAROTTE",
+          "PAPAYE"
+        ],
+        "intrus": "CAROTTE",
+        "raison": "Les trois autres sont des fruits. La carotte est un légume."
+      },
+      "en": {
+        "consigne": "Find the one that is not a fruit.",
+        "elements": [
+          "banana",
+          "mango",
+          "carrot",
+          "papaya"
+        ],
+        "intrus": "carrot",
+        "raison": "The other three are fruits. A carrot is a vegetable."
+      }
+    },
+    {
+      "id": "I-CE-02",
+      "niveau": "CE1-CE2",
+      "matiere": "Sciences (animaux)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve l'animal qui n'est pas un animal de la ferme.",
+        "elements": [
+          "LION",
+          "CHÈVRE",
+          "MOUTON",
+          "VACHE"
+        ],
+        "intrus": "LION",
+        "raison": "Les trois autres sont des animaux de la ferme. Le lion est un animal sauvage."
+      },
+      "en": {
+        "consigne": "Find the animal that is not a farm animal.",
+        "elements": [
+          "lion",
+          "goat",
+          "sheep",
+          "cow"
+        ],
+        "intrus": "lion",
+        "raison": "The other three are farm animals. A lion is a wild animal."
+      }
+    },
+    {
+      "id": "I-CE-03",
+      "niveau": "CE1-CE2",
+      "matiere": "Vie quotidienne (vêtements)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas un vêtement.",
+        "elements": [
+          "CHEMISE",
+          "ASSIETTE",
+          "JUPE",
+          "ROBE"
+        ],
+        "intrus": "ASSIETTE",
+        "raison": "Les trois autres sont des vêtements. On ne porte pas une assiette : on mange dedans."
+      },
+      "en": {
+        "consigne": "Find the one that is not a piece of clothing.",
+        "elements": [
+          "shirt",
+          "plate",
+          "skirt",
+          "dress"
+        ],
+        "intrus": "plate",
+        "raison": "The other three are clothes. We do not wear a plate: we eat from it."
+      }
+    },
+    {
+      "id": "I-CE-04",
+      "niveau": "CE1-CE2",
+      "matiere": "Français (vocabulaire)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas une couleur.",
+        "elements": [
+          "ROUGE",
+          "BLEU",
+          "VERT",
+          "TABLE"
+        ],
+        "intrus": "TABLE",
+        "raison": "Les trois autres sont des couleurs. Une table est un meuble."
+      },
+      "en": {
+        "consigne": "Find the one that is not a colour.",
+        "elements": [
+          "red",
+          "blue",
+          "green",
+          "table"
+        ],
+        "intrus": "table",
+        "raison": "The other three are colours. A table is a piece of furniture."
+      }
+    },
+    {
+      "id": "I-CE-05",
+      "niveau": "CE1-CE2",
+      "matiere": "Sciences (corps humain)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas sur la tête.",
+        "elements": [
+          "NEZ",
+          "OREILLE",
+          "GENOU",
+          "BOUCHE"
+        ],
+        "intrus": "GENOU",
+        "raison": "Le nez, l'oreille et la bouche sont sur la tête. Le genou est sur la jambe."
+      },
+      "en": {
+        "consigne": "Find the one that is not on the head.",
+        "elements": [
+          "nose",
+          "ear",
+          "knee",
+          "mouth"
+        ],
+        "intrus": "knee",
+        "raison": "The nose, the ear and the mouth are on the head. The knee is on the leg."
+      }
+    },
+    {
+      "id": "I-CE-06",
+      "niveau": "CE1-CE2",
+      "matiere": "Vie quotidienne (transports)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas un moyen de transport.",
+        "elements": [
+          "MOTO",
+          "VOITURE",
+          "PIROGUE",
+          "MAISON"
+        ],
+        "intrus": "MAISON",
+        "raison": "Les trois autres servent à voyager. Une maison sert à habiter."
+      },
+      "en": {
+        "consigne": "Find the one that is not a means of transport.",
+        "elements": [
+          "motorbike",
+          "car",
+          "canoe",
+          "house"
+        ],
+        "intrus": "house",
+        "raison": "The other three are used to travel. A house is a place to live."
+      }
+    },
+    {
+      "id": "I-CE-07",
+      "niveau": "CE1-CE2",
+      "matiere": "Vie quotidienne (maison)",
+      "critere": "Usage",
+      "statut": "VALIDÉ",
+      "reserve": "FOURCHETTE / fork présent dans le vocabulaire Dibiè au niveau SIL-CP / Class 1-2 (vocab_0854), donc en dessous du CE1-CE2 : mot connu, niveau de lecture à confirmer.",
+      "fr": {
+        "consigne": "Trouve ce qui ne sert pas pour le repas.",
+        "elements": [
+          "LIVRE",
+          "ASSIETTE",
+          "CUILLÈRE",
+          "FOURCHETTE"
+        ],
+        "intrus": "LIVRE",
+        "raison": "L'assiette, la cuillère et la fourchette servent pour le repas. Le livre sert à lire."
+      },
+      "en": {
+        "consigne": "Find the one that is not used at mealtimes.",
+        "elements": [
+          "book",
+          "plate",
+          "spoon",
+          "fork"
+        ],
+        "intrus": "book",
+        "raison": "The plate, the spoon and the fork are used at mealtimes. A book is for reading."
+      }
+    },
+    {
+      "id": "I-CE-08",
+      "niveau": "CE1-CE2",
+      "matiere": "Vie quotidienne (école)",
+      "critere": "Usage",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui ne sert pas à écrire ou à effacer.",
+        "elements": [
+          "CRAYON",
+          "MARTEAU",
+          "GOMME",
+          "STYLO"
+        ],
+        "intrus": "MARTEAU",
+        "raison": "Le crayon, la gomme et le stylo servent à écrire ou à effacer. Le marteau sert à enfoncer des clous."
+      },
+      "en": {
+        "consigne": "Find the one that is not used to write or to rub out.",
+        "elements": [
+          "pencil",
+          "hammer",
+          "eraser",
+          "pen"
+        ],
+        "intrus": "hammer",
+        "raison": "The pencil, the eraser and the pen are used to write or to rub out. A hammer is used to hit nails."
+      }
+    },
+    {
+      "id": "I-CE-09",
+      "niveau": "CE1-CE2",
+      "matiere": "Vie quotidienne (métiers)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas un métier.",
+        "elements": [
+          "MAÇON",
+          "DOCTEUR",
+          "MAÎTRESSE",
+          "GÂTEAU"
+        ],
+        "intrus": "GÂTEAU",
+        "raison": "Maçon, docteur et maîtresse sont des métiers. Un gâteau est un aliment."
+      },
+      "en": {
+        "consigne": "Find the one that is not a job.",
+        "elements": [
+          "bricklayer",
+          "doctor",
+          "teacher",
+          "cake"
+        ],
+        "intrus": "cake",
+        "raison": "Bricklayer, doctor and teacher are jobs. A cake is food."
+      }
+    },
+    {
+      "id": "I-CE-10",
+      "niveau": "CE1-CE2",
+      "matiere": "Mathématiques (géométrie)",
+      "critere": "Discipline",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas une forme.",
+        "elements": [
+          "CERCLE",
+          "CARRÉ",
+          "ADDITION",
+          "TRIANGLE"
+        ],
+        "intrus": "ADDITION",
+        "raison": "Le cercle, le carré et le triangle sont des formes. L'addition est un calcul."
+      },
+      "en": {
+        "consigne": "Find the one that is not a shape.",
+        "elements": [
+          "circle",
+          "square",
+          "addition",
+          "triangle"
+        ],
+        "intrus": "addition",
+        "raison": "The circle, the square and the triangle are shapes. Addition is a calculation."
+      }
+    },
+    {
+      "id": "I-CE-11",
+      "niveau": "CE1-CE2",
+      "matiere": "Mathématiques (nombres)",
+      "critere": "Nombre",
+      "statut": "VALIDÉ",
+      "reserve": "Notion « pair / impair » en CE1-CE2 non vérifiée dans les programmes : à confirmer avec un enseignant.",
+      "fr": {
+        "consigne": "Trouve le nombre qui n'est pas pair.",
+        "elements": [
+          "7",
+          "4",
+          "6",
+          "2"
+        ],
+        "intrus": "7",
+        "raison": "4, 6 et 2 sont des nombres pairs : on peut les partager en deux sans reste. 7 est impair."
+      },
+      "en": {
+        "consigne": "Find the number that is not even.",
+        "elements": [
+          "7",
+          "4",
+          "6",
+          "2"
+        ],
+        "intrus": "7",
+        "raison": "4, 6 and 2 are even numbers: we can share them into two equal groups. 7 is odd."
+      }
+    },
+    {
+      "id": "I-CE-12",
+      "niveau": "CE1-CE2",
+      "matiere": "Mathématiques (mesures)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui ne mesure pas une longueur.",
+        "elements": [
+          "MÈTRE",
+          "LITRE",
+          "KILOMÈTRE",
+          "CENTIMÈTRE"
+        ],
+        "intrus": "LITRE",
+        "raison": "Le mètre, le centimètre et le kilomètre mesurent des longueurs. Le litre mesure un liquide."
+      },
+      "en": {
+        "consigne": "Find the one that does not measure a length.",
+        "elements": [
+          "metre",
+          "litre",
+          "kilometre",
+          "centimetre"
+        ],
+        "intrus": "litre",
+        "raison": "The metre, the centimetre and the kilometre measure lengths. The litre measures a liquid."
+      }
+    },
+    {
+      "id": "I-CE-13",
+      "niveau": "CE1-CE2",
+      "matiere": "Sciences (vivant)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas vivant.",
+        "elements": [
+          "FLEUR",
+          "CHAT",
+          "ABEILLE",
+          "CAILLOU"
+        ],
+        "intrus": "CAILLOU",
+        "raison": "La fleur, le chat et l'abeille sont vivants. Le caillou n'est pas vivant."
+      },
+      "en": {
+        "consigne": "Find the one that is not alive.",
+        "elements": [
+          "flower",
+          "cat",
+          "bee",
+          "stone"
+        ],
+        "intrus": "stone",
+        "raison": "The flower, the cat and the bee are alive. A stone is not alive."
+      }
+    },
+    {
+      "id": "I-CE-14",
+      "niveau": "CE1-CE2",
+      "matiere": "Sciences (animaux)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve l'animal qui ne vole pas.",
+        "elements": [
+          "PERROQUET",
+          "ABEILLE",
+          "SINGE",
+          "PIGEON"
+        ],
+        "intrus": "SINGE",
+        "raison": "Le perroquet, l'abeille et le pigeon volent. Le singe ne vole pas."
+      },
+      "en": {
+        "consigne": "Find the animal that cannot fly.",
+        "elements": [
+          "parrot",
+          "bee",
+          "monkey",
+          "pigeon"
+        ],
+        "intrus": "monkey",
+        "raison": "The parrot, the bee and the pigeon fly. A monkey cannot fly."
+      }
+    },
+    {
+      "id": "I-CE-15",
+      "niveau": "CE1-CE2",
+      "matiere": "Sciences (animaux)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "La crevette n'est pas un poisson : la consigne dit « vit dans l'eau », pas « est un poisson » (ne pas la changer).",
+      "fr": {
+        "consigne": "Trouve l'animal qui ne vit pas dans l'eau.",
+        "elements": [
+          "POULE",
+          "POISSON",
+          "REQUIN",
+          "CREVETTE"
+        ],
+        "intrus": "POULE",
+        "raison": "Le poisson, le requin et la crevette vivent dans l'eau. La poule vit sur la terre."
+      },
+      "en": {
+        "consigne": "Find the animal that does not live in water.",
+        "elements": [
+          "hen",
+          "fish",
+          "shark",
+          "shrimp"
+        ],
+        "intrus": "hen",
+        "raison": "The fish, the shark and the shrimp live in water. A hen lives on land."
+      }
+    },
+    {
+      "id": "I-CE-16",
+      "niveau": "CE1-CE2",
+      "matiere": "Sciences (environnement)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas dans le ciel.",
+        "elements": [
+          "SOLEIL",
+          "MONTAGNE",
+          "LUNE",
+          "NUAGE"
+        ],
+        "intrus": "MONTAGNE",
+        "raison": "Le soleil, la lune et le nuage sont dans le ciel. La montagne est sur la terre."
+      },
+      "en": {
+        "consigne": "Find the one that is not in the sky.",
+        "elements": [
+          "sun",
+          "mountain",
+          "moon",
+          "cloud"
+        ],
+        "intrus": "mountain",
+        "raison": "The sun, the moon and the cloud are in the sky. A mountain is on the ground."
+      }
+    },
+    {
+      "id": "I-CE-17",
+      "niveau": "CE1-CE2",
+      "matiere": "Géographie du Cameroun",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve la ville qui n'est pas au Cameroun.",
+        "elements": [
+          "DOUALA",
+          "YAOUNDÉ",
+          "GAROUA",
+          "PARIS"
+        ],
+        "intrus": "PARIS",
+        "raison": "Douala, Yaoundé et Garoua sont des villes du Cameroun. Paris est une ville de France."
+      },
+      "en": {
+        "consigne": "Find the city that is not in Cameroon.",
+        "elements": [
+          "Douala",
+          "Yaoundé",
+          "Garoua",
+          "Paris"
+        ],
+        "intrus": "Paris",
+        "raison": "Douala, Yaoundé and Garoua are cities in Cameroon. Paris is a city in France."
+      }
+    },
+    {
+      "id": "I-CE-18",
+      "niveau": "CE1-CE2",
+      "matiere": "Géographie",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "« Points cardinaux » au CE1-CE2 non vérifié dans les programmes ; à confirmer.",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas un point cardinal.",
+        "elements": [
+          "NORD",
+          "EST",
+          "GAUCHE",
+          "OUEST"
+        ],
+        "intrus": "GAUCHE",
+        "raison": "Le nord, l'est et l'ouest sont des points cardinaux. La gauche est un côté de notre corps."
+      },
+      "en": {
+        "consigne": "Find the one that is not a compass point.",
+        "elements": [
+          "north",
+          "east",
+          "left",
+          "west"
+        ],
+        "intrus": "left",
+        "raison": "North, east and west are compass points. Left is a side of our body."
+      }
+    },
+    {
+      "id": "I-CE-19",
+      "niveau": "CE1-CE2",
+      "matiere": "Culture (musique)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas un instrument de musique.",
+        "elements": [
+          "MIROIR",
+          "TAMBOUR",
+          "BALAFON",
+          "GUITARE"
+        ],
+        "intrus": "MIROIR",
+        "raison": "Le tambour, le balafon et la guitare servent à faire de la musique. Le miroir sert à se regarder."
+      },
+      "en": {
+        "consigne": "Find the one that is not a musical instrument.",
+        "elements": [
+          "mirror",
+          "drum",
+          "balafon",
+          "guitar"
+        ],
+        "intrus": "mirror",
+        "raison": "The drum, the balafon and the guitar are used to make music. A mirror is used to look at yourself."
+      }
+    },
+    {
+      "id": "I-CE-20",
+      "niveau": "CE1-CE2",
+      "matiere": "Vie quotidienne (aliments)",
+      "critere": "Usage",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qu'on ne boit pas.",
+        "elements": [
+          "LAIT",
+          "EAU",
+          "PAIN",
+          "JUS"
+        ],
+        "intrus": "PAIN",
+        "raison": "Le lait, l'eau et le jus se boivent. Le pain se mange."
+      },
+      "en": {
+        "consigne": "Find the one we do not drink.",
+        "elements": [
+          "milk",
+          "water",
+          "bread",
+          "juice"
+        ],
+        "intrus": "bread",
+        "raison": "We drink milk, water and juice. We eat bread."
+      }
+    },
+    {
+      "id": "I-CE-21",
+      "niveau": "CE1-CE2",
+      "matiere": "Vie quotidienne (maison)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "EN : « living room » fait deux mots (autre longueur) ; le terme « sitting room » est aussi courant : usage local à confirmer.",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas une pièce de la maison.",
+        "elements": [
+          "CUISINE",
+          "MARCHÉ",
+          "SALON",
+          "CHAMBRE"
+        ],
+        "intrus": "MARCHÉ",
+        "raison": "La cuisine, le salon et la chambre sont dans la maison. Le marché est un lieu où l'on achète."
+      },
+      "en": {
+        "consigne": "Find the one that is not a room in a house.",
+        "elements": [
+          "kitchen",
+          "market",
+          "living room",
+          "bedroom"
+        ],
+        "intrus": "market",
+        "raison": "The kitchen, the living room and the bedroom are in the house. A market is a place where people buy things."
+      }
+    },
+    {
+      "id": "I-CE-22",
+      "niveau": "CE1-CE2",
+      "matiere": "Français (vocabulaire du temps)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas un jour de la semaine.",
+        "elements": [
+          "AVRIL",
+          "LUNDI",
+          "MARDI",
+          "JEUDI"
+        ],
+        "intrus": "AVRIL",
+        "raison": "Lundi, mardi et jeudi sont des jours de la semaine. Avril est un mois."
+      },
+      "en": {
+        "consigne": "Find the one that is not a day of the week.",
+        "elements": [
+          "April",
+          "Monday",
+          "Tuesday",
+          "Thursday"
+        ],
+        "intrus": "April",
+        "raison": "Monday, Tuesday and Thursday are days of the week. April is a month."
+      }
+    },
+    {
+      "id": "I-CE-23",
+      "niveau": "CE1-CE2",
+      "matiere": "Français (grammaire)",
+      "critere": "Grammaire",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve le mot qui n'est pas un verbe.",
+        "elements": [
+          "CHANTER",
+          "CHAISE",
+          "ÉCRIRE",
+          "MANGER"
+        ],
+        "intrus": "CHAISE",
+        "raison": "Chanter, écrire et manger sont des verbes : ils disent ce qu'on fait. Une chaise est un objet."
+      },
+      "en": {
+        "consigne": "Find the word that is not a verb.",
+        "elements": [
+          "sing",
+          "chair",
+          "write",
+          "eat"
+        ],
+        "intrus": "chair",
+        "raison": "Sing, write and eat are verbs: they say what we do. A chair is a thing."
+      }
+    },
+    {
+      "id": "I-CE-24",
+      "niveau": "CE1-CE2",
+      "matiere": "Français (grammaire)",
+      "critere": "Grammaire",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve le mot qui n'est pas au pluriel.",
+        "elements": [
+          "CHATS",
+          "MAISONS",
+          "LIVRES",
+          "TABLE"
+        ],
+        "intrus": "TABLE",
+        "raison": "Chats, maisons et livres sont au pluriel : il y en a plusieurs. Table est au singulier : il n'y en a qu'une."
+      },
+      "en": {
+        "consigne": "Find the word that is not plural.",
+        "elements": [
+          "cats",
+          "houses",
+          "books",
+          "table"
+        ],
+        "intrus": "table",
+        "raison": "Cats, houses and books are plural: there are several. Table is singular: there is only one."
+      }
+    },
+    {
+      "id": "I-CE-25",
+      "niveau": "CE1-CE2",
+      "matiere": "Français (FR) / Anglais (EN)",
+      "critere": "Grammaire (FR) / Forme-son (EN)",
+      "statut": "VALIDÉ",
+      "reserve": "**Version EN propre** : critère différent (genre en FR, rime en EN). La notion de masculin / féminin et celle de rime en CE1-CE2 non vérifiées. EN : le critère de rime demande d'entendre les mots, or l'audio n'existe pas (D6).",
+      "fr": {
+        "consigne": "Trouve le mot qui n'est pas masculin (avec « un »).",
+        "elements": [
+          "UN LIVRE",
+          "UNE TABLE",
+          "UN STYLO",
+          "UN CHAT"
+        ],
+        "intrus": "UNE TABLE",
+        "raison": "Livre, stylo et chat vont avec « un » : ils sont masculins. Table va avec « une » : c'est un mot féminin."
+      },
+      "en": {
+        "consigne": "Find the word that does not rhyme.",
+        "elements": [
+          "cat",
+          "bat",
+          "dog",
+          "hat"
+        ],
+        "intrus": "dog",
+        "raison": "Cat, bat and hat end with the same sound (-at). Dog does not sound the same."
+      }
+    },
+    {
+      "id": "I-CE-26",
+      "niveau": "CE1-CE2",
+      "matiere": "Anglais (vocabulaire)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "Les mots sont anglais dans les deux versions ; la version FR est destinée à un élève qui apprend l'anglais. Niveau d'anglais des élèves francophones non vérifié.",
+      "fr": {
+        "consigne": "Trouve le mot anglais qui n'est pas un animal.",
+        "elements": [
+          "DOG",
+          "COW",
+          "PEN",
+          "GOAT"
+        ],
+        "intrus": "PEN",
+        "raison": "Dog, cow et goat sont des animaux. Pen veut dire « stylo »."
+      },
+      "en": {
+        "consigne": "Find the word that is not an animal.",
+        "elements": [
+          "dog",
+          "cow",
+          "pen",
+          "goat"
+        ],
+        "intrus": "pen",
+        "raison": "Dog, cow and goat are animals. A pen is used for writing."
+      }
+    },
+    {
+      "id": "I-CE-27",
+      "niveau": "CE1-CE2",
+      "matiere": "Vie quotidienne (hygiène)",
+      "critere": "Usage",
+      "statut": "VALIDÉ",
+      "reserve": "La serviette sert à se sécher plutôt qu'à se laver : la consigne dit « faire sa toilette ». L'EAU figure aussi dans I-CE-20 (autre critère).",
+      "fr": {
+        "consigne": "Trouve ce qui ne sert pas à faire sa toilette.",
+        "elements": [
+          "SAVON",
+          "BALLON",
+          "EAU",
+          "SERVIETTE"
+        ],
+        "intrus": "BALLON",
+        "raison": "Le savon, l'eau et la serviette servent à faire sa toilette. Le ballon sert à jouer."
+      },
+      "en": {
+        "consigne": "Find the one that is not used for washing.",
+        "elements": [
+          "soap",
+          "ball",
+          "water",
+          "towel"
+        ],
+        "intrus": "ball",
+        "raison": "Soap, water and a towel are used for washing. A ball is used for playing."
+      }
+    },
+    {
+      "id": "I-CE-28",
+      "niveau": "CE1-CE2",
+      "matiere": "Culture (sport, chant)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "EN : « race » et « jump » sont aussi des noms de gestes (running race, long jump) ; formulation à confirmer avec un enseignant anglophone.",
+      "fr": {
+        "consigne": "Trouve ce qui n'est pas un sport.",
+        "elements": [
+          "FOOTBALL",
+          "COURSE",
+          "CHANSON",
+          "SAUT"
+        ],
+        "intrus": "CHANSON",
+        "raison": "Le football, la course et le saut sont des sports. Une chanson se chante."
+      },
+      "en": {
+        "consigne": "Find the one that is not a sport.",
+        "elements": [
+          "football",
+          "race",
+          "song",
+          "jump"
+        ],
+        "intrus": "song",
+        "raison": "Football, racing and jumping are sports. A song is something we sing."
+      }
+    },
+    {
+      "id": "I-CE-29",
+      "niveau": "CE1-CE2",
+      "matiere": "Mathématiques (tables)",
+      "critere": "Nombre",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve le nombre qui n'est pas dans la table de 10.",
+        "elements": [
+          "45",
+          "20",
+          "40",
+          "60"
+        ],
+        "intrus": "45",
+        "raison": "20, 40 et 60 sont dans la table de 10 : on les trouve en comptant de 10 en 10. 45 n'y est pas."
+      },
+      "en": {
+        "consigne": "Find the number that is not in the 10 times table.",
+        "elements": [
+          "45",
+          "20",
+          "40",
+          "60"
+        ],
+        "intrus": "45",
+        "raison": "20, 40 and 60 are in the 10 times table: we find them by counting in tens. 45 is not."
+      }
+    },
+    {
+      "id": "I-CE-30",
+      "niveau": "CE1-CE2",
+      "matiere": "Mathématiques (mesures)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "consigne": "Trouve ce qui ne mesure pas le temps.",
+        "elements": [
+          "HEURE",
+          "MINUTE",
+          "SECONDE",
+          "MÈTRE"
+        ],
+        "intrus": "MÈTRE",
+        "raison": "L'heure, la minute et la seconde mesurent le temps. Le mètre mesure une longueur."
+      },
+      "en": {
+        "consigne": "Find the one that does not measure time.",
+        "elements": [
+          "hour",
+          "minute",
+          "second",
+          "metre"
+        ],
+        "intrus": "metre",
+        "raison": "The hour, the minute and the second measure time. The metre measures length."
+      }
+    },
+    {
+      "id": "I-CM-01",
+      "niveau": "CM1-CM2",
+      "matiere": "Sciences (plantes)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "SORGHO absent des mots retrouvés dans le vocabulaire Dibiè (niveau à vérifier). Botanique simplifiée (igname, macabo : tubercule ; manioc : racine), à valider. EN : « yam » est nettement plus court que les autres.",
+      "fr": {
+        "elements": [
+          "IGNAME",
+          "MANIOC",
+          "SORGHO",
+          "MACABO"
+        ],
+        "intrus": "SORGHO",
+        "raison": "Les trois autres sont des plantes dont on mange la partie qui pousse sous la terre. Le sorgho est une céréale : on mange ses grains.",
+        "raisonsFausses": [
+          "Le sorgho ne pousse pas au Cameroun.",
+          "Le sorgho ne se mange pas."
+        ]
+      },
+      "en": {
+        "elements": [
+          "yam",
+          "cassava",
+          "sorghum",
+          "cocoyam"
+        ],
+        "intrus": "sorghum",
+        "raison": "The other three are plants whose underground part we eat. Sorghum is a cereal: we eat its grains.",
+        "raisonsFausses": [
+          "Sorghum does not grow in Cameroon.",
+          "Sorghum cannot be eaten."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-02",
+      "niveau": "CM1-CM2",
+      "matiere": "Sciences (matière)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "Notion « états de la matière » au CM non vérifiée dans les programmes.",
+      "fr": {
+        "elements": [
+          "MÉTAL",
+          "SOLIDE",
+          "LIQUIDE",
+          "GAZ"
+        ],
+        "intrus": "MÉTAL",
+        "raison": "Les trois autres sont les trois états de la matière. Le métal est une matière (qui est solide).",
+        "raisonsFausses": [
+          "Le métal est un liquide.",
+          "Le métal n'existe pas dans la nature."
+        ]
+      },
+      "en": {
+        "elements": [
+          "metal",
+          "solid",
+          "liquid",
+          "gas"
+        ],
+        "intrus": "metal",
+        "raison": "The other three are the three states of matter. Metal is a material (it is solid).",
+        "raisonsFausses": [
+          "Metal is a liquid.",
+          "Metal does not exist in nature."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-03",
+      "niveau": "CM1-CM2",
+      "matiere": "Sciences (animaux)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "Le dauphin et le requin vivent tous deux dans l'eau : le piège est voulu, mais « vit dans l'eau » ne désigne aucun intrus (2 contre 2).",
+      "fr": {
+        "elements": [
+          "CHÈVRE",
+          "DAUPHIN",
+          "SINGE",
+          "REQUIN"
+        ],
+        "intrus": "REQUIN",
+        "raison": "Les trois autres sont des mammifères : ils nourrissent leurs petits avec leur lait. Le requin est un poisson.",
+        "raisonsFausses": [
+          "Le requin vit dans l'eau, les trois autres vivent sur la terre.",
+          "Le requin est un oiseau."
+        ]
+      },
+      "en": {
+        "elements": [
+          "goat",
+          "dolphin",
+          "monkey",
+          "shark"
+        ],
+        "intrus": "shark",
+        "raison": "The other three are mammals: they feed their babies with milk. A shark is a fish.",
+        "raisonsFausses": [
+          "The shark lives in water; the other three live on land.",
+          "The shark is a bird."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-04",
+      "niveau": "CM1-CM2",
+      "matiere": "Sciences (animaux)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "FOURMI",
+          "ARAIGNÉE",
+          "ABEILLE",
+          "MOUCHE"
+        ],
+        "intrus": "ARAIGNÉE",
+        "raison": "Les trois autres sont des insectes : ils ont 6 pattes. L'araignée a 8 pattes.",
+        "raisonsFausses": [
+          "L'araignée a des ailes.",
+          "L'araignée ne vit jamais dans les maisons."
+        ]
+      },
+      "en": {
+        "elements": [
+          "ant",
+          "spider",
+          "bee",
+          "fly"
+        ],
+        "intrus": "spider",
+        "raison": "The other three are insects: they have 6 legs. A spider has 8 legs.",
+        "raisonsFausses": [
+          "The spider has wings.",
+          "The spider never lives in houses."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-05",
+      "niveau": "CM1-CM2",
+      "matiere": "Sciences (corps humain)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "ŒIL",
+          "LANGUE",
+          "CŒUR",
+          "NEZ"
+        ],
+        "intrus": "CŒUR",
+        "raison": "Les trois autres sont des organes des sens : on voit, on goûte et on sent avec eux. Le cœur fait circuler le sang.",
+        "raisonsFausses": [
+          "Le cœur est sur la tête, comme les trois autres.",
+          "Le cœur ne travaille pas quand on dort."
+        ]
+      },
+      "en": {
+        "elements": [
+          "eye",
+          "tongue",
+          "heart",
+          "nose"
+        ],
+        "intrus": "heart",
+        "raison": "The other three are sense organs: we see, taste and smell with them. The heart pumps the blood.",
+        "raisonsFausses": [
+          "The heart is on the head, like the other three.",
+          "The heart does not work while we sleep."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-06",
+      "niveau": "CM1-CM2",
+      "matiere": "Sciences (lumière)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "SOLEIL",
+          "BOUGIE",
+          "LAMPE",
+          "MIROIR"
+        ],
+        "intrus": "MIROIR",
+        "raison": "Les trois autres produisent de la lumière (la lampe allumée). Le miroir renvoie seulement la lumière qu'il reçoit.",
+        "raisonsFausses": [
+          "Le miroir est le seul objet qu'on trouve dans une maison.",
+          "Le miroir est chaud, les trois autres sont froids."
+        ]
+      },
+      "en": {
+        "elements": [
+          "sun",
+          "candle",
+          "lamp",
+          "mirror"
+        ],
+        "intrus": "mirror",
+        "raison": "The other three give out light (the lamp when it is on). A mirror only sends back the light it receives.",
+        "raisonsFausses": [
+          "The mirror is the only thing we find in a house.",
+          "The mirror is hot; the other three are cold."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-07",
+      "niveau": "CM1-CM2",
+      "matiere": "Sciences (astronomie)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "SATURNE",
+          "TERRE",
+          "LUNE",
+          "VÉNUS"
+        ],
+        "intrus": "LUNE",
+        "raison": "Les trois autres sont des planètes : elles tournent autour du Soleil. La Lune tourne autour de la Terre : c'est un satellite.",
+        "raisonsFausses": [
+          "La Lune est plus grande que les trois autres.",
+          "La Lune tourne autour du Soleil, pas les trois autres."
+        ]
+      },
+      "en": {
+        "elements": [
+          "Saturn",
+          "Earth",
+          "Moon",
+          "Venus"
+        ],
+        "intrus": "Moon",
+        "raison": "The other three are planets: they go round the Sun. The Moon goes round the Earth: it is a satellite.",
+        "raisonsFausses": [
+          "The Moon is bigger than the other three.",
+          "The Moon goes round the Sun; the other three do not."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-08",
+      "niveau": "CM1-CM2",
+      "matiere": "Mathématiques (multiples)",
+      "critere": "Nombre",
+      "statut": "VALIDÉ",
+      "reserve": "Répartition pair / impair équilibrée (12 et 22 pairs, 21 et 27 impairs). 21 est aussi multiple de 7 (critère moins évident). Notion de « multiple » au CM non vérifiée.",
+      "fr": {
+        "elements": [
+          "21",
+          "22",
+          "12",
+          "27"
+        ],
+        "intrus": "22",
+        "raison": "21, 12 et 27 sont dans la table de 3 (ce sont des multiples de 3). 22 n'y est pas.",
+        "raisonsFausses": [
+          "22 est le seul nombre pair.",
+          "22 est plus grand que les trois autres."
+        ]
+      },
+      "en": {
+        "elements": [
+          "21",
+          "22",
+          "12",
+          "27"
+        ],
+        "intrus": "22",
+        "raison": "21, 12 and 27 are in the 3 times table (they are multiples of 3). 22 is not.",
+        "raisonsFausses": [
+          "22 is the only even number.",
+          "22 is bigger than the other three."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-09",
+      "niveau": "CM1-CM2",
+      "matiere": "Mathématiques (géométrie)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "CUBE",
+          "CYLINDRE",
+          "CÔNE",
+          "CARRÉ"
+        ],
+        "intrus": "CARRÉ",
+        "raison": "Les trois autres sont des solides : ils ont un volume. Le carré est une figure plane, à plat.",
+        "raisonsFausses": [
+          "Le carré n'a pas de côtés.",
+          "Le carré est le seul qui a des angles."
+        ]
+      },
+      "en": {
+        "elements": [
+          "cube",
+          "cylinder",
+          "cone",
+          "square"
+        ],
+        "intrus": "square",
+        "raison": "The other three are solids: they take up space. A square is a flat shape.",
+        "raisonsFausses": [
+          "A square has no sides.",
+          "A square is the only one with corners."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-10",
+      "niveau": "CM1-CM2",
+      "matiere": "Mathématiques (mesures)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "LITRE",
+          "GRAMME",
+          "TONNE",
+          "KILOGRAMME"
+        ],
+        "intrus": "LITRE",
+        "raison": "Les trois autres mesurent une masse (le poids). Le litre mesure une contenance (la quantité de liquide).",
+        "raisonsFausses": [
+          "Le litre mesure une longueur.",
+          "Le litre est l'unité la plus grande des quatre."
+        ]
+      },
+      "en": {
+        "elements": [
+          "litre",
+          "gram",
+          "tonne",
+          "kilogram"
+        ],
+        "intrus": "litre",
+        "raison": "The other three measure mass (weight). The litre measures capacity (the amount of liquid).",
+        "raisonsFausses": [
+          "The litre measures length.",
+          "The litre is the biggest unit of the four."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-11",
+      "niveau": "CM1-CM2",
+      "matiere": "Mathématiques (calcul)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "ADDITION",
+          "FRACTION",
+          "SOUSTRACTION",
+          "MULTIPLICATION"
+        ],
+        "intrus": "FRACTION",
+        "raison": "L'addition, la soustraction et la multiplication sont des opérations. Une fraction est un nombre, comme 1/2.",
+        "raisonsFausses": [
+          "La fraction est une opération plus difficile que les trois autres.",
+          "La fraction ne s'écrit qu'avec des lettres."
+        ]
+      },
+      "en": {
+        "elements": [
+          "addition",
+          "fraction",
+          "subtraction",
+          "multiplication"
+        ],
+        "intrus": "fraction",
+        "raison": "Addition, subtraction and multiplication are operations. A fraction is a number, like 1/2.",
+        "raisonsFausses": [
+          "A fraction is a harder operation than the other three.",
+          "A fraction is written only with letters."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-12",
+      "niveau": "CM1-CM2",
+      "matiere": "Mathématiques (fractions)",
+      "critere": "Nombre",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "1/2",
+          "2/4",
+          "3/6",
+          "2/3"
+        ],
+        "intrus": "2/3",
+        "raison": "1/2, 2/4 et 3/6 valent tous un demi. 2/3 est une autre valeur.",
+        "raisonsFausses": [
+          "2/3 est la seule fraction qui vaut plus que 1.",
+          "2/3 est la seule fraction dont le nombre du haut est pair."
+        ]
+      },
+      "en": {
+        "elements": [
+          "1/2",
+          "2/4",
+          "3/6",
+          "2/3"
+        ],
+        "intrus": "2/3",
+        "raison": "1/2, 2/4 and 3/6 are all worth one half. 2/3 is a different value.",
+        "raisonsFausses": [
+          "2/3 is the only fraction worth more than 1.",
+          "2/3 is the only fraction with an even number on top."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-13",
+      "niveau": "CM1-CM2",
+      "matiere": "Mathématiques (géométrie)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "RECTANGLE",
+          "CARRÉ",
+          "HEXAGONE",
+          "LOSANGE"
+        ],
+        "intrus": "HEXAGONE",
+        "raison": "Le rectangle, le carré et le losange ont 4 côtés. L'hexagone a 6 côtés.",
+        "raisonsFausses": [
+          "L'hexagone n'a pas d'angles.",
+          "L'hexagone a 4 côtés, les trois autres en ont 3."
+        ]
+      },
+      "en": {
+        "elements": [
+          "rectangle",
+          "square",
+          "hexagon",
+          "rhombus"
+        ],
+        "intrus": "hexagon",
+        "raison": "The rectangle, the square and the rhombus have 4 sides. A hexagon has 6 sides.",
+        "raisonsFausses": [
+          "A hexagon has no corners.",
+          "A hexagon has 4 sides; the other three have 3."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-14",
+      "niveau": "CM1-CM2",
+      "matiere": "Géographie du Cameroun",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "LAGOS",
+          "DOUALA",
+          "BAFOUSSAM",
+          "MAROUA"
+        ],
+        "intrus": "LAGOS",
+        "raison": "Les trois autres sont des villes du Cameroun. Lagos est une ville du Nigeria.",
+        "raisonsFausses": [
+          "Lagos est un pays, pas une ville.",
+          "Lagos est la capitale du Cameroun."
+        ]
+      },
+      "en": {
+        "elements": [
+          "Lagos",
+          "Douala",
+          "Bafoussam",
+          "Maroua"
+        ],
+        "intrus": "Lagos",
+        "raison": "The other three are cities in Cameroon. Lagos is a city in Nigeria.",
+        "raisonsFausses": [
+          "Lagos is a country, not a city.",
+          "Lagos is the capital of Cameroon."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-15",
+      "niveau": "CM1-CM2",
+      "matiere": "Géographie du Cameroun",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "**[À VÉRIFIER]** noms des régions et leur forme anglaise (Adamawa, Littoral, West) dans une source officielle ; Kribi comme ville (non région) : déduit de (la source dit seulement « à environ 6 km de Kribi ») `grande-enigme-faits-v0.1.md` (L1 : « région du Sud »). « Ouest » peut aussi évoquer un point cardinal. Régions anglophones volontairement non utilisées (sujet sensible).",
+      "fr": {
+        "elements": [
+          "ADAMAOUA",
+          "KRIBI",
+          "LITTORAL",
+          "OUEST"
+        ],
+        "intrus": "KRIBI",
+        "raison": "L'Adamaoua, le Littoral et l'Ouest sont des régions du Cameroun. Kribi est une ville.",
+        "raisonsFausses": [
+          "Kribi est un pays voisin du Cameroun.",
+          "Kribi est une région du Nord."
+        ]
+      },
+      "en": {
+        "elements": [
+          "Adamawa",
+          "Kribi",
+          "Littoral",
+          "West"
+        ],
+        "intrus": "Kribi",
+        "raison": "Adamawa, Littoral and West are regions of Cameroon. Kribi is a town.",
+        "raisonsFausses": [
+          "Kribi is a country next to Cameroon.",
+          "Kribi is a region in the North."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-16",
+      "niveau": "CM1-CM2",
+      "matiere": "Géographie",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "AFRIQUE",
+          "ASIE",
+          "ATLANTIQUE",
+          "EUROPE"
+        ],
+        "intrus": "ATLANTIQUE",
+        "raison": "L'Afrique, l'Asie et l'Europe sont des continents. L'Atlantique est un océan.",
+        "raisonsFausses": [
+          "L'Atlantique est un pays d'Afrique.",
+          "L'Atlantique est un continent plus grand que les trois autres."
+        ]
+      },
+      "en": {
+        "elements": [
+          "Africa",
+          "Asia",
+          "Atlantic",
+          "Europe"
+        ],
+        "intrus": "Atlantic",
+        "raison": "Africa, Asia and Europe are continents. The Atlantic is an ocean.",
+        "raisonsFausses": [
+          "The Atlantic is a country in Africa.",
+          "The Atlantic is a continent bigger than the other three."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-17",
+      "niveau": "CM1-CM2",
+      "matiere": "Géographie du Cameroun",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "**[À VÉRIFIER]** que les trois cours d'eau sont bien au Cameroun (source officielle ou researcher) et orthographe anglaise (Benue). Le lac Tchad est partagé entre plusieurs pays ; « lac tchad » fait deux mots (autre longueur).",
+      "fr": {
+        "elements": [
+          "SANAGA",
+          "BÉNOUÉ",
+          "WOURI",
+          "LAC TCHAD"
+        ],
+        "intrus": "LAC TCHAD",
+        "raison": "La Sanaga, la Bénoué et le Wouri sont des cours d'eau du Cameroun. Le lac Tchad est un lac.",
+        "raisonsFausses": [
+          "Le lac Tchad est une montagne.",
+          "Le lac Tchad est un cours d'eau plus long que les trois autres."
+        ]
+      },
+      "en": {
+        "elements": [
+          "Sanaga",
+          "Benue",
+          "Wouri",
+          "Lake Chad"
+        ],
+        "intrus": "Lake Chad",
+        "raison": "The Sanaga, the Benue and the Wouri are rivers in Cameroon. Lake Chad is a lake.",
+        "raisonsFausses": [
+          "Lake Chad is a mountain.",
+          "Lake Chad is a river longer than the other three."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-18",
+      "niveau": "CM1-CM2",
+      "matiere": "Géographie",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "Constat de l'educator, non vérifié par le researcher ; à confirmer sur une carte officielle.",
+      "fr": {
+        "elements": [
+          "NIGERIA",
+          "SÉNÉGAL",
+          "GABON",
+          "TCHAD"
+        ],
+        "intrus": "SÉNÉGAL",
+        "raison": "Le Nigeria, le Gabon et le Tchad touchent le Cameroun : ce sont ses pays voisins. Le Sénégal est loin, en Afrique de l'Ouest.",
+        "raisonsFausses": [
+          "Le Sénégal est en Asie.",
+          "Le Sénégal est une ville du Cameroun."
+        ]
+      },
+      "en": {
+        "elements": [
+          "Nigeria",
+          "Senegal",
+          "Gabon",
+          "Chad"
+        ],
+        "intrus": "Senegal",
+        "raison": "Nigeria, Gabon and Chad share a border with Cameroon: they are its neighbours. Senegal is far away, in West Africa.",
+        "raisonsFausses": [
+          "Senegal is in Asia.",
+          "Senegal is a city in Cameroon."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-19",
+      "niveau": "CM1-CM2",
+      "matiere": "Culture (musique)",
+      "critere": "Propriété",
+      "statut": "VALIDÉ",
+      "reserve": "La guitare est aussi un instrument de musique : le critère est la façon de jouer ; la raison doit être choisie avec soin (distracteurs de raison à écrire). Classification à valider par un enseignant.",
+      "fr": {
+        "elements": [
+          "TAMBOUR",
+          "BALAFON",
+          "GONG",
+          "GUITARE"
+        ],
+        "intrus": "GUITARE",
+        "raison": "Le tambour, le balafon et le gong sont des instruments à percussion : on les frappe. La guitare se joue en pinçant des cordes.",
+        "raisonsFausses": [
+          "La guitare ne fait pas de musique.",
+          "La guitare est le seul instrument qu'on joue avec les mains."
+        ]
+      },
+      "en": {
+        "elements": [
+          "drum",
+          "balafon",
+          "gong",
+          "guitar"
+        ],
+        "intrus": "guitar",
+        "raison": "The drum, the balafon and the gong are percussion instruments: we hit them. A guitar is played by plucking strings.",
+        "raisonsFausses": [
+          "A guitar does not make music.",
+          "A guitar is the only instrument played with the hands."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-20",
+      "niveau": "CM1-CM2",
+      "matiere": "Culture (arts)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "Bikutsi défini comme « danse traditionnelle du Cameroun » dans le vocabulaire Dibiè (V0.5) ; la mention « et musique » est ajoutée par l'educator : à valider.",
+      "fr": {
+        "elements": [
+          "PEINTURE",
+          "SCULPTURE",
+          "BIKUTSI",
+          "DESSIN"
+        ],
+        "intrus": "BIKUTSI",
+        "raison": "La peinture, la sculpture et le dessin sont des arts qu'on regarde (arts plastiques). Le bikutsi est une danse et une musique du Cameroun.",
+        "raisonsFausses": [
+          "Le bikutsi est un outil pour dessiner.",
+          "Le bikutsi est un art qu'on regarde sans bouger."
+        ]
+      },
+      "en": {
+        "elements": [
+          "painting",
+          "sculpture",
+          "bikutsi",
+          "drawing"
+        ],
+        "intrus": "bikutsi",
+        "raison": "Painting, sculpture and drawing are arts we look at (visual arts). Bikutsi is a dance and music from Cameroon.",
+        "raisonsFausses": [
+          "Bikutsi is a tool for drawing.",
+          "Bikutsi is an art we look at without moving."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-21",
+      "niveau": "CM1-CM2",
+      "matiere": "Français (grammaire)",
+      "critere": "Grammaire",
+      "statut": "VALIDÉ",
+      "reserve": "« Rouge / red » peut aussi être un nom (le rouge). Notion d'adverbe au CM non vérifiée.",
+      "fr": {
+        "elements": [
+          "LENTEMENT",
+          "GRAND",
+          "JOLI",
+          "ROUGE"
+        ],
+        "intrus": "LENTEMENT",
+        "raison": "Grand, joli et rouge sont des adjectifs : ils disent comment est quelque chose. Lentement est un adverbe : il dit comment on fait une action.",
+        "raisonsFausses": [
+          "Lentement est un nom : il désigne une chose.",
+          "Lentement est le seul mot qui dit une couleur."
+        ]
+      },
+      "en": {
+        "elements": [
+          "slowly",
+          "big",
+          "pretty",
+          "red"
+        ],
+        "intrus": "slowly",
+        "raison": "Big, pretty and red are adjectives: they say what something is like. Slowly is an adverb: it says how we do an action.",
+        "raisonsFausses": [
+          "Slowly is a noun: it names a thing.",
+          "Slowly is the only word that names a colour."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-22",
+      "niveau": "CM1-CM2",
+      "matiere": "Français (conjugaison)",
+      "critere": "Grammaire",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "J'AI MANGÉ",
+          "IL CHANTAIT",
+          "TU ÉCRIRAS",
+          "NOUS AVONS FINI"
+        ],
+        "intrus": "TU ÉCRIRAS",
+        "raison": "J'ai mangé, il chantait et nous avons fini parlent du passé. Tu écriras parle du futur.",
+        "raisonsFausses": [
+          "Tu écriras parle du passé.",
+          "Tu écriras est le seul verbe qui dit une action."
+        ]
+      },
+      "en": {
+        "elements": [
+          "I ate",
+          "He was singing",
+          "You will write",
+          "We finished"
+        ],
+        "intrus": "You will write",
+        "raison": "I ate, He was singing and We finished talk about the past. You will write talks about the future.",
+        "raisonsFausses": [
+          "You will write talks about the past.",
+          "You will write is the only verb that names an action."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-23",
+      "niveau": "CM1-CM2",
+      "matiere": "Français (vocabulaire)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "CONTENT",
+          "TRISTE",
+          "JOYEUX",
+          "HEUREUX"
+        ],
+        "intrus": "TRISTE",
+        "raison": "Content, joyeux et heureux ont presque le même sens. Triste veut dire le contraire.",
+        "raisonsFausses": [
+          "Triste veut dire la même chose que content.",
+          "Triste est le seul mot qui dit un sentiment."
+        ]
+      },
+      "en": {
+        "elements": [
+          "happy",
+          "sad",
+          "glad",
+          "cheerful"
+        ],
+        "intrus": "sad",
+        "raison": "Happy, glad and cheerful mean almost the same. Sad means the opposite.",
+        "raisonsFausses": [
+          "Sad means the same as happy.",
+          "Sad is the only word that names a feeling."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-24",
+      "niveau": "CM1-CM2",
+      "matiere": "Français (famille de mots)",
+      "critere": "Forme / son",
+      "statut": "VALIDÉ",
+      "reserve": "**Version EN propre** (famille de mots différente). Étymologie de terrasse et de terrible à faire confirmer (dictionnaire ou enseignant). Piège de forme voulu : les quatre débutent par « terr- » / « car- ».",
+      "fr": {
+        "elements": [
+          "TERRE",
+          "TERRAIN",
+          "TERRIBLE",
+          "TERRASSE"
+        ],
+        "intrus": "TERRIBLE",
+        "raison": "Terre, terrain et terrasse sont de la même famille : ils viennent du mot « terre ». Terrible vient d'un autre mot (la terreur).",
+        "raisonsFausses": [
+          "Terrible est le seul mot qui n'a pas de « e ».",
+          "Terrible est un verbe, les trois autres sont des noms."
+        ]
+      },
+      "en": {
+        "elements": [
+          "care",
+          "careful",
+          "careless",
+          "carpet"
+        ],
+        "intrus": "carpet",
+        "raison": "Care, careful and careless are from the same word family. Carpet is not.",
+        "raisonsFausses": [
+          "Carpet is the only word that is a verb.",
+          "Carpet is the only word with the letter « a »."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-25",
+      "niveau": "CM1-CM2",
+      "matiere": "Français (orthographe et sons) / Anglais",
+      "critere": "Forme / son",
+      "statut": "VALIDÉ",
+      "reserve": "**Version EN propre** (autres mots). **Critère de son sans audio** (D6 : l'audio n'existe pas) : l'élève doit connaître la prononciation ; à confirmer avec un enseignant avant usage.",
+      "fr": {
+        "elements": [
+          "CHORALE",
+          "CHAT",
+          "CHEVAL",
+          "CHAISE"
+        ],
+        "intrus": "CHORALE",
+        "raison": "Dans chat, cheval et chaise, « ch » fait le même son. Dans chorale, « ch » fait le son « k ».",
+        "raisonsFausses": [
+          "Chorale est le seul mot qui n'a pas de « h ».",
+          "Chorale est un animal, les trois autres sont des objets."
+        ]
+      },
+      "en": {
+        "elements": [
+          "chair",
+          "chemistry",
+          "cheese",
+          "child"
+        ],
+        "intrus": "chemistry",
+        "raison": "In chair, cheese and child, « ch » sounds the same. In chemistry, « ch » sounds like « k ».",
+        "raisonsFausses": [
+          "Chemistry is the only word with no « h ».",
+          "Chemistry is the name of an animal."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-26",
+      "niveau": "CM1-CM2",
+      "matiere": "Français (grammaire) / Anglais",
+      "critere": "Grammaire",
+      "statut": "VALIDÉ",
+      "reserve": "**Version EN propre** (pluriel irrégulier). FR modifié le 2026-11-17 à la relecture : CHAT remplacé par LIVRE (avec CHAT, JOURNAL était le seul mot qui n'est pas un animal : deuxième intrus défendable). Les trois mots en -aux finissent par « -al » (indice de forme qui coïncide avec le critère).",
+      "fr": {
+        "elements": [
+          "CHEVAL",
+          "ANIMAL",
+          "JOURNAL",
+          "LIVRE"
+        ],
+        "intrus": "LIVRE",
+        "raison": "Cheval, animal et journal font leur pluriel en -aux (chevaux, animaux, journaux). Livre fait livres.",
+        "raisonsFausses": [
+          "Livre fait son pluriel en -aux (livraux).",
+          "Livre est le seul mot qui désigne un objet."
+        ]
+      },
+      "en": {
+        "elements": [
+          "child",
+          "foot",
+          "dog",
+          "mouse"
+        ],
+        "intrus": "dog",
+        "raison": "Child, foot and mouse have an irregular plural (children, feet, mice). Dog just adds -s (dogs).",
+        "raisonsFausses": [
+          "Dog has an irregular plural (doggen).",
+          "Dog is the only word that names an animal."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-27",
+      "niveau": "CM1-CM2",
+      "matiere": "Anglais (vocabulaire)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "Mots anglais dans les deux versions ; la version FR est destinée à un élève qui apprend l'anglais (niveau non vérifié).",
+      "fr": {
+        "elements": [
+          "JANUARY",
+          "MARCH",
+          "JULY",
+          "TUESDAY"
+        ],
+        "intrus": "TUESDAY",
+        "raison": "January, March et July sont des mois (months). Tuesday est un jour (day).",
+        "raisonsFausses": [
+          "Tuesday est un mois de l'année.",
+          "Tuesday est le seul mot qui commence par une majuscule."
+        ]
+      },
+      "en": {
+        "elements": [
+          "January",
+          "March",
+          "July",
+          "Tuesday"
+        ],
+        "intrus": "Tuesday",
+        "raison": "January, March and July are months. Tuesday is a day of the week.",
+        "raisonsFausses": [
+          "Tuesday is a month of the year.",
+          "Tuesday is the only word that starts with a capital letter."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-28",
+      "niveau": "CM1-CM2",
+      "matiere": "Anglais (grammaire)",
+      "critere": "Grammaire",
+      "statut": "VALIDÉ",
+      "reserve": "Mots anglais dans les deux versions. Notions « pronom / article » en anglais au CM non vérifiées dans les programmes. « the » contient « he » (curiosité de forme, sans conséquence sur l'intrus).",
+      "fr": {
+        "elements": [
+          "THE",
+          "HE",
+          "SHE",
+          "WE"
+        ],
+        "intrus": "THE",
+        "raison": "He, she et we sont des pronoms : ils remplacent le nom d'une personne. The est un article : on le met devant un nom.",
+        "raisonsFausses": [
+          "The est un pronom, les trois autres sont des verbes.",
+          "The remplace le nom d'une personne."
+        ]
+      },
+      "en": {
+        "elements": [
+          "the",
+          "he",
+          "she",
+          "we"
+        ],
+        "intrus": "the",
+        "raison": "He, she and we are pronouns: they stand for a person. The is an article: we put it before a noun.",
+        "raisonsFausses": [
+          "The is a pronoun; the other three are verbs.",
+          "The stands for a person."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-29",
+      "niveau": "CM1-CM2",
+      "matiere": "TIC",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "LOGICIEL",
+          "CLAVIER",
+          "ÉCRAN",
+          "IMPRIMANTE"
+        ],
+        "intrus": "LOGICIEL",
+        "raison": "Le clavier, l'écran et l'imprimante sont des objets qu'on peut toucher (le matériel). Un logiciel est un programme : on ne le touche pas.",
+        "raisonsFausses": [
+          "Le logiciel est un objet qu'on peut toucher.",
+          "Le logiciel est le seul qui sert à écrire."
+        ]
+      },
+      "en": {
+        "elements": [
+          "software",
+          "keyboard",
+          "screen",
+          "printer"
+        ],
+        "intrus": "software",
+        "raison": "The keyboard, the screen and the printer are things we can touch (hardware). Software is a program: we cannot touch it.",
+        "raisonsFausses": [
+          "Software is a thing we can touch.",
+          "Software is the only one used for writing."
+        ]
+      }
+    },
+    {
+      "id": "I-CM-30",
+      "niveau": "CM1-CM2",
+      "matiere": "Français (lecture)",
+      "critere": "Catégorie de sens",
+      "statut": "VALIDÉ",
+      "reserve": "",
+      "fr": {
+        "elements": [
+          "VERBE",
+          "CONTE",
+          "POÈME",
+          "FABLE"
+        ],
+        "intrus": "VERBE",
+        "raison": "Un conte, un poème et une fable sont des textes. Un verbe est un mot : ce n'est pas un texte.",
+        "raisonsFausses": [
+          "Le verbe est un texte plus long que les trois autres.",
+          "Le verbe est un poème très court."
+        ]
+      },
+      "en": {
+        "elements": [
+          "verb",
+          "story",
+          "poem",
+          "fable"
+        ],
+        "intrus": "verb",
+        "raison": "A story, a poem and a fable are texts. A verb is a word: it is not a text.",
+        "raisonsFausses": [
+          "A verb is a text longer than the other three.",
+          "A verb is a very short poem."
+        ]
+      }
+    }
+  ]
+}

@@ -16,7 +16,7 @@
 
 ## 2. Ce qui est validé tel quel
 
-- **L'intrus** : les 60 items sont cochés « Garder ». Il y a deux remarques, toutes deux positives (I-CM-01 « À conserver », I-CM-02 « Bon pour le niveau »). Ces retours vont sur la branche `feature/intrus-moteur-d` (pull request n° 35), qui n'est pas encore fusionnée.
+- **L'intrus** : les 60 items sont cochés « Garder ». Il y a deux remarques, toutes deux positives (I-CM-01 « À conserver », I-CM-02 « Bon pour le niveau »). Isaac a validé le 2026-11-28 : les 60 items passent au statut VALIDÉ (pull request n° 35, fusionnée le 2026-11-28).
 - **Quiz** : les choix C2 à C5, C7 et C8 sont acceptés. C6 (double toucher) n'est pas coché.
 - **Anagrammes mystères** :
   - les règles communes et les jeux 1 et 4 à 6 sont acceptés dans les deux livrets ;

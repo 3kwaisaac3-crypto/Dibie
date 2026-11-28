@@ -35,6 +35,9 @@ export default function StudentDashboard() {
     { id: 'pairsDefinition', name: language === 'fr' ? 'Mot ↔ définition' : 'Word ↔ definition', icon: '📖', available: true, page: 'definitionGame' },
     // Phase 7, lot A : quiz définition → mot (moteur D, docs/quiz.md) ; nom validé par Isaac le 2026-11-17 (C7)
     { id: 'quizDefinition', name: language === 'fr' ? 'Quiz des définitions' : 'Definition quiz', icon: '❓', available: true, page: 'quizGame' },
+    // Phase 7, lot C : l'intrus (moteur D, docs/intrus.md) ; nom à valider (I9).
+    // Carte visible à tous les niveaux ; la page dit s'il n'y a pas encore d'item validé
+    { id: 'intrus', name: language === 'fr' ? 'L\'intrus' : 'Odd one out', icon: '🧐', available: true, page: 'intrusGame' },
     // Lot B de la phase 4 : deux cartes séparées (langue / maths), CHOIX PROVISOIRE (docs/paires.md)
     { id: 'memory', name: language === 'fr' ? 'Mémoire FR ↔ EN' : 'Memory FR ↔ EN', icon: '🃏', available: true, page: 'memoryGame' },
     { id: 'tablesMemory', name: language === 'fr' ? 'Mémoire des tables' : 'Times tables memory', icon: '✖️', available: true, page: 'tablesMemoryGame' },
