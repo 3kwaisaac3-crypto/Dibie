@@ -91,7 +91,7 @@ Le developer fixe la forme exacte des bornes (intervalles, pas, plafond du résu
 - **Série d'une famille** : `SERIES_LENGTH = 10` calculs ; si la famille en compte moins (SIL : C et F, 9 chacune), la série prend tous ses calculs (choix 3a).
 - **Mélange de la classe** : 10 calculs, les familles tirées à tour de rôle dans un ordre mélangé (chaque famille de la classe apparaît au moins une fois quand elle a moins de 10 familles), sans répétition.
 - Même numéro + même classe + même choix de famille = même série (la langue ne change que l'affichage).
-- Grands nombres : chiffres groupés par trois avec une espace (« 4 500 ») en français et en anglais [choix du developer, à valider : l'anglais écrit souvent « 4,500 »].
+- Grands nombres : chiffres groupés par trois avec une espace (« 4 500 ») en français, avec une virgule (« 4,500 ») en anglais (relecture enseignant du 25/11/2026 (docs/retours-enseignants-2026-11.md)).
 
 ### 6.3 Réponses et points (P10)
 
@@ -154,7 +154,7 @@ Un indice par type de forme, avec les nombres du calcul. Ils aident à raisonner
 | M6 | Reprise | Les calculs dont la réponse a été vue reviennent une fois en fin de série, sans points |
 | M7 | SIL et Class 1 | Calculs sans mots ; l'indice (en mots) s'affiche quand même, pour l'adulte qui accompagne |
 | M8 | Chronomètre | Aucun (P11) |
-| M9 | Grands nombres | Groupés par trois avec une espace dans les deux langues |
+| M9 | Grands nombres | Groupés par trois : espace en français, virgule en anglais (révisé après la relecture enseignant du 25/11/2026) |
 | M10 | Nom de la carte | « Calcul mental » / « Mental maths » |
 
 ## 9. Tests attendus

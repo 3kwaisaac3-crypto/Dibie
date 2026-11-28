@@ -574,7 +574,7 @@ async function poserEtiquettes(page, parcours, textes) {
 
 const motsDe = (phrase) => phrase.replace(/[,.]/g, '').split(' ')
 
-test('Casse-tête des syllabes complet en français : syllabes gagnées signalées, étiquettes remises dans l\'ordre, 3 étoiles, score, brouillon affiché', async ({ page }) => {
+test('Casse-tête des syllabes complet en français : syllabes gagnées signalées, étiquettes remises dans l\'ordre, 3 étoiles, score, parcours validé affiché', async ({ page }) => {
   const erreurs = suivreErreurs(page)
   await connecterEleve(page, { pseudo: 'Syllabes FR', niveau: 'CE1-CE2' })
   const numero = numeroDuParcours('syllables', 'CE1-CE2', 'fr', 'syllabes-fr-ce1-ce2-01')
@@ -582,11 +582,11 @@ test('Casse-tête des syllabes complet en français : syllabes gagnées signalé
   const parcours = preconcu('syllables', 'CE1-CE2', numero)
   await ouvrirMysteres(page)
   await page.locator('.mystery-games__btn', { hasText: /^2\./ }).click()
-  await expect(page.locator('.mystery-demo')).toContainText('brouillon')
+  await expect(page.locator('.mystery-demo')).toContainText('validés par un enseignant')
   await page.getByLabel('Numéro de partie (facultatif)').fill(String(numero))
   await page.locator('.anagram-select__start').click()
   await expect(page.locator('.mystery-mission')).toContainText(`Résous ${parcours.steps.length} anagrammes. Chaque mot trouvé te donne une syllabe.`)
-  await expect(page.locator('.anagram-game__seed')).toHaveText(`Partie n° ${numero} · français · Démonstration (brouillon)`)
+  await expect(page.locator('.anagram-game__seed')).toHaveText(`Partie n° ${numero} · français · Démonstration`)
   await page.getByRole('button', { name: 'C\'est parti !' }).click()
   for (let i = 0; i < parcours.steps.length; i++) {
     const etape = parcours.steps[i]
@@ -714,7 +714,7 @@ test('Phrase secrète en anglais (SIL-CP) : étiquettes avec la majuscule du pre
   expect([...await page.locator('.mystery-labels__pool button').allTextContents()].sort()).toEqual(['Mum', 'cooks', 'rice'])
   await page.getByRole('button', { name: /^Hint/ }).click()
   const enregistre = await page.evaluate(() => JSON.parse(localStorage.getItem('dibieMysteryInProgress')))
-  expect(enregistre[0]).toMatchObject({ path: { id: parcours.id, game: 'secretSentence', status: 'draft' }, state: { phase: 'final', final: { hints: 1 } } })
+  expect(enregistre[0]).toMatchObject({ path: { id: parcours.id, game: 'secretSentence', status: 'validated' }, state: { phase: 'final', final: { hints: 1 } } })
   await page.reload()
   await expect(page.getByText('You have a mystery in progress')).toBeVisible()
   await page.getByRole('button', { name: 'Resume' }).click()
@@ -723,11 +723,14 @@ test('Phrase secrète en anglais (SIL-CP) : étiquettes avec la majuscule du pre
   await valider(page, 'en')
   await expect(page.locator('.anagram-game__answer strong')).toHaveText('Mum cooks rice.')
   await page.getByRole('button', { name: 'See my result' }).click()
-  await controlerVictoire(page, parcours, { score: 40, etoiles: 2, aides: 1, langue: 'en' })
+  // 10 points par mot trouvé + 10 pour la phrase ; Mum est donné d'office
+  // depuis la relecture enseignant : 2 mots à trouver, 30 points
+  await controlerVictoire(page, parcours, { score: parcours.steps.length * 10 + 10, etoiles: 2, aides: 1, langue: 'en' })
+  expect(parcours.steps.length).toBe(2)
   expect(erreurs).toEqual([])
 })
 
-test('Jeux 2 et 3 : pas de débordement horizontal à 320 px (phrase de 10 mots, étiquettes longues, victoire)', async ({ page }) => {
+test('Jeux 2 et 3 : pas de débordement horizontal à 320 px (phrase de 11 mots, étiquettes longues, victoire)', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 })
   const numero = numeroDuParcours('secretSentence', 'CM1-CM2', 'en', 'phrase-secrete-en-cm1-cm2-03')
   const parcours = preconcu('secretSentence', 'CM1-CM2', numero, 'en')
@@ -742,7 +745,8 @@ test('Jeux 2 et 3 : pas de débordement horizontal à 320 px (phrase de 10 mots,
   expect(await deborde(page)).toBe(false)
   await page.getByRole('button', { name: 'Let\'s go!' }).click()
   await jouerEtapes(page, parcours, { langue: 'en' })
-  await expect(page.locator('.mystery-labels__pool button')).toHaveCount(10)
+  // 11 mots depuis la relecture enseignant (« treated mosquito net »)
+  await expect(page.locator('.mystery-labels__pool button')).toHaveCount(11)
   expect(await deborde(page)).toBe(false)
   await poserEtiquettes(page, parcours, motsDe(parcours.final.display))
   expect(await deborde(page)).toBe(false)
@@ -810,7 +814,7 @@ const enigme = (niveau, langue, id) => {
   return { numero, parcours: preconcu('grandRiddle', niveau, numero, langue) }
 }
 
-test('Grande énigme complète en français (CE1-CE2, personnalité) : étapes en ordre mélangé, indice rangé au carnet, réponse tapée avec variante, 3 étoiles, score, brouillon affiché', async ({ page }) => {
+test('Grande énigme complète en français (CE1-CE2, personnalité) : étapes en ordre mélangé, indice rangé au carnet, réponse tapée avec variante, 3 étoiles, score, parcours validé affiché', async ({ page }) => {
   const erreurs = suivreErreurs(page)
   await connecterEleve(page, { pseudo: 'Enigme FR', niveau: 'CE1-CE2' })
   const { numero, parcours } = enigme('CE1-CE2', 'fr', 'grande-enigme-fr-ce1-ce2-01')
@@ -819,13 +823,13 @@ test('Grande énigme complète en français (CE1-CE2, personnalité) : étapes e
   expect(parcours.steps.map(s => s.word)).not.toEqual(['MAILLOT', 'ARBITRE', 'BALLON', 'FILET', 'MATCH', 'SPORTIF'])
   await ouvrirMysteres(page)
   await page.locator('.mystery-games__btn', { hasText: /^6\./ }).click()
-  await expect(page.locator('.mystery-demo')).toContainText('brouillon')
+  await expect(page.locator('.mystery-demo')).toContainText('validés par un enseignant')
   await page.getByLabel('Numéro de partie (facultatif)').fill(String(numero))
   await page.locator('.anagram-select__start').click()
   await expect(page.locator('.mystery-mission')).toContainText(`Résous ${parcours.steps.length} anagrammes.`)
   // La consigne ne contient aucun mot d'étape : montrée dès la mission
   await expect(page.locator('.mystery-riddle__prompt')).toContainText('Qui est ce footballeur camerounais ?')
-  await expect(page.locator('.anagram-game__seed')).toHaveText(`Partie n° ${numero} · français · Démonstration (brouillon)`)
+  await expect(page.locator('.anagram-game__seed')).toHaveText(`Partie n° ${numero} · français · Démonstration`)
   await page.getByRole('button', { name: 'C\'est parti !' }).click()
   await jouerEtapesEnigme(page, parcours)
   await expect(page.getByRole('heading', { name: 'La grande énigme' })).toBeVisible()
@@ -957,7 +961,7 @@ test('Grande énigme : reprise après rechargement pendant la finale (indice et 
   await valider(page)
   await page.getByRole('button', { name: /^Indice/ }).click()
   const enregistre = await page.evaluate(() => JSON.parse(localStorage.getItem('dibieMysteryInProgress')))
-  expect(enregistre[0]).toMatchObject({ path: { id: parcours.id, game: 'grandRiddle', status: 'draft' }, state: { phase: 'final', final: { hints: 1, tries: 1 } } })
+  expect(enregistre[0]).toMatchObject({ path: { id: parcours.id, game: 'grandRiddle', status: 'validated' }, state: { phase: 'final', final: { hints: 1, tries: 1 } } })
   await page.reload()
   await expect(page.getByText('Tu as un mystère en cours')).toBeVisible()
   await page.getByRole('button', { name: 'Reprendre' }).click()

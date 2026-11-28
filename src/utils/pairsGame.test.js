@@ -91,9 +91,12 @@ test('Candidat L3 : clés de toutes les formes et des définitions, mot identiqu
   assert.equal(translationCandidate(null), null)
 })
 
-test('Vocabulaire réel : 245 entrées actives « identiques » selon la clé du moteur (244 du cadrage + CLIPART / Clip art)', () => {
+// NDOLÉ / Ndolé (vocab_0529), doublon de NDOLÈ, n'est plus actif depuis la
+// relecture enseignant du 2026-11-27 : 244 au lieu de 245
+test('Vocabulaire réel : 244 entrées actives « identiques » selon la clé du moteur (244 du cadrage + CLIPART / Clip art − NDOLÉ)', () => {
   const restricted = translationCandidates(vocabulaire).filter(c => c.restricted)
-  assert.equal(restricted.length, 245)
+  assert.equal(restricted.length, 244)
+  assert.ok(!restricted.some(c => c.id === 'vocab_0529'), 'NDOLÉ inactif')
   assert.ok(restricted.some(c => c.fr === 'CLIPART'))
 })
 

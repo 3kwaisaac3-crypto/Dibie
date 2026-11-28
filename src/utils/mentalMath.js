@@ -119,9 +119,11 @@ export function familyCalcs(className, familyId) {
   return [...byId.values()].sort((x, y) => x.id.localeCompare(y.id))
 }
 
-// Nombres groupés par trois avec une espace insécable, dans les deux langues (M9)
+// Nombres groupés par trois : espace insécable en français (« 4 500 »),
+// virgule en anglais (« 4,500 ») ; M9 révisé après la relecture enseignant
 const GROUP = /\B(?=(\d{3})+(?!\d))/g
-export const formatNumber = (n) => String(n).replace(GROUP, ' ')
+export const formatNumber = (n, language = 'fr') =>
+  String(n).replace(GROUP, lang(language) === 'en' ? ',' : ' ')
 
 const MINUS = '−'
 const WORDS = Object.freeze({
@@ -135,7 +137,7 @@ const WORDS = Object.freeze({
 
 // Énoncé affiché (docs/calcul-mental.md §6.1)
 export function calcText(c, language) {
-  const [a, b, k] = [c.a, c.b, c.k].map(n => (n === null ? null : formatNumber(n)))
+  const [a, b, k] = [c.a, c.b, c.k].map(n => (n === null ? null : formatNumber(n, language)))
   switch (c.type) {
     case 'add': return `${a} + ${b} = ?`
     case 'sub': return `${a} ${MINUS} ${b} = ?`
@@ -275,7 +277,7 @@ export const mentalScore = (state) => foundCount(state) * POINTS_PER_CALC
 // Énoncé complété, montré avec « Voir la réponse » et dans le récapitulatif
 export function solvedText(c, language) {
   const text = calcText(c, language)
-  const answer = formatNumber(c.answer)
+  const answer = formatNumber(c.answer, language)
   return text.includes('?') ? text.replace('?', answer) : `${text} = ${answer}`
 }
 
@@ -288,13 +290,11 @@ const ZEROS = Object.freeze({
 })
 const HALF_BASE = Object.freeze({ 5: 10, 50: 100, 500: 1000 })
 const TABLE_HINT_STEPS = 3
-// En anglais, les milliers s'écrivent ici avec une virgule (« 1,000 ») dans
-// les phrases d'indice ; les calculs gardent l'espace (M9)
-const enNumber = (n) => String(n).replace(GROUP, ',')
+const enNumber = (n) => formatNumber(n, 'en')
 
 export function calcHint(c, language) {
   const en = lang(language) === 'en'
-  const [a, b, k] = [c.a, c.b, c.k].map(n => (n === null ? null : formatNumber(n)))
+  const [a, b, k] = [c.a, c.b, c.k].map(n => (n === null ? null : formatNumber(n, language)))
   switch (c.type) {
     case 'add': {
       const [big, small] = c.a >= c.b ? [a, b] : [b, a]
@@ -312,7 +312,7 @@ export function calcHint(c, language) {
       // Jusqu'à trois multiples, tous plus petits que la réponse (sinon
       // « 2 × 3 » aurait pour indice « 2, 4, 6 »)
       const steps = Math.min(TABLE_HINT_STEPS, c.b - 1)
-      const first = Array.from({ length: steps }, (_, i) => formatNumber(c.a * (i + 1))).join(', ')
+      const first = Array.from({ length: steps }, (_, i) => formatNumber(c.a * (i + 1), language)).join(', ')
       return en ? `Count in ${a}s: ${first}…` : `Compte de ${a} en ${a} : ${first}…`
     }
     case 'timesPow10':

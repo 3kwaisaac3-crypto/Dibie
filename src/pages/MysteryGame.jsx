@@ -416,8 +416,8 @@ export default function MysteryGame() {
 
           <p className="mystery-demo">
             {isPresetChoice
-              ? t('Démonstration : parcours rédigés à l\'avance, encore en brouillon, en cours de validation par un enseignant.',
-                'Demonstration: paths written in advance, still in draft, being checked by a teacher.')
+              ? t('Démonstration : parcours rédigés à l\'avance et validés par un enseignant.',
+                'Demonstration: paths written in advance and checked by a teacher.')
               : t('Démonstration : mystères créés automatiquement à partir du vocabulaire, en cours de validation par un enseignant.',
                 'Demonstration: mysteries made automatically from the vocabulary, being checked by a teacher.')}
           </p>

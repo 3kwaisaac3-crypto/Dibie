@@ -1,6 +1,6 @@
 # Quiz (moteur D) : note de conception du lot A
 
-**Statut** : conception validée par Isaac le 2026-11-17 (« Écris ainsi ») ; choix C1 à C8 validés par Isaac le 2026-11-17 (C3 modifié : deux essais), à valider par un enseignant.
+**Statut** : conception validée par Isaac le 2026-11-17 (« Écris ainsi ») ; choix C1 à C8 validés par Isaac le 2026-11-17 (C3 modifié : deux essais) ; relus par un enseignant le 24/11/2026 : C1 révisé (ouverture en SIL-CP, décision d'Isaac du 2026-11-26), C2 à C5, C7 et C8 acceptés, C6 non coché (docs/retours-enseignants-2026-11.md).
 **Branche** : `feature/quiz-moteur-d`.
 **Références** : `catalogue-jeux-v0.2.md` §0.4 (moteur D), fiche L8 ; `docs/plan-migration.md` §4 (phase 7) et §5.2 ; `docs/paires.md` §13 à §18 (L4, dont ce lot réutilise les règles).
 
@@ -104,7 +104,7 @@ Pour comparaison, L4 (4 et 5 paires) : 31/33 et 32/51 en français, 31/33 et 32/
 
 | # | Choix | Détail |
 |---|---|---|
-| C1 | Niveaux et propositions | Pas de SIL-CP (lecture de phrases) : la carte est visible, la page s'ouvre en CE1-CE2 avec le message de L4 (« Ce jeu commence au CE1-CE2 : il faut lire des phrases. Tu peux essayer avec un adulte. ») ; **3 propositions en CE1-CE2, 4 en CM1-CM2** (hypothèse de la fiche L8) |
+| C1 | Niveaux et propositions | **Révisé le 2026-11-26** (relecture enseignant) : SIL-CP ouvert, **3 questions et 3 propositions**, à faire avec un parent ; message « En SIL-CP, joue avec un parent : il te lit les définitions. » et conseil dans les espaces Parent et Enseignant (`src/data/conseils-adultes.js`). **3 propositions en CE1-CE2, 4 en CM1-CM2**. Avant : pas de SIL-CP, page ouverte en CE1-CE2 avec le message de L4 |
 | C2 | Longueur de série | **6 questions en CE1-CE2, 8 en CM1-CM2** (fiche L8 : 5 à 10) ; sujet grisé (« pas assez de mots ») si la série n'est pas garantie |
 | C3 | Réponse | **Deux essais** (décision d'Isaac, à la place d'un seul essai) ; première erreur : la proposition est barrée et désactivée, « Essaie encore : il te reste un essai. » ; bonne réponse : « Bravo ! », ou « Bravo, au deuxième essai ! » ; deuxième erreur : la bonne réponse est montrée avec sa définition (« La réponse : MOT : définition »), puis bouton « Suivant » ; questions ratées (deux erreurs) reproposées une fois en fin de série, deux essais, sans points ; une question réussie au second essai ne revient pas (fiche L8, `educator.md` §28) |
 | C4 | Score et enregistrement | **10 points au premier essai, 5 au second**, 0 après deux erreurs et en reprise ; pas d'étoiles ni de badge ; `gameType` = `quizDefinition` ; `saveScore` une seule fois à la fin de la série (reprise comprise), détails `{ seed, language, subject, questionCount, correctCount, firstTryCount, secondTryCount }` ; `saveUserProgress` une fois par question résolue en série principale |

@@ -80,7 +80,9 @@ const theme = (id, sujets, label, distractors, excludedWords = {}) => Object.fre
   label: Object.freeze(label),
   distractors: Object.freeze(distractors.map(d => Object.freeze({ ...d }))),
   excludedWords: Object.freeze({ fr: Object.freeze(excludedWords.fr ?? []), en: Object.freeze(excludedWords.en ?? []) }),
-  status: 'isaac-validated'
+  // Les 22 thèmes et leurs propositions fausses : validés par les enseignants
+  // (livrets de validation FR et anglais, annexe C, novembre 2026)
+  status: 'validated'
 })
 
 export const THEMES_MYSTERES = Object.freeze({

@@ -544,3 +544,7 @@ La suite Playwright complète n'a pas été lancée.
 - **Validation par un enseignant** (E10 ; §8 de la source) : faits « rapportés », connaissance des sujets par les élèves, niveau des mots d'étape, syllabations françaises, lettre M seule pour MBANGO, usage anglophone camerounais, proverbe P1 ; puis statut `validated`.
 - Sujets gardés en réserve (E4) pour un lot ultérieur ; lot 4 (validation, trophées).
 - ~~Relecture par le reviewer~~ : faite le 2026-11-06 en un passage (PRÊT, aucune réserve substantielle ; `npm test` et lint revérifiés par le reviewer ; le Playwright de la partie 14.7 n'a pas pu être revérifié par lui).
+
+## 15. Relecture enseignant (novembre 2026)
+
+Livrets de validation français (19/11/2026) et anglais (25/11/2026) dépouillés le 2026-11-26 (docs/retours-enseignants-2026-11.md). Les parcours des jeux 2, 3 et 6 et les 22 thèmes du jeu 4 passent au statut `validated`. Changements : A14 (Monday, découpage MON-EY faux, correction MO-NEY) retiré, il reste 43 parcours pour les jeux 2 et 3 ; Maman, Papa et Mum donnés d'office (la phrase ne commence pas par un mot à trouver) ; variantes anglaises à virgules de A39, A41, A42 et A44 retirées ; A43 avec « treated mosquito net » ; verbe des indices entre guillemets (The verb is "cooks". / Le verbe est « lave ».) ; TRICOT : « Maillot léger que l'on porte sur le haut du corps. » ; B15 (DRUM), non coché, accepté par Isaac le 2026-11-27.

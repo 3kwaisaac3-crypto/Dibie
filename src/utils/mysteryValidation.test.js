@@ -200,7 +200,7 @@ test('V11 — §6.2 règle 3 : thème et propositions de la liste fixe (R3 : th�
   const r3 = { ...THEMES_MYSTERES, 'CE1-CE2': THEMES_MYSTERES['CE1-CE2'].map(th => (th.id === 'musique' ? { ...th, distractors: [{ fr: 'Le sport', en: 'Sport' }, ...th.distractors.slice(1)] } : th)) }
   fails(theme, '6.2.3', { vocabulary, themes: r3 })
   const status = clone(theme)
-  status.themeStatus = 'validated'
+  status.themeStatus = 'isaac-validated'
   fails(status, '6.2.3')
   // R2 : PORT dans « transports », JEU dans « jeux », GAME dans « games »
   assert.equal(wordInLabel('PORT', 'Les transports'), true)

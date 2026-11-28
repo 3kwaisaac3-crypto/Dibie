@@ -301,7 +301,7 @@ export default function MentalMathGame() {
         )}
         <p className="mm-calc" lang={lang}>{calcText(calc, lang)}</p>
         <p className={`mm-entry ${current.found ? 'mm-entry--found' : ''}`} aria-live="polite" aria-label={t('Ta réponse', 'Your answer')}>
-          {entry === '' ? '' : formatNumber(Number(entry))}
+          {entry === '' ? '' : formatNumber(Number(entry), lang)}
         </p>
         <p className="mm-message" role="status" aria-live="polite">{message}</p>
         {showHint(current) && !resolved && <p className="mm-hint" lang={lang}>{calcHint(calc, lang)}</p>}
