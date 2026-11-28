@@ -115,6 +115,8 @@ Enregistrement, comme le quiz (C4) : `saveScore` une fois en fin de partie, `gam
 3. Isaac remplit la fiche ; le developer passe les items gardés à « VALIDÉE PAR ISAAC », applique les modifications demandées, et laisse les écartés en BROUILLON (ils restent dans le fichier, jamais montrés).
 4. La fusion de la branche attend cette validation : sans elle, le jeu s'ouvre vide.
 
+**Fait** : fiche remplie par une enseignante le 20/11/2026 : les 60 items sont cochés « Garder », avec deux remarques positives (I-CM-01 « À conserver », I-CM-02 « Bon pour le niveau »), aucune modification ni item écarté. Isaac a validé le 2026-11-28 : les 60 items passent au statut **VALIDÉ** et sont montrés aux élèves (voir `docs/retours-enseignants-2026-11.md` sur la branche `feature/retours-enseignants`).
+
 ## 9. Fichiers
 
 - Nouveaux : `src/data/intrus.json`, `src/utils/intrusGame.js` et `intrusGame.test.js`, `src/pages/IntrusGame.jsx`, `src/styles/IntrusGame.css` (peut s'appuyer sur les classes de `QuizGame.css`), `e2e/intrus.spec.js`, `docs/intrus.md`.

@@ -8,7 +8,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Vie quotidienne (aliments)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas un fruit.",
@@ -38,7 +38,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Sciences (animaux)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve l'animal qui n'est pas un animal de la ferme.",
@@ -68,7 +68,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Vie quotidienne (vêtements)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas un vêtement.",
@@ -98,7 +98,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Français (vocabulaire)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas une couleur.",
@@ -128,7 +128,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Sciences (corps humain)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas sur la tête.",
@@ -158,7 +158,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Vie quotidienne (transports)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas un moyen de transport.",
@@ -188,7 +188,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Vie quotidienne (maison)",
       "critere": "Usage",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "FOURCHETTE / fork présent dans le vocabulaire Dibiè au niveau SIL-CP / Class 1-2 (vocab_0854), donc en dessous du CE1-CE2 : mot connu, niveau de lecture à confirmer.",
       "fr": {
         "consigne": "Trouve ce qui ne sert pas pour le repas.",
@@ -218,7 +218,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Vie quotidienne (école)",
       "critere": "Usage",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui ne sert pas à écrire ou à effacer.",
@@ -248,7 +248,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Vie quotidienne (métiers)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas un métier.",
@@ -278,7 +278,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Mathématiques (géométrie)",
       "critere": "Discipline",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas une forme.",
@@ -308,7 +308,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Mathématiques (nombres)",
       "critere": "Nombre",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "Notion « pair / impair » en CE1-CE2 non vérifiée dans les programmes : à confirmer avec un enseignant.",
       "fr": {
         "consigne": "Trouve le nombre qui n'est pas pair.",
@@ -338,7 +338,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Mathématiques (mesures)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui ne mesure pas une longueur.",
@@ -368,7 +368,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Sciences (vivant)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas vivant.",
@@ -398,7 +398,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Sciences (animaux)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve l'animal qui ne vole pas.",
@@ -428,7 +428,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Sciences (animaux)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "La crevette n'est pas un poisson : la consigne dit « vit dans l'eau », pas « est un poisson » (ne pas la changer).",
       "fr": {
         "consigne": "Trouve l'animal qui ne vit pas dans l'eau.",
@@ -458,7 +458,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Sciences (environnement)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas dans le ciel.",
@@ -488,7 +488,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Géographie du Cameroun",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve la ville qui n'est pas au Cameroun.",
@@ -518,7 +518,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Géographie",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "« Points cardinaux » au CE1-CE2 non vérifié dans les programmes ; à confirmer.",
       "fr": {
         "consigne": "Trouve ce qui n'est pas un point cardinal.",
@@ -548,7 +548,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Culture (musique)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas un instrument de musique.",
@@ -578,7 +578,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Vie quotidienne (aliments)",
       "critere": "Usage",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qu'on ne boit pas.",
@@ -608,7 +608,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Vie quotidienne (maison)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "EN : « living room » fait deux mots (autre longueur) ; le terme « sitting room » est aussi courant : usage local à confirmer.",
       "fr": {
         "consigne": "Trouve ce qui n'est pas une pièce de la maison.",
@@ -638,7 +638,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Français (vocabulaire du temps)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui n'est pas un jour de la semaine.",
@@ -668,7 +668,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Français (grammaire)",
       "critere": "Grammaire",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve le mot qui n'est pas un verbe.",
@@ -698,7 +698,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Français (grammaire)",
       "critere": "Grammaire",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve le mot qui n'est pas au pluriel.",
@@ -728,7 +728,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Français (FR) / Anglais (EN)",
       "critere": "Grammaire (FR) / Forme-son (EN)",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "**Version EN propre** : critère différent (genre en FR, rime en EN). La notion de masculin / féminin et celle de rime en CE1-CE2 non vérifiées. EN : le critère de rime demande d'entendre les mots, or l'audio n'existe pas (D6).",
       "fr": {
         "consigne": "Trouve le mot qui n'est pas masculin (avec « un »).",
@@ -758,7 +758,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Anglais (vocabulaire)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "Les mots sont anglais dans les deux versions ; la version FR est destinée à un élève qui apprend l'anglais. Niveau d'anglais des élèves francophones non vérifié.",
       "fr": {
         "consigne": "Trouve le mot anglais qui n'est pas un animal.",
@@ -788,7 +788,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Vie quotidienne (hygiène)",
       "critere": "Usage",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "La serviette sert à se sécher plutôt qu'à se laver : la consigne dit « faire sa toilette ». L'EAU figure aussi dans I-CE-20 (autre critère).",
       "fr": {
         "consigne": "Trouve ce qui ne sert pas à faire sa toilette.",
@@ -818,7 +818,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Culture (sport, chant)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "EN : « race » et « jump » sont aussi des noms de gestes (running race, long jump) ; formulation à confirmer avec un enseignant anglophone.",
       "fr": {
         "consigne": "Trouve ce qui n'est pas un sport.",
@@ -848,7 +848,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Mathématiques (tables)",
       "critere": "Nombre",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve le nombre qui n'est pas dans la table de 10.",
@@ -878,7 +878,7 @@
       "niveau": "CE1-CE2",
       "matiere": "Mathématiques (mesures)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "consigne": "Trouve ce qui ne mesure pas le temps.",
@@ -908,7 +908,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Sciences (plantes)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "SORGHO absent des mots retrouvés dans le vocabulaire Dibiè (niveau à vérifier). Botanique simplifiée (igname, macabo : tubercule ; manioc : racine), à valider. EN : « yam » est nettement plus court que les autres.",
       "fr": {
         "elements": [
@@ -944,7 +944,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Sciences (matière)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "Notion « états de la matière » au CM non vérifiée dans les programmes.",
       "fr": {
         "elements": [
@@ -980,7 +980,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Sciences (animaux)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "Le dauphin et le requin vivent tous deux dans l'eau : le piège est voulu, mais « vit dans l'eau » ne désigne aucun intrus (2 contre 2).",
       "fr": {
         "elements": [
@@ -1016,7 +1016,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Sciences (animaux)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1052,7 +1052,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Sciences (corps humain)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1088,7 +1088,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Sciences (lumière)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1124,7 +1124,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Sciences (astronomie)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1160,7 +1160,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Mathématiques (multiples)",
       "critere": "Nombre",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "Répartition pair / impair équilibrée (12 et 22 pairs, 21 et 27 impairs). 21 est aussi multiple de 7 (critère moins évident). Notion de « multiple » au CM non vérifiée.",
       "fr": {
         "elements": [
@@ -1196,7 +1196,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Mathématiques (géométrie)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1232,7 +1232,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Mathématiques (mesures)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1268,7 +1268,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Mathématiques (calcul)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1304,7 +1304,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Mathématiques (fractions)",
       "critere": "Nombre",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1340,7 +1340,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Mathématiques (géométrie)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1376,7 +1376,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Géographie du Cameroun",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1412,7 +1412,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Géographie du Cameroun",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "**[À VÉRIFIER]** noms des régions et leur forme anglaise (Adamawa, Littoral, West) dans une source officielle ; Kribi comme ville (non région) : déduit de (la source dit seulement « à environ 6 km de Kribi ») `grande-enigme-faits-v0.1.md` (L1 : « région du Sud »). « Ouest » peut aussi évoquer un point cardinal. Régions anglophones volontairement non utilisées (sujet sensible).",
       "fr": {
         "elements": [
@@ -1448,7 +1448,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Géographie",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1484,7 +1484,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Géographie du Cameroun",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "**[À VÉRIFIER]** que les trois cours d'eau sont bien au Cameroun (source officielle ou researcher) et orthographe anglaise (Benue). Le lac Tchad est partagé entre plusieurs pays ; « lac tchad » fait deux mots (autre longueur).",
       "fr": {
         "elements": [
@@ -1520,7 +1520,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Géographie",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "Constat de l'educator, non vérifié par le researcher ; à confirmer sur une carte officielle.",
       "fr": {
         "elements": [
@@ -1556,7 +1556,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Culture (musique)",
       "critere": "Propriété",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "La guitare est aussi un instrument de musique : le critère est la façon de jouer ; la raison doit être choisie avec soin (distracteurs de raison à écrire). Classification à valider par un enseignant.",
       "fr": {
         "elements": [
@@ -1592,7 +1592,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Culture (arts)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "Bikutsi défini comme « danse traditionnelle du Cameroun » dans le vocabulaire Dibiè (V0.5) ; la mention « et musique » est ajoutée par l'educator : à valider.",
       "fr": {
         "elements": [
@@ -1628,7 +1628,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Français (grammaire)",
       "critere": "Grammaire",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "« Rouge / red » peut aussi être un nom (le rouge). Notion d'adverbe au CM non vérifiée.",
       "fr": {
         "elements": [
@@ -1664,7 +1664,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Français (conjugaison)",
       "critere": "Grammaire",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1700,7 +1700,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Français (vocabulaire)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1736,7 +1736,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Français (famille de mots)",
       "critere": "Forme / son",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "**Version EN propre** (famille de mots différente). Étymologie de terrasse et de terrible à faire confirmer (dictionnaire ou enseignant). Piège de forme voulu : les quatre débutent par « terr- » / « car- ».",
       "fr": {
         "elements": [
@@ -1772,7 +1772,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Français (orthographe et sons) / Anglais",
       "critere": "Forme / son",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "**Version EN propre** (autres mots). **Critère de son sans audio** (D6 : l'audio n'existe pas) : l'élève doit connaître la prononciation ; à confirmer avec un enseignant avant usage.",
       "fr": {
         "elements": [
@@ -1808,7 +1808,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Français (grammaire) / Anglais",
       "critere": "Grammaire",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "**Version EN propre** (pluriel irrégulier). FR modifié le 2026-11-17 à la relecture : CHAT remplacé par LIVRE (avec CHAT, JOURNAL était le seul mot qui n'est pas un animal : deuxième intrus défendable). Les trois mots en -aux finissent par « -al » (indice de forme qui coïncide avec le critère).",
       "fr": {
         "elements": [
@@ -1844,7 +1844,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Anglais (vocabulaire)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "Mots anglais dans les deux versions ; la version FR est destinée à un élève qui apprend l'anglais (niveau non vérifié).",
       "fr": {
         "elements": [
@@ -1880,7 +1880,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Anglais (grammaire)",
       "critere": "Grammaire",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "Mots anglais dans les deux versions. Notions « pronom / article » en anglais au CM non vérifiées dans les programmes. « the » contient « he » (curiosité de forme, sans conséquence sur l'intrus).",
       "fr": {
         "elements": [
@@ -1916,7 +1916,7 @@
       "niveau": "CM1-CM2",
       "matiere": "TIC",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [
@@ -1952,7 +1952,7 @@
       "niveau": "CM1-CM2",
       "matiere": "Français (lecture)",
       "critere": "Catégorie de sens",
-      "statut": "BROUILLON",
+      "statut": "VALIDÉ",
       "reserve": "",
       "fr": {
         "elements": [

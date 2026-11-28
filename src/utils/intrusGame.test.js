@@ -132,7 +132,8 @@ test('anglais : textes tirés de item.en', () => {
   assert.equal(why.prompt, whyPrompt(item.en.intrus, 'en'))
 })
 
-// À mettre à jour quand Isaac aura validé des items (docs/intrus.md §8)
-test('vrai fichier : tous les items au statut BROUILLON', () => {
-  assert.deepEqual(intrusSummary(realCollection), { 'CE1-CE2': { BROUILLON: 30 }, 'CM1-CM2': { BROUILLON: 30 } })
+// Les 60 items gardés par l'enseignante (fiche du 20/11/2026) et validés
+// par Isaac le 2026-11-28 (docs/intrus.md §8)
+test('vrai fichier : tous les items au statut VALIDÉ', () => {
+  assert.deepEqual(intrusSummary(realCollection), { 'CE1-CE2': { VALIDÉ: 30 }, 'CM1-CM2': { VALIDÉ: 30 } })
 })
